@@ -136,6 +136,43 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
         });
     }
 
+    // ── Classification bar ────────────────────────────────────────────────────
+
+    private getClassificationColor(bannerType: string): string {
+        const bt = bannerType.toUpperCase();
+        if (bt.startsWith("CU")) return "#5a04b0";  // CUI
+        if (bt.startsWith("U"))  return "#5cb85c";  // UNCLASSIFIED
+        if (bt.startsWith("CO")) return "#286090";  // CONFIDENTIAL
+        if (bt.startsWith("S"))  return "#d9534f";  // SECRET
+        if (bt.startsWith("T"))  return "#f0ad4e";  // TOP SECRET
+        return "#5e5e5e";                            // default / unknown
+    }
+
+    private renderClassificationBar(bannerType: string): void {
+        const existing = this._container.querySelector("[data-dodbl-bar]");
+        if (existing) existing.remove();
+
+        const bar = document.createElement("div");
+        bar.setAttribute("data-dodbl-bar", "1");
+        bar.style.cssText = [
+            "width:100%;",
+            "height:100%;",
+            "background-color:" + this.getClassificationColor(bannerType) + ";",
+            "color:#fff;",
+            "font-weight:bold;",
+            "font-family:\"Segoe UI\",Tahoma,Geneva,Verdana,sans-serif;",
+            "font-size:14px;",
+            "text-align:center;",
+            "display:flex;",
+            "align-items:center;",
+            "justify-content:center;",
+            "letter-spacing:0.06em;",
+            "text-shadow:1px 1px 0 rgba(0,0,0,.3);"
+        ].join("");
+        bar.textContent = bannerType.toUpperCase();
+        this._container.appendChild(bar);
+    }
+
     private renderBanner(context: ComponentFramework.Context<IInputs>): void {
         const enabled = context.parameters.bannerEnabled.raw;
         if (enabled === false || enabled === null) return;
@@ -148,11 +185,15 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
         const consentText = context.parameters.consentText.raw || "";
 
         if (bannerType === "DoD") {
+            // Consent modal: hide the PCF container, render full-page overlay
+            this._container.style.display = "none";
             this.buildModal(consentText);
             this.showBanner(expiryDays);
+        } else {
+            // Classification bar: show the PCF container and render colored bar inside it
+            this._container.style.display = "block";
+            this.renderClassificationBar(bannerType);
         }
-        // bannerType "CUI": the bundled CSS handles data-classification marks —
-        // add class="classification-banner" data-classification="CUI" to a container.
     }
 
     // ── PCF lifecycle ─────────────────────────────────────────────────────────
@@ -164,16 +205,20 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
         container: HTMLDivElement
     ): void {
         this._container = container;
-        // Container is intentionally hidden; banner renders at document.body level.
-        this._container.style.display = "none";
         this._rendered = true;
         this.renderBanner(context);
     }
 
     public updateView(context: ComponentFramework.Context<IInputs>): void {
         if (!this._rendered) return;
-        // Re-evaluate only if the cookie hasn't been set yet
-        if (this.getCookie(DodBannerControl.COOKIE_NAME) === "") {
+        const bannerType = ((context.parameters.bannerType.raw) || "DoD").trim();
+        if (bannerType === "DoD") {
+            // Re-show consent modal only if cookie not yet set
+            if (this.getCookie(DodBannerControl.COOKIE_NAME) === "") {
+                this.renderBanner(context);
+            }
+        } else {
+            // Always re-render classification bar (bannerType may have changed)
             this.renderBanner(context);
         }
     }
@@ -188,5 +233,9 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
         if (this._bannerRoot && this._bannerRoot.parentNode) {
             this._bannerRoot.parentNode.removeChild(this._bannerRoot);
         }
+        const bar = this._container
+            ? this._container.querySelector("[data-dodbl-bar]")
+            : null;
+        if (bar) bar.remove();
     }
 }
