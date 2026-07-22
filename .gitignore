@@ -3,3 +3,6 @@
 
 # Managed solution export — build artifact, distributed via GitHub Releases
 *_managed.zip
+
+# Unmanaged solution zip — build artifact, regenerate with: pac solution pack
+DoDBannerLibrary.zip
