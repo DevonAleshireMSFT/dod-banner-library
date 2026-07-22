@@ -14,3 +14,12 @@ pcf/*/out/
 pcf/*/.pcfenv/
 pcf/*/bin/
 pcf/*/obj/
+
+# Power Platform solution export artifacts (auto-generated, not hand-authored)
+# Controls/ — PCF bundle exported by Dataverse; source of truth is pcf/DodBannerControl/
+DoDBannerLibrary/Controls/
+# dvtablesearchs/ — search index metadata regenerated on every export
+DoDBannerLibrary/dvtablesearchs/
+# Relationships — standard system entity relationship XMLs, not our customizations
+DoDBannerLibrary/Other/Relationships.xml
+DoDBannerLibrary/Other/Relationships/
