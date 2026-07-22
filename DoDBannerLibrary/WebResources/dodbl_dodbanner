@@ -186,6 +186,46 @@ DoDBannerLibrary.DodBanner = (function () {
     });
   }
 
+  // ── Classification bar helpers ───────────────────────────────────────────────
+
+  function getClassificationColor(bannerType) {
+    var t = (bannerType || "").toUpperCase();
+    if (t.indexOf("CU") === 0) return "#5a04b0";  // CUI → purple
+    if (t.indexOf("U")  === 0) return "#5cb85c";  // UNCLASSIFIED → green
+    if (t.indexOf("CO") === 0) return "#286090";  // CONFIDENTIAL → blue
+    if (t.indexOf("S")  === 0) return "#d9534f";  // SECRET → red
+    if (t.indexOf("T")  === 0) return "#f0ad4e";  // TOP SECRET → orange
+    return "#5e5e5e";                             // unknown → grey
+  }
+
+  function injectClassificationBar(bannerType) {
+    // Idempotent — remove any existing bar before (re-)rendering
+    var existing = document.querySelector("[data-dodbl-bar]");
+    if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+
+    var bar = document.createElement("div");
+    bar.setAttribute("data-dodbl-bar", "1");
+    bar.textContent = bannerType.toUpperCase();
+    bar.style.position       = "fixed";
+    bar.style.top            = "0";
+    bar.style.left           = "0";
+    bar.style.width          = "100%";
+    bar.style.height         = "28px";
+    bar.style.backgroundColor = getClassificationColor(bannerType);
+    bar.style.color          = "#fff";
+    bar.style.fontWeight     = "bold";
+    bar.style.fontFamily     = '"Segoe UI",Tahoma,Geneva,Verdana,sans-serif';
+    bar.style.fontSize       = "14px";
+    bar.style.display        = "flex";
+    bar.style.alignItems     = "center";
+    bar.style.justifyContent = "center";
+    bar.style.letterSpacing  = "0.06em";
+    bar.style.textShadow     = "1px 1px 0 rgba(0,0,0,.3)";
+    bar.style.zIndex         = "9999";
+    bar.style.boxSizing      = "border-box";
+    document.body.insertBefore(bar, document.body.firstChild);
+  }
+
   // ── Environment variable reader ──────────────────────────────────────────────
   //
   // Two-step approach: fetch definitions (for schema + default), then fetch
@@ -258,9 +298,9 @@ DoDBannerLibrary.DodBanner = (function () {
         if (bannerType === "DoD") {
           injectModal(consentText);
           showBanner(expiryDays);
+        } else {
+          injectClassificationBar(bannerType);
         }
-        // BannerType "CUI": injectCSS above is sufficient —
-        // add data-classification to a container element in the form layout.
       })
       .catch(function () {
         // Env vars unavailable — show banner with built-in defaults
