@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>1</isdefault>
+    <savedqueryid>{6c6da103-6e47-41ef-9d41-35c9f0548916}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="dodbl_name" select="1" icon="1" preview="1">
+        <row name="result" id="dodbl_banner_demoid">
+          <cell name="dodbl_name" width="300" />
+          <cell name="createdon" width="125" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>1</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="dodbl_banner_demo">
+          <attribute name="dodbl_banner_demoid" />
+          <attribute name="dodbl_name" />
+          <attribute name="createdon" />
+          <order attribute="dodbl_name" descending="false" />
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0.0.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Banner Demo Advanced Find View" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>
