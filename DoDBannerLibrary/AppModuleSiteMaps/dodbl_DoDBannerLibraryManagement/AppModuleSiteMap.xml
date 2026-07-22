@@ -8,8 +8,28 @@
   <SiteMap IntroducedVersion="7.0.0.0">
     <Area Id="area_0b6b42d6" ResourceId="SitemapDesigner.NewTitle" DescriptionResourceId="SitemapDesigner.NewTitle" ShowGroups="true" IntroducedVersion="7.0.0.0">
       <Titles>
-        <Title LCID="1033" Title="Area1" />
+        <Title LCID="1033" Title="DoD Banner Library" />
       </Titles>
+      <Group Id="group_0d633e2a" ResourceId="SitemapDesigner.NewGroup" DescriptionResourceId="SitemapDesigner.NewGroup" IntroducedVersion="7.0.0.0" IsProfile="false" ToolTipResourseId="SitemapDesigner.Unknown">
+        <Titles>
+          <Title LCID="1033" Title="Resources" />
+        </Titles>
+        <SubArea Id="subarea_4b2ed30d" ResourceId="SitemapDesigner.NewSubArea" Icon="/_imgs/imagestrips/transparent_spacer.gif" Url="$webresource:dodbl_docs" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA">
+          <Titles>
+            <Title LCID="1033" Title="Documentation" />
+          </Titles>
+        </SubArea>
+        <SubArea Id="subarea_a9c1e3f5" ResourceId="SitemapDesigner.NewSubArea" Icon="/_imgs/imagestrips/transparent_spacer.gif" Url="$webresource:dodbl_release-notes" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA">
+          <Titles>
+            <Title LCID="1033" Title="Release Notes" />
+          </Titles>
+        </SubArea>
+        <SubArea Id="subarea_b2d4f6a8" ResourceId="SitemapDesigner.NewSubArea" Icon="/_imgs/imagestrips/transparent_spacer.gif" Url="$webresource:dodbl_webtemplatesource" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA">
+          <Titles>
+            <Title LCID="1033" Title="Web Template Source" />
+          </Titles>
+        </SubArea>
+      </Group>
     </Area>
   </SiteMap>
   <LocalizedNames>

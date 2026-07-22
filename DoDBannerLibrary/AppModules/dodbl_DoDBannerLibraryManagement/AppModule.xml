@@ -20,7 +20,7 @@
     <LocalizedName description="DoD Banner Library Management" languagecode="1033" />
   </LocalizedNames>
   <Descriptions>
-    <Description description="Management application for DoD Banner Library" languagecode="1033" />
+    <Description description="Access DoD Banner Library documentation, release notes, and Power Pages web template source from within your environment." languagecode="1033" />
   </Descriptions>
   <appsettings>
     <appsetting settingdefinitionid.uniquename="AppChannel">
