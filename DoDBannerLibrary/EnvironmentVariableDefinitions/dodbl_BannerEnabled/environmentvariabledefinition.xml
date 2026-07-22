@@ -1,10 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
-<environmentvariabledefinition>
-  <schemaname>dodbl_BannerEnabled</schemaname>
-  <type>100000002</type>
-  <displayname>Banner Enabled</displayname>
-  <description>Enables or disables the DoD consent banner site-wide. Set to false to suppress all banners without removing web resources. Used by Canvas App and Model-Driven App integrations in Phase 4.</description>
-  <defaultvalue>true</defaultvalue>
-  <isrequired>0</isrequired>
+<environmentvariabledefinition schemaname="dodbl_BannerEnabled">
+  <defaultvalue>yes</defaultvalue>
+  <description default="Enables or disables the DoD consent banner site-wide. Set to false to suppress all banners without removing web resources.">
+    <label description="Enables or disables the DoD consent banner site-wide. Set to false to suppress all banners without removing web resources." languagecode="1033" />
+  </description>
+  <displayname default="Banner Enabled">
+    <label description="Banner Enabled" languagecode="1033" />
+  </displayname>
   <introducedversion>1.0.0.0</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>0</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000002</type>
 </environmentvariabledefinition>

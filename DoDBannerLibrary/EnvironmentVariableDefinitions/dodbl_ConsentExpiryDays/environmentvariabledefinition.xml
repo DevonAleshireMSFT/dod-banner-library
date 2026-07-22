@@ -1,10 +1,14 @@
-<?xml version="1.0" encoding="utf-8"?>
-<environmentvariabledefinition>
-  <schemaname>dodbl_ConsentExpiryDays</schemaname>
-  <type>100000001</type>
-  <displayname>Consent Expiry Days</displayname>
-  <description>Number of days before the consent cookie expires and the banner is shown again. Defaults to 30. Set to 0 to require acknowledgment on every session.</description>
+<environmentvariabledefinition schemaname="dodbl_ConsentExpiryDays">
   <defaultvalue>30</defaultvalue>
-  <isrequired>0</isrequired>
+  <description default="Number of days before the consent cookie expires and the banner is shown again. Set to 0 to require acknowledgment on every session.">
+    <label description="Number of days before the consent cookie expires and the banner is shown again. Set to 0 to require acknowledgment on every session." languagecode="1033" />
+  </description>
+  <displayname default="Consent Expiry Days">
+    <label description="Consent Expiry Days" languagecode="1033" />
+  </displayname>
   <introducedversion>1.0.0.0</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>0</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000001</type>
 </environmentvariabledefinition>

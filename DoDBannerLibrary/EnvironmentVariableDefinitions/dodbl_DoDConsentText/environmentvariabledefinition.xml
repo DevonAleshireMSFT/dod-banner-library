@@ -1,9 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
-<environmentvariabledefinition>
-  <schemaname>dodbl_DoDConsentText</schemaname>
-  <type>100000000</type>
-  <displayname>DoD Consent Text</displayname>
-  <description>AO-approved system-use notification text displayed in the DoD consent modal. When set, overrides the default DoD warning language embedded in the banner. Leave empty to use the built-in default text.</description>
-  <isrequired>0</isrequired>
+<environmentvariabledefinition schemaname="dodbl_DoDConsentText">
+  <description default="AO-approved system-use notification text for the DoD consent modal. When set, overrides the default DoD warning language embedded in the banner.">
+    <label description="AO-approved system-use notification text for the DoD consent modal. When set, overrides the default DoD warning language embedded in the banner." languagecode="1033" />
+  </description>
+  <displayname default="DoD Consent Text">
+    <label description="DoD Consent Text" languagecode="1033" />
+  </displayname>
   <introducedversion>1.0.0.0</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>0</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000000</type>
 </environmentvariabledefinition>

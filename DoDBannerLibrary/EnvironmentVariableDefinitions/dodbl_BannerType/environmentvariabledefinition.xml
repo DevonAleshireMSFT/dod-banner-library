@@ -1,10 +1,13 @@
-<?xml version="1.0" encoding="utf-8"?>
-<environmentvariabledefinition>
-  <schemaname>dodbl_BannerType</schemaname>
-  <type>100000000</type>
-  <displayname>Banner Type</displayname>
-  <description>Controls which banner component is rendered. Accepted values: DoD (consent modal with cookie tracking) or CUI (classification mark only, no JavaScript). Defaults to DoD.</description>
-  <defaultvalue>DoD</defaultvalue>
-  <isrequired>0</isrequired>
+<environmentvariabledefinition schemaname="dodbl_BannerType">
+  <description default="Controls which banner component is rendered. Accepted values: DoD (consent modal with cookie tracking) or CUI (classification mark only, no JavaScript).">
+    <label description="Controls which banner component is rendered. Accepted values: DoD (consent modal with cookie tracking) or CUI (classification mark only, no JavaScript)." languagecode="1033" />
+  </description>
+  <displayname default="Banner Type">
+    <label description="Banner Type" languagecode="1033" />
+  </displayname>
   <introducedversion>1.0.0.0</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>0</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000000</type>
 </environmentvariabledefinition>
