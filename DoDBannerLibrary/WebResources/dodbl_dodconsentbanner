@@ -1,0 +1,73 @@
+<link rel="stylesheet" href="banner-core.css">
+
+<script>
+  function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + exdays * 24 * 60 * 60 * 1000);
+    var expires = "expires=" + d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+  }
+
+  function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(";");
+    for (var i = 0; i < ca.length; i++) {
+      var c = ca[i].trimStart();
+      if (c.indexOf(name) === 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return "";
+  }
+
+  function fadeIn(el, duration) {
+    el.style.opacity = "0";
+    el.style.display = "block";
+    var start = null;
+    function step(timestamp) {
+      if (!start) start = timestamp;
+      var progress = Math.min((timestamp - start) / duration, 1);
+      el.style.opacity = String(progress);
+      if (progress < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function fadeOut(el, duration) {
+    var start = null;
+    function step(timestamp) {
+      if (!start) start = timestamp;
+      var progress = Math.min((timestamp - start) / duration, 1);
+      el.style.opacity = String(1 - progress);
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        el.style.display = "none";
+        el.style.opacity = "";
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  function checkCookie() {
+    if (getCookie("Accepted") !== "") {
+      return;
+    }
+    var modal = document.getElementById("cookieConsent");
+    var bg = document.querySelector(".consentBackground");
+    setTimeout(function () {
+      fadeIn(modal, 200);
+      bg.style.display = "block";
+    }, 1000);
+    document.querySelectorAll("#closeCookieConsent, .cookieConsentOK").forEach(function (el) {
+      el.addEventListener("click", function () {
+        setCookie("Accepted", "Yes", 1);
+        fadeOut(modal, 200);
+        bg.style.display = "none";
+      });
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", checkCookie);
+</script>

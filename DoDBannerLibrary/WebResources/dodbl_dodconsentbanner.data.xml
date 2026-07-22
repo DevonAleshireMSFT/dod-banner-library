@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WebResource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <WebResourceId>{bf4c833f-e685-f111-ab0e-001dd80bd6fe}</WebResourceId>
+  <Name>dodbl_dodconsentbanner</Name>
+  <DisplayName>dod-consent-banner</DisplayName>
+  <Description>DoD system use notification consent modal. Displays a blocking overlay requiring user acknowledgment on first visit. Uses vanilla JavaScript with no external dependencies — GCC High safe. Consent state tracked via browser cookie with configurable expiry. Requires banner-core.css.</Description>
+  <WebResourceType>1</WebResourceType>
+  <IntroducedVersion>1.0.0.0</IntroducedVersion>
+  <IsEnabledForMobileClient>0</IsEnabledForMobileClient>
+  <IsAvailableForMobileOffline>0</IsAvailableForMobileOffline>
+  <IsCustomizable>1</IsCustomizable>
+  <CanBeDeleted>1</CanBeDeleted>
+  <IsHidden>0</IsHidden>
+  <FileName>/WebResources/dodbl_dodconsentbannerBF4C833F-E685-F111-AB0E-001DD80BD6FE</FileName>
+</WebResource>

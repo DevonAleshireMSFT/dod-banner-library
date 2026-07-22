@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WebResource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <WebResourceId>{d9277152-e685-f111-ab0e-001dd80bd6fe}</WebResourceId>
+  <Name>dodbl_bannercore</Name>
+  <DisplayName>banner-core</DisplayName>
+  <Description>Shared stylesheet for all DoD banner components. Contains responsive layout rules for the DoD consent modal and color-coded classification mark styles for CUI, Unclassified, Confidential, Secret, and Top Secret levels. Referenced by all banner web resources and Power Pages web files.</Description>
+  <WebResourceType>2</WebResourceType>
+  <IntroducedVersion>1.0.0.0</IntroducedVersion>
+  <IsEnabledForMobileClient>0</IsEnabledForMobileClient>
+  <IsAvailableForMobileOffline>0</IsAvailableForMobileOffline>
+  <IsCustomizable>1</IsCustomizable>
+  <CanBeDeleted>1</CanBeDeleted>
+  <IsHidden>0</IsHidden>
+  <FileName>/WebResources/dodbl_bannercoreD9277152-E685-F111-AB0E-001DD80BD6FE</FileName>
+</WebResource>
