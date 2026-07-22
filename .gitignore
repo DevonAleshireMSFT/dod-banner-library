@@ -1,2 +1,5 @@
 # AI Context Framework — personal context, never commit
 .ai_local/
+
+# Managed solution export — build artifact, distributed via GitHub Releases
+*_managed.zip
