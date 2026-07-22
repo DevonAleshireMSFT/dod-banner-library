@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WebResource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <WebResourceId>{8f5e2b31-9fd4-f111-ab30-001dd80f953a}</WebResourceId>
+  <Name>dodbl_dodbanner</Name>
+  <DisplayName>dodbanner.js</DisplayName>
+  <Description>Model-Driven App form OnLoad script. Reads dodbl_BannerEnabled, dodbl_BannerType, dodbl_ConsentExpiryDays, and dodbl_DoDConsentText environment variables via Xrm.WebApi, then injects the DoD consent modal or CUI classification CSS into the form. Register as a form library and add OnLoad handler: DoDBannerLibrary.DodBanner.onFormLoad (pass execution context: yes). Falls back to built-in defaults if env vars are unavailable.</Description>
+  <WebResourceType>3</WebResourceType>
+  <IntroducedVersion>1.1.0.0</IntroducedVersion>
+  <IsEnabledForMobileClient>0</IsEnabledForMobileClient>
+  <IsAvailableForMobileOffline>0</IsAvailableForMobileOffline>
+  <IsCustomizable>1</IsCustomizable>
+  <CanBeDeleted>1</CanBeDeleted>
+  <IsHidden>0</IsHidden>
+  <FileName>/WebResources/dodbl_dodbanner8F5E2B31-9FD4-F111-AB30-001DD80F953A</FileName>
+</WebResource>

@@ -1,0 +1,244 @@
+// DoD Banner Library — Model-Driven App Form Script
+// Schema: dodbl_dodbanner  |  Version: 1.1.0
+//
+// Usage:
+//   1. Add this web resource as a form library on the target entity form.
+//   2. Register an OnLoad event handler:
+//        Function: DoDBannerLibrary.DodBanner.onFormLoad
+//        Pass execution context: Yes
+//
+// The script reads four environment variables:
+//   dodbl_BannerEnabled     — Boolean  — set to false/no to suppress the banner
+//   dodbl_BannerType        — String   — "DoD" (consent modal) or "CUI" (CSS mark only)
+//   dodbl_ConsentExpiryDays — Number   — cookie lifetime in days (default 30)
+//   dodbl_DoDConsentText    — String   — AO-approved text; falls back to built-in default
+//
+// Falls back to built-in defaults if any variable is absent or the API call fails.
+
+/* global Xrm */
+"use strict";
+
+var DoDBannerLibrary = DoDBannerLibrary || {};
+
+DoDBannerLibrary.DodBanner = (function () {
+
+  // ── Defaults ────────────────────────────────────────────────────────────────
+
+  var BANNER_TYPE_DEFAULT  = "DoD";
+  var EXPIRY_DAYS_DEFAULT  = 30;
+  var CONSENT_TEXT_DEFAULT =
+    "WARNING: This is a U.S. Government computer system, which may be accessed " +
+    "and used only for authorized Government business by authorized personnel. " +
+    "Unauthorized access or use of this computer system may subject violators to " +
+    "criminal, civil, and/or administrative action. All information on this system " +
+    "may be intercepted, recorded, read, copied, and disclosed by and to authorized " +
+    "personnel for official purposes, including criminal investigations. Such " +
+    "information includes sensitive data encrypted to comply with confidentiality " +
+    "and privacy requirements. Access or use of this computer system by any person, " +
+    "whether authorized or unauthorized, constitutes consent to these terms. " +
+    "There is no right of privacy in this system.";
+
+  // ── Cookie helpers ───────────────────────────────────────────────────────────
+
+  function setCookie(name, value, days) {
+    var expiry = new Date();
+    expiry.setTime(expiry.getTime() + days * 24 * 60 * 60 * 1000);
+    document.cookie =
+      name + "=" + value +
+      ";expires=" + expiry.toUTCString() +
+      ";path=/;SameSite=Lax";
+  }
+
+  function getCookie(name) {
+    var prefix = name + "=";
+    var parts = decodeURIComponent(document.cookie).split(";");
+    for (var i = 0; i < parts.length; i++) {
+      var c = parts[i].trimStart();
+      if (c.indexOf(prefix) === 0) return c.substring(prefix.length);
+    }
+    return "";
+  }
+
+  // ── DOM helpers ──────────────────────────────────────────────────────────────
+
+  function injectCSS(baseUrl) {
+    if (document.querySelector("link[data-dodbl-core]")) return;
+    var link = document.createElement("link");
+    link.rel = "stylesheet";
+    link.setAttribute("data-dodbl-core", "1");
+    link.href = baseUrl + "/WebResources/dodbl_bannercore";
+    document.head.appendChild(link);
+  }
+
+  function injectModal(consentText) {
+    if (document.getElementById("cookieConsent")) return;
+
+    var text = (consentText && consentText.trim()) ? consentText : CONSENT_TEXT_DEFAULT;
+
+    // Build DOM nodes directly — avoids any innerHTML XSS risk on the consent text
+    var closeBtn = document.createElement("a");
+    closeBtn.id = "closeCookieConsent";
+    closeBtn.textContent = "\u2715";
+
+    var p = document.createElement("p");
+    p.textContent = text;
+
+    var okBtn = document.createElement("a");
+    okBtn.className = "cookieConsentOK";
+    okBtn.textContent = "I Acknowledge";
+
+    var modal = document.createElement("div");
+    modal.id = "cookieConsent";
+    modal.appendChild(closeBtn);
+    modal.appendChild(p);
+    modal.appendChild(okBtn);
+
+    var overlay = document.createElement("div");
+    overlay.className = "consentBackground";
+
+    var root = document.createElement("div");
+    root.setAttribute("data-dodbl-root", "1");
+    root.appendChild(modal);
+    root.appendChild(overlay);
+
+    document.body.appendChild(root);
+  }
+
+  function fadeIn(el, duration) {
+    el.style.opacity = "0";
+    el.style.display = "block";
+    var start = null;
+    function step(ts) {
+      if (!start) start = ts;
+      var p = Math.min((ts - start) / duration, 1);
+      el.style.opacity = String(p);
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  function fadeOut(el, duration) {
+    var start = null;
+    function step(ts) {
+      if (!start) start = ts;
+      var p = Math.min((ts - start) / duration, 1);
+      el.style.opacity = String(1 - p);
+      if (p < 1) {
+        requestAnimationFrame(step);
+      } else {
+        el.style.display = "none";
+        el.style.opacity = "";
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  function showBanner(expiryDays) {
+    if (getCookie("Accepted") !== "") return;
+    var modal = document.getElementById("cookieConsent");
+    var bg    = document.querySelector(".consentBackground");
+    if (!modal || !bg) return;
+
+    setTimeout(function () {
+      fadeIn(modal, 200);
+      bg.style.display = "block";
+    }, 800);
+
+    document.querySelectorAll("#closeCookieConsent, .cookieConsentOK").forEach(function (el) {
+      el.addEventListener("click", function () {
+        setCookie("Accepted", "Yes", expiryDays);
+        fadeOut(modal, 200);
+        bg.style.display = "none";
+      });
+    });
+  }
+
+  // ── Environment variable reader ──────────────────────────────────────────────
+  //
+  // Two-step approach: fetch definitions (for schema + default), then fetch
+  // per-environment values and overlay. Returns a plain {schemaname: value} map.
+
+  function getEnvVars() {
+    var schemas = [
+      "dodbl_BannerEnabled",
+      "dodbl_BannerType",
+      "dodbl_ConsentExpiryDays",
+      "dodbl_DoDConsentText"
+    ];
+    var schemaFilter = schemas
+      .map(function (s) { return "schemaname eq '" + s + "'"; })
+      .join(" or ");
+
+    return Xrm.WebApi.retrieveMultipleRecords(
+      "environmentvariabledefinition",
+      "?$select=environmentvariabledefinitionid,schemaname,defaultvalue&$filter=" + schemaFilter
+    ).then(function (defResult) {
+      var defMap = {};
+      defResult.entities.forEach(function (def) {
+        defMap[def.environmentvariabledefinitionid] = {
+          schemaname:   def.schemaname,
+          resolvedValue: def.defaultvalue
+        };
+      });
+
+      var defIds = Object.keys(defMap);
+      if (defIds.length === 0) return {};
+
+      var valFilter = defIds
+        .map(function (id) { return "_environmentvariabledefinitionid_value eq " + id; })
+        .join(" or ");
+
+      return Xrm.WebApi.retrieveMultipleRecords(
+        "environmentvariablevalue",
+        "?$select=value,_environmentvariabledefinitionid_value&$filter=" + valFilter
+      ).then(function (valResult) {
+        // Per-environment values override the definition defaults
+        valResult.entities.forEach(function (val) {
+          var defId = val["_environmentvariabledefinitionid_value"];
+          if (defMap[defId]) defMap[defId].resolvedValue = val.value;
+        });
+
+        var vars = {};
+        Object.keys(defMap).forEach(function (id) {
+          vars[defMap[id].schemaname] = defMap[id].resolvedValue;
+        });
+        return vars;
+      });
+    });
+  }
+
+  // ── Public API ───────────────────────────────────────────────────────────────
+
+  function onFormLoad(executionContext) {
+    var baseUrl = Xrm.Utility.getGlobalContext().getClientUrl();
+
+    getEnvVars()
+      .then(function (vars) {
+        var enabled = String(vars["dodbl_BannerEnabled"] || "yes").toLowerCase();
+        if (enabled === "no" || enabled === "false") return;
+
+        var bannerType  = ((vars["dodbl_BannerType"] || BANNER_TYPE_DEFAULT) + "").trim();
+        var expiryDays  = parseInt(vars["dodbl_ConsentExpiryDays"] || EXPIRY_DAYS_DEFAULT, 10);
+        if (isNaN(expiryDays) || expiryDays < 0) expiryDays = EXPIRY_DAYS_DEFAULT;
+        var consentText = vars["dodbl_DoDConsentText"] || "";
+
+        injectCSS(baseUrl);
+
+        if (bannerType === "DoD") {
+          injectModal(consentText);
+          showBanner(expiryDays);
+        }
+        // BannerType "CUI": injectCSS above is sufficient —
+        // add data-classification to a container element in the form layout.
+      })
+      .catch(function () {
+        // Env vars unavailable — show banner with built-in defaults
+        injectCSS(baseUrl);
+        injectModal("");
+        showBanner(EXPIRY_DAYS_DEFAULT);
+      });
+  }
+
+  return { onFormLoad: onFormLoad };
+
+})();

@@ -87,17 +87,31 @@
 
   <div class="version-block">
     <div class="version-header">
-      <span class="version-tag" style="color:var(--text-disabled)">v1.1.0</span>
+      <span class="version-tag">v1.1.0</span>
+      <span class="version-date">2026-07-22</span>
+    </div>
+    <div class="change-group">
+      <div class="change-group-title">New</div>
+      <ul class="change-list">
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>dodbl_dodbanner.js</strong> &mdash; Model-Driven App form OnLoad script. Reads environment variables via <code>Xrm.WebApi</code> and injects the DoD consent modal or CUI classification CSS. No PCF or Premium license required. Handler: <code>DoDBannerLibrary.DodBanner.onFormLoad</code>.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Environment variables (4)</strong> &mdash; <code>dodbl_BannerEnabled</code>, <code>dodbl_BannerType</code>, <code>dodbl_DoDConsentText</code>, <code>dodbl_ConsentExpiryDays</code> for post-import configuration without code changes.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>dodbl_webtemplatesource</strong> &mdash; Power Pages Web Template source page. Open in browser to copy the Liquid source for the <code>dod-consent-banner</code> Web Template. Supports <code>BannerEnabled</code> and <code>DoDConsentText</code> site setting hooks.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>DoD Banner Library Management app</strong> &mdash; model-driven app providing in-environment access to documentation, release notes, and web template source from the app switcher.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="version-block">
+    <div class="version-header">
+      <span class="version-tag" style="color:var(--text-disabled)">v1.2.0</span>
       <span class="version-date" style="color:var(--text-disabled)">Planned</span>
     </div>
     <div class="change-group">
       <div class="change-group-title">Planned</div>
       <ul class="change-list">
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>PCF Virtual Component &mdash; DodBannerControl</strong> &mdash; consent and classification banner for Canvas Apps and Model-Driven Apps. Dataverse consent write via <code>WebApiClient</code>. Requires Power Apps Premium or Managed Environment.</span></li>
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>JS web resource fallback</strong> &mdash; <code>dodbl_dodbanner.js</code> for Model-Driven App form <code>OnLoad</code>. No PCF or Premium license required.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>PCF Virtual Component &mdash; DodBannerControl</strong> &mdash; consent and classification banner for Canvas Apps. Requires Power Apps Premium or Managed Environment.</span></li>
         <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Dataverse consent audit table</strong> &mdash; <code>dodbl_consent_record</code> with columns: <code>user_upn</code>, <code>banner_type</code>, <code>consent_datetime</code>, <code>session_id</code>, <code>environment_url</code>. Table-level auditing enabled.</span></li>
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Environment variables (4)</strong> &mdash; <code>BannerEnabled</code>, <code>BannerType</code>, <code>DoDConsentText</code>, <code>ConsentExpiryDays</code> for post-import configuration without code changes.</span></li>
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Power Pages Web Template</strong> &mdash; <code>dod-consent-banner</code> Liquid fragment with <code>BannerEnabled</code> environment variable guard and <code>DoDConsentText</code> content snippet support.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Security role</strong> &mdash; <code>DoD Banner &mdash; Consent Write</code> for granting consent record create access to Authenticated Users in Power Pages.</span></li>
       </ul>
     </div>
   </div>
