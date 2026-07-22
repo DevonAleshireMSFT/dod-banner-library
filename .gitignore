@@ -6,3 +6,10 @@
 
 # Unmanaged solution zip — build artifact, regenerate with: pac solution pack
 DoDBannerLibrary.zip
+
+# PCF build artifacts
+pcf/*/node_modules/
+pcf/*/out/
+pcf/*/.pcfenv/
+pcf/*/bin/
+pcf/*/obj/

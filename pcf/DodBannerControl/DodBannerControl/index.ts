@@ -1,0 +1,192 @@
+import { IInputs, IOutputs } from "./generated/ManifestTypes";
+
+export class DodBannerControl implements ComponentFramework.StandardControl<IInputs, IOutputs> {
+
+    private _container!: HTMLDivElement;
+    private _bannerRoot: HTMLDivElement | null = null;
+    private _clickListeners: { el: Element; fn: EventListener }[] = [];
+    private _rendered = false;
+
+    private static readonly COOKIE_NAME = "Accepted";
+    private static readonly DEFAULT_EXPIRY_DAYS = 30;
+    private static readonly DEFAULT_CONSENT_TEXT =
+        "WARNING: This is a U.S. Government computer system, which may be accessed " +
+        "and used only for authorized Government business by authorized personnel. " +
+        "Unauthorized access or use of this computer system may subject violators to " +
+        "criminal, civil, and/or administrative action. All information on this system " +
+        "may be intercepted, recorded, read, copied, and disclosed by and to authorized " +
+        "personnel for official purposes, including criminal investigations. Such " +
+        "information includes sensitive data encrypted to comply with confidentiality " +
+        "and privacy requirements. Access or use of this computer system by any person, " +
+        "whether authorized or unauthorized, constitutes consent to these terms. " +
+        "There is no right of privacy in this system.";
+
+    constructor() { /* empty */ }
+
+    // ── Cookie helpers ────────────────────────────────────────────────────────
+
+    private setCookie(name: string, value: string, days: number): void {
+        const expiry = new Date();
+        expiry.setTime(expiry.getTime() + days * 24 * 60 * 60 * 1000);
+        document.cookie =
+            name + "=" + value +
+            ";expires=" + expiry.toUTCString() +
+            ";path=/;SameSite=Lax";
+    }
+
+    private getCookie(name: string): string {
+        const prefix = name + "=";
+        for (const part of decodeURIComponent(document.cookie).split(";")) {
+            const c = part.trimStart();
+            if (c.indexOf(prefix) === 0) return c.substring(prefix.length);
+        }
+        return "";
+    }
+
+    // ── Animation helpers ─────────────────────────────────────────────────────
+
+    private fadeIn(el: HTMLElement, duration: number): void {
+        el.style.opacity = "0";
+        el.style.display = "block";
+        let start: number | null = null;
+        const step = (ts: number) => {
+            if (!start) start = ts;
+            const p = Math.min((ts - start) / duration, 1);
+            el.style.opacity = String(p);
+            if (p < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+    }
+
+    private fadeOut(el: HTMLElement, duration: number): void {
+        let start: number | null = null;
+        const step = (ts: number) => {
+            if (!start) start = ts;
+            const p = Math.min((ts - start) / duration, 1);
+            el.style.opacity = String(1 - p);
+            if (p < 1) {
+                requestAnimationFrame(step);
+            } else {
+                el.style.display = "none";
+                el.style.opacity = "";
+            }
+        };
+        requestAnimationFrame(step);
+    }
+
+    // ── Banner rendering ──────────────────────────────────────────────────────
+
+    private buildModal(consentText: string): void {
+        if (document.getElementById("cookieConsent")) return;
+
+        const text = (consentText && consentText.trim())
+            ? consentText
+            : DodBannerControl.DEFAULT_CONSENT_TEXT;
+
+        const closeBtn = document.createElement("a");
+        closeBtn.id = "closeCookieConsent";
+        closeBtn.textContent = "\u2715";
+
+        const p = document.createElement("p");
+        p.textContent = text;  // textContent prevents XSS
+
+        const okBtn = document.createElement("a");
+        okBtn.className = "cookieConsentOK";
+        okBtn.textContent = "I Acknowledge";
+
+        const modal = document.createElement("div");
+        modal.id = "cookieConsent";
+        modal.appendChild(closeBtn);
+        modal.appendChild(p);
+        modal.appendChild(okBtn);
+
+        const overlay = document.createElement("div");
+        overlay.className = "consentBackground";
+
+        this._bannerRoot = document.createElement("div");
+        this._bannerRoot.setAttribute("data-dodbl-pcf", "1");
+        this._bannerRoot.appendChild(modal);
+        this._bannerRoot.appendChild(overlay);
+
+        document.body.appendChild(this._bannerRoot);
+    }
+
+    private showBanner(expiryDays: number): void {
+        if (this.getCookie(DodBannerControl.COOKIE_NAME) !== "") return;
+
+        const modal = document.getElementById("cookieConsent") as HTMLElement | null;
+        const bg = document.querySelector(".consentBackground") as HTMLElement | null;
+        if (!modal || !bg) return;
+
+        setTimeout(() => {
+            this.fadeIn(modal, 200);
+            bg.style.display = "block";
+        }, 800);
+
+        const dismiss = () => {
+            this.setCookie(DodBannerControl.COOKIE_NAME, "Yes", expiryDays);
+            this.fadeOut(modal, 200);
+            bg.style.display = "none";
+        };
+
+        document.querySelectorAll("#closeCookieConsent, .cookieConsentOK").forEach(el => {
+            const handler: EventListener = () => dismiss();
+            el.addEventListener("click", handler);
+            this._clickListeners.push({ el, fn: handler });
+        });
+    }
+
+    private renderBanner(context: ComponentFramework.Context<IInputs>): void {
+        const enabled = context.parameters.bannerEnabled.raw;
+        if (enabled === false || enabled === null) return;
+
+        const bannerType = ((context.parameters.bannerType.raw) || "DoD").trim();
+        const expiry = context.parameters.consentExpiryDays.raw;
+        const expiryDays = (expiry !== null && expiry !== undefined && !isNaN(expiry) && expiry >= 0)
+            ? expiry
+            : DodBannerControl.DEFAULT_EXPIRY_DAYS;
+        const consentText = context.parameters.consentText.raw || "";
+
+        if (bannerType === "DoD") {
+            this.buildModal(consentText);
+            this.showBanner(expiryDays);
+        }
+        // bannerType "CUI": the bundled CSS handles data-classification marks —
+        // add class="classification-banner" data-classification="CUI" to a container.
+    }
+
+    // ── PCF lifecycle ─────────────────────────────────────────────────────────
+
+    public init(
+        context: ComponentFramework.Context<IInputs>,
+        notifyOutputChanged: () => void,
+        state: ComponentFramework.Dictionary,
+        container: HTMLDivElement
+    ): void {
+        this._container = container;
+        // Container is intentionally hidden; banner renders at document.body level.
+        this._container.style.display = "none";
+        this._rendered = true;
+        this.renderBanner(context);
+    }
+
+    public updateView(context: ComponentFramework.Context<IInputs>): void {
+        if (!this._rendered) return;
+        // Re-evaluate only if the cookie hasn't been set yet
+        if (this.getCookie(DodBannerControl.COOKIE_NAME) === "") {
+            this.renderBanner(context);
+        }
+    }
+
+    public getOutputs(): IOutputs {
+        return {};
+    }
+
+    public destroy(): void {
+        this._clickListeners.forEach(({ el, fn }) => el.removeEventListener("click", fn));
+        this._clickListeners = [];
+        if (this._bannerRoot && this._bannerRoot.parentNode) {
+            this._bannerRoot.parentNode.removeChild(this._bannerRoot);
+        }
+    }
+}

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<manifest>
+  <control namespace="DoDBannerLibrary" constructor="DodBannerControl" version="1.1.0" display-name-key="DodBannerControl_Display_Key" description-key="DodBannerControl_Desc_Key" control-type="standard" >
+    <external-service-usage enabled="false">
+    </external-service-usage>
+    <!-- bannerEnabled is the required bound property. In Canvas Apps bind to a boolean
+         variable or formula (e.g. true). In Model-Driven Apps bind to a TwoOptions field. -->
+    <property name="bannerEnabled"
+              display-name-key="BannerEnabled_Display_Key"
+              description-key="BannerEnabled_Desc_Key"
+              of-type="TwoOptions"
+              usage="bound"
+              required="false" />
+    <!-- Banner type: "DoD" (consent modal) or "CUI" (classification mark CSS only) -->
+    <property name="bannerType"
+              display-name-key="BannerType_Display_Key"
+              description-key="BannerType_Desc_Key"
+              of-type="SingleLine.Text"
+              usage="input"
+              required="false" />
+    <!-- Days before the consent cookie expires. Default: 30 -->
+    <property name="consentExpiryDays"
+              display-name-key="ConsentExpiryDays_Display_Key"
+              description-key="ConsentExpiryDays_Desc_Key"
+              of-type="Whole.None"
+              usage="input"
+              required="false" />
+    <!-- AO-approved consent text. Leave empty to use the built-in DoD default. -->
+    <property name="consentText"
+              display-name-key="ConsentText_Display_Key"
+              description-key="ConsentText_Desc_Key"
+              of-type="SingleLine.Text"
+              usage="input"
+              required="false" />
+    <resources>
+      <code path="index.ts" order="1"/>
+      <css path="css/DodBannerControl.css" order="1" />
+    </resources>
+  </control>
+</manifest>
