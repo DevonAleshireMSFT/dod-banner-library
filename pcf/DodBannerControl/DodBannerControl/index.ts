@@ -148,29 +148,45 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
         return "#5e5e5e";                            // default / unknown
     }
 
-    private renderClassificationBar(bannerType: string): void {
-        const existing = this._container.querySelector("[data-dodbl-bar]");
-        if (existing) existing.remove();
+    private clearBar(): void {
+        if (!this._container.hasAttribute("data-dodbl-bar")) return;
+        this._container.removeAttribute("data-dodbl-bar");
+        this._container.textContent = "";
+        this._container.style.backgroundColor = "";
+        this._container.style.color = "";
+        this._container.style.fontWeight = "";
+        this._container.style.fontFamily = "";
+        this._container.style.fontSize = "";
+        this._container.style.display = "";
+        this._container.style.height = "";
+        this._container.style.boxSizing = "";
+        this._container.style.alignItems = "";
+        this._container.style.justifyContent = "";
+        this._container.style.letterSpacing = "";
+        this._container.style.textShadow = "";
+    }
 
-        const bar = document.createElement("div");
-        bar.setAttribute("data-dodbl-bar", "1");
-        bar.style.cssText = [
-            "width:100%;",
-            "height:100%;",
-            "background-color:" + this.getClassificationColor(bannerType) + ";",
-            "color:#fff;",
-            "font-weight:bold;",
-            "font-family:\"Segoe UI\",Tahoma,Geneva,Verdana,sans-serif;",
-            "font-size:14px;",
-            "text-align:center;",
-            "display:flex;",
-            "align-items:center;",
-            "justify-content:center;",
-            "letter-spacing:0.06em;",
-            "text-shadow:1px 1px 0 rgba(0,0,0,.3);"
-        ].join("");
-        bar.textContent = bannerType.toUpperCase();
-        this._container.appendChild(bar);
+    private renderClassificationBar(bannerType: string): void {
+        this.clearBar();
+        const color = this.getClassificationColor(bannerType);
+        this._container.setAttribute("data-dodbl-bar", "1");
+        this._container.textContent = bannerType.toUpperCase();
+        this._container.style.backgroundColor = color;
+        this._container.style.color = "#fff";
+        this._container.style.fontWeight = "bold";
+        this._container.style.fontFamily = '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif';
+        this._container.style.fontSize = "14px";
+        this._container.style.display = "flex";
+        // Use explicit pixel height from parent when available so the bar fills
+        // the allocated space in both the test harness and Canvas App runtime.
+        // Fall back to "100%" for environments where offsetHeight is not yet set.
+        const parentHeight = this._container.parentElement?.offsetHeight ?? 0;
+        this._container.style.height = parentHeight > 0 ? `${parentHeight}px` : "100%";
+        this._container.style.boxSizing = "border-box";
+        this._container.style.alignItems = "center";
+        this._container.style.justifyContent = "center";
+        this._container.style.letterSpacing = "0.06em";
+        this._container.style.textShadow = "1px 1px 0 rgba(0,0,0,.3)";
     }
 
     private renderBanner(context: ComponentFramework.Context<IInputs>): void {
@@ -185,7 +201,8 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
         const consentText = context.parameters.consentText.raw || "";
 
         if (bannerType === "DoD") {
-            // Consent modal: hide the PCF container, render full-page overlay
+            // Consent modal: clear any classification bar, hide container, render full-page overlay
+            this.clearBar();
             this._container.style.display = "none";
             this.buildModal(consentText);
             this.showBanner(expiryDays);
@@ -233,9 +250,6 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
         if (this._bannerRoot && this._bannerRoot.parentNode) {
             this._bannerRoot.parentNode.removeChild(this._bannerRoot);
         }
-        const bar = this._container
-            ? this._container.querySelector("[data-dodbl-bar]")
-            : null;
-        if (bar) bar.remove();
+        this.clearBar();
     }
 }
