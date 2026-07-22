@@ -82,7 +82,9 @@
     <RootComponents>
       <RootComponent type="61" schemaName="dodbl_bannercore" behavior="0" />
       <RootComponent type="61" schemaName="dodbl_cuiconsentbanner" behavior="0" />
+      <RootComponent type="61" schemaName="dodbl_docs" behavior="0" />
       <RootComponent type="61" schemaName="dodbl_dodconsentbanner" behavior="0" />
+      <RootComponent type="61" schemaName="dodbl_release-notes" behavior="0" />
     </RootComponents>
     <MissingDependencies />
   </SolutionManifest>

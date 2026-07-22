@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DoD Banner Library — Documentation</title>
+  <style>
+    :root {
+      --primary:        #0078d4;
+      --primary-dark:   #005a9e;
+      --primary-light:  #e1effa;
+      --success-light:  #f0faf0;
+      --success-border: #c3e6c3;
+      --warning-light:  #fffbee;
+      --warning-border: #fde7a0;
+      --error-border:   #f3c6c7;
+      --bg:             #f3f2f1;
+      --surface:        #ffffff;
+      --border:         #edebe9;
+      --text:           #323130;
+      --text-secondary: #605e5c;
+      --text-disabled:  #a19f9d;
+      --radius:         4px;
+      --shadow:         0 1.6px 3.6px rgba(0,0,0,.13), 0 .3px .9px rgba(0,0,0,.11);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; font-size: 14px; line-height: 1.6; color: var(--text); background: var(--bg); min-height: 100vh; }
+    .app-header { background: #1b3a6b; color: #fff; padding: 18px 32px; display: flex; align-items: center; gap: 16px; }
+    .app-header-icon { width: 40px; height: 40px; background: rgba(255,255,255,.18); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+    .app-header h1 { font-size: 18px; font-weight: 600; }
+    .app-header p  { font-size: 12px; opacity: .85; margin-top: 2px; }
+    .app-body { display: flex; min-height: calc(100vh - 76px); }
+    .sidebar { width: 220px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border); padding: 20px 0; position: sticky; top: 0; height: calc(100vh - 76px); overflow-y: auto; }
+    .sidebar-section-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--text-disabled); padding: 12px 20px 4px; }
+    .sidebar-section-label:first-child { padding-top: 4px; }
+    .sidebar a { display: block; padding: 7px 20px; font-size: 13px; color: var(--text-secondary); text-decoration: none; border-left: 3px solid transparent; transition: color .1s, background .1s, border-color .1s; }
+    .sidebar a:hover { color: var(--primary); background: var(--primary-light); }
+    .sidebar a.active { color: var(--primary); border-left-color: var(--primary); background: var(--primary-light); font-weight: 600; }
+    .app-main { flex: 1; padding: 28px 36px; max-width: 860px; overflow-y: auto; }
+    .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 24px; }
+    .card-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+    .card-header-icon { font-size: 18px; }
+    .card-title { font-size: 14px; font-weight: 600; }
+    .card-subtitle { font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+    .card-body { padding: 20px; }
+    .prose p { margin-bottom: 12px; font-size: 13px; color: var(--text-secondary); }
+    .prose p:last-child { margin-bottom: 0; }
+    .prose strong { color: var(--text); }
+    .prose ul, .prose ol { margin: 8px 0 12px 20px; font-size: 13px; color: var(--text-secondary); line-height: 1.8; }
+    .doc-section { scroll-margin-top: 20px; }
+    .steps { display: flex; flex-direction: column; gap: 12px; }
+    .step { display: flex; gap: 16px; align-items: flex-start; padding: 14px 16px; background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); }
+    .step-num { width: 28px; height: 28px; flex-shrink: 0; background: var(--primary); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+    .step-content { flex: 1; }
+    .step-title { font-weight: 600; font-size: 13px; margin-bottom: 3px; }
+    .step-desc { font-size: 12px; color: var(--text-secondary); }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+    .badge-info     { background: #dce9f8; color: #004578; }
+    .badge-future   { background: var(--warning-border); color: #4d3700; }
+    .badge-optional { background: var(--border); color: var(--text-secondary); }
+    .ref-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .ref-table th { text-align: left; font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .04em; padding: 8px 12px; border-bottom: 2px solid var(--border); background: var(--bg); }
+    .ref-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: top; font-size: 12px; }
+    .ref-table tr:last-child td { border-bottom: none; }
+    .ref-table tr:hover td { background: #faf9f8; }
+    .schema-name { font-family: 'Cascadia Code','Consolas',monospace; font-size: 11px; color: var(--primary-dark); }
+    .code-block { background: #1e1e1e; color: #d4d4d4; border-radius: var(--radius); padding: 14px 16px; font-family: 'Cascadia Code','Consolas',monospace; font-size: 12px; line-height: 1.6; overflow-x: auto; margin: 10px 0; }
+    .code-block .tag  { color: #4ec9b0; }
+    .code-block .attr { color: #9cdcfe; }
+    .code-block .str  { color: #ce9178; }
+    .code-block .cmt  { color: #6a9955; }
+    code { font-family: 'Cascadia Code','Consolas',monospace; font-size: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; color: var(--primary-dark); }
+    .callout { display: flex; gap: 12px; align-items: flex-start; padding: 12px 16px; border-radius: var(--radius); margin: 12px 0; font-size: 12px; }
+    .callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .callout-info    { background: var(--primary-light); border: 1px solid #b0d0ef; }
+    .callout-warning { background: var(--warning-light); border: 1px solid var(--warning-border); }
+    .callout-tip     { background: var(--success-light); border: 1px solid var(--success-border); }
+    .classif-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .classif-table th { text-align: left; font-size: 11px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .04em; padding: 8px 12px; border-bottom: 2px solid var(--border); background: var(--bg); }
+    .classif-table td { padding: 10px 12px; border-bottom: 1px solid var(--border); vertical-align: middle; font-size: 12px; }
+    .classif-table tr:last-child td { border-bottom: none; }
+    .swatch { display: inline-block; padding: 4px 14px; border-radius: 3px; font-size: 12px; font-weight: 700; color: #fff; letter-spacing: .04em; }
+    @media (max-width: 740px) { .sidebar { display: none; } .app-main { padding: 16px; } }
+  </style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="app-header-icon">&#x1F6E1;&#xFE0F;</div>
+  <div>
+    <h1>DoD Banner Library</h1>
+    <p>Documentation &amp; Setup Guide &mdash; v1.0</p>
+  </div>
+</div>
+
+<div class="app-body">
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-section-label">Getting Started</div>
+    <a href="#overview">Overview</a>
+    <a href="#post-import">Post-Import Checklist</a>
+    <div class="sidebar-section-label">Banners</div>
+    <a href="#dod-consent">DoD Consent Banner</a>
+    <a href="#cui-banner">CUI Classification Mark</a>
+    <div class="sidebar-section-label">Reference</div>
+    <a href="#web-resources">Web Resources</a>
+    <a href="#classification-levels">Classification Levels</a>
+    <div class="sidebar-section-label">About</div>
+    <a href="#ai-disclosure">AI Disclosure</a>
+    <a href="dodbl_release-notes" target="_blank">Release Notes &#x2197;</a>
+  </nav>
+
+  <main class="app-main" id="main-content">
+
+    <div class="card doc-section" id="overview">
+      <div class="card-header"><span class="card-header-icon">&#x1F50D;</span><div><div class="card-title">Overview</div><div class="card-subtitle">What the DoD Banner Library provides</div></div></div>
+      <div class="card-body prose">
+        <p>The <strong>DoD Banner Library</strong> is a managed Power Platform solution providing reusable, GCC High-safe banner assets for <strong>Power Pages</strong>, <strong>Canvas Apps</strong>, and <strong>Model-Driven Apps</strong>. A single solution import delivers all assets with no external dependencies.</p>
+        <p>Two banner types are included:</p>
+        <ul>
+          <li><strong>DoD Consent Banner</strong> &mdash; a blocking modal overlay requiring user acknowledgment on first visit. Consent tracked via browser cookie. Vanilla JavaScript, zero CDN calls.</li>
+          <li><strong>CUI Classification Mark</strong> &mdash; a color-coded top or bottom classification bar on any container element via a <code>data-classification</code> attribute. No JavaScript required.</li>
+        </ul>
+        <div class="callout callout-tip"><span class="callout-icon">&#x2705;</span><div><strong>GCC High / IL4/IL5 safe.</strong> All assets are self-contained &mdash; no external CDN calls, no third-party scripts. The jQuery dependency present in prior versions was removed in v1.0.</div></div>
+      </div>
+    </div>
+
+    <div class="card doc-section" id="post-import">
+      <div class="card-header"><span class="card-header-icon">&#x2705;</span><div><div class="card-title">Post-Import Checklist</div><div class="card-subtitle">Complete these steps after importing the solution</div></div></div>
+      <div class="card-body">
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Verify web resources</div><div class="step-desc">Confirm all five web resources are present: <code>dodbl_bannercore</code>, <code>dodbl_dodconsentbanner</code>, <code>dodbl_cuiconsentbanner</code>, <code>dodbl_docs</code>, and <code>dodbl_release-notes</code>. If any are missing, re-import the managed solution.</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Power Pages &mdash; create web files</div><div class="step-desc">For each portal, create two Web File records in the Portal Management app. Copy CSS from <code>dodbl_bannercore</code> and JS from <code>dodbl_dodconsentbanner</code>. Set partial URLs to <code>/banner-core.css</code> and <code>/dod-consent-banner.js</code>, parent page to Home, publishing state to Published. See the <a href="#dod-consent">DoD Consent Banner</a> section for full steps.</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Power Pages &mdash; add banner markup to header Web Template</div><div class="step-desc">Add the CSS link, JS script tag, and consent modal HTML to your site's header Web Template. Full markup is in the <a href="#dod-consent">DoD Consent Banner</a> section.</div></div></div>
+          <div class="step"><div class="step-num" style="background:#5e5e5e">4</div><div class="step-content"><div class="step-title">Canvas Apps &mdash; enable code components <span class="badge badge-future">Coming in v1.1</span></div><div class="step-desc">A PCF Virtual Component (<code>DodBannerControl</code>) is planned for v1.1. Toggle <strong>Enable code components</strong> in environment Power Apps settings when available. Requires Power Apps Premium or Managed Environment.</div></div></div>
+          <div class="step"><div class="step-num" style="background:#5e5e5e">5</div><div class="step-content"><div class="step-title">Model-Driven Apps &mdash; add form script <span class="badge badge-future">Coming in v1.1</span></div><div class="step-desc">A JavaScript web resource for Model-Driven App form <code>OnLoad</code> is planned for v1.1, providing the consent modal without PCF or a Premium license.</div></div></div>
+          <div class="step"><div class="step-num" style="background:#5e5e5e">6</div><div class="step-content"><div class="step-title">Power Pages &mdash; grant consent record table permission <span class="badge badge-future">Coming in v1.1</span></div><div class="step-desc">A Dataverse consent audit table (<code>dodbl_consent_record</code>) is planned for v1.1. After it is added, grant the Authenticated Users web role <strong>Create</strong> access on that table.</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card doc-section" id="dod-consent">
+      <div class="card-header"><span class="card-header-icon">&#x26A0;&#xFE0F;</span><div><div class="card-title">DoD Consent Banner</div><div class="card-subtitle">System-use notification modal with cookie-based consent tracking</div></div></div>
+      <div class="card-body prose">
+        <p>A blocking modal overlay that appears on the user's first visit and requires explicit acknowledgment. Consent is stored as a browser cookie (<code>Accepted=Yes</code>) with a 1-day expiry. No server calls are made in v1.0 &mdash; consent is tracked client-side only.</p>
+        <p><strong>How it works</strong></p>
+        <ul>
+          <li>On <code>DOMContentLoaded</code>, the script checks for the <code>Accepted</code> cookie.</li>
+          <li>If absent, the modal fades in after a 1-second delay and the background overlay is displayed.</li>
+          <li>Clicking <strong>I Acknowledge</strong> or the &#x2715; close button sets the cookie and fades out the modal.</li>
+        </ul>
+        <p><strong>Required page markup</strong></p>
+        <p>This HTML must be present in the page DOM &mdash; add it to your header Web Template. Do not change the <code>id</code> or <code>class</code> values; the JavaScript references them by exact name.</p>
+        <div class="code-block">
+&lt;<span class="tag">div</span> <span class="attr">id</span>=<span class="str">"cookieConsent"</span>&gt;
+  &lt;<span class="tag">a</span> <span class="attr">id</span>=<span class="str">"closeCookieConsent"</span>&gt;&#x2715;&lt;/<span class="tag">a</span>&gt;
+  &lt;<span class="tag">p</span>&gt;Your AO-approved system-use notification text here.&lt;/<span class="tag">p</span>&gt;
+  &lt;<span class="tag">a</span> <span class="attr">class</span>=<span class="str">"cookieConsentOK"</span>&gt;I Acknowledge&lt;/<span class="tag">a</span>&gt;
+&lt;/<span class="tag">div</span>&gt;
+&lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"consentBackground"</span>&gt;&lt;/<span class="tag">div</span>&gt;</div>
+        <div class="callout callout-warning"><span class="callout-icon">&#x26A0;&#xFE0F;</span><div>Replace the placeholder text inside <code>&lt;p&gt;</code> with your organization's AO-approved system-use notification language before deploying to production.</div></div>
+        <p><strong>Power Pages setup</strong></p>
+        <div class="steps" style="margin-top:8px">
+          <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Create the banner-core.css web file</div><div class="step-desc">Portal Management &rarr; Content &rarr; Web Files &rarr; New. Name: <code>banner-core.css</code>. Partial URL: <code>/banner-core.css</code>. Parent Page: Home. Publishing State: Published. Save, then attach the CSS content from <code>dodbl_bannercore</code> as a Note attachment.</div></div></div>
+          <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Create the dod-consent-banner.js web file</div><div class="step-desc">Repeat the process. Name: <code>dod-consent-banner.js</code>. Partial URL: <code>/dod-consent-banner.js</code>. Attach the JavaScript content from <code>dodbl_dodconsentbanner</code> (the <code>&lt;script&gt;</code> block contents only, without the tags) as a Note attachment.</div></div></div>
+          <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Add to the header Web Template</div><div class="step-desc">Add the following to your site's header Web Template to enable banners on every page:</div></div></div>
+        </div>
+        <div class="code-block" style="margin-top:8px">
+&lt;<span class="tag">link</span> <span class="attr">rel</span>=<span class="str">"stylesheet"</span> <span class="attr">href</span>=<span class="str">"/banner-core.css"</span>&gt;
+&lt;<span class="tag">script</span> <span class="attr">src</span>=<span class="str">"/dod-consent-banner.js"</span> <span class="attr">defer</span>&gt;&lt;/<span class="tag">script</span>&gt;
+
+<span class="cmt">&lt;!-- Consent modal markup --&gt;</span>
+&lt;<span class="tag">div</span> <span class="attr">id</span>=<span class="str">"cookieConsent"</span>&gt;
+  &lt;<span class="tag">a</span> <span class="attr">id</span>=<span class="str">"closeCookieConsent"</span>&gt;&#x2715;&lt;/<span class="tag">a</span>&gt;
+  &lt;<span class="tag">p</span>&gt;Your AO-approved system-use notification text here.&lt;/<span class="tag">p</span>&gt;
+  &lt;<span class="tag">a</span> <span class="attr">class</span>=<span class="str">"cookieConsentOK"</span>&gt;I Acknowledge&lt;/<span class="tag">a</span>&gt;
+&lt;/<span class="tag">div</span>&gt;
+&lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"consentBackground"</span>&gt;&lt;/<span class="tag">div</span>&gt;</div>
+      </div>
+    </div>
+
+    <div class="card doc-section" id="cui-banner">
+      <div class="card-header"><span class="card-header-icon">&#x1F3F7;&#xFE0F;</span><div><div class="card-title">CUI Classification Mark</div><div class="card-subtitle">Color-coded classification bar via CSS &mdash; no JavaScript required</div></div></div>
+      <div class="card-body prose">
+        <p>Renders a full-width color-coded banner above or below any container element using the CSS <code>::before</code> pseudo-element. Text and color are driven entirely by the <code>data-classification</code> attribute.</p>
+        <p><strong>Top banner</strong></p>
+        <div class="code-block">&lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"classification-banner"</span> <span class="attr">data-classification</span>=<span class="str">"CUI"</span>&gt;
+  <span class="cmt">&lt;!-- page content --&gt;</span>
+&lt;/<span class="tag">div</span>&gt;</div>
+        <p><strong>Bottom banner</strong></p>
+        <div class="code-block">&lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"classification-banner-bot"</span> <span class="attr">data-classification</span>=<span class="str">"S"</span>&gt;
+  <span class="cmt">&lt;!-- page content --&gt;</span>
+&lt;/<span class="tag">div</span>&gt;</div>
+        <p><strong>Custom label text</strong> &mdash; use <code>data-banner-content</code> to override the displayed text without changing the color:</p>
+        <div class="code-block">&lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"classification-banner"</span>
+     <span class="attr">data-classification</span>=<span class="str">"CUI"</span>
+     <span class="attr">data-banner-content</span>=<span class="str">"CONTROLLED UNCLASSIFIED INFORMATION"</span>&gt;
+&lt;/<span class="tag">div</span>&gt;</div>
+        <p><strong>Power Pages setup</strong> &mdash; only the CSS web file is required. Create the <code>banner-core.css</code> web file (Step 1 above), then add one tag to your header Web Template:</p>
+        <div class="code-block">&lt;<span class="tag">link</span> <span class="attr">rel</span>=<span class="str">"stylesheet"</span> <span class="attr">href</span>=<span class="str">"/banner-core.css"</span>&gt;</div>
+        <div class="callout callout-info"><span class="callout-icon">&#x2139;&#xFE0F;</span><div>Color lookup uses the <strong>first two characters</strong> of <code>data-classification</code>. Values are <strong>case-sensitive</strong>: use <code>CU</code> for CUI purple, <code>U</code> for green, <code>CO</code> for blue, <code>S</code> for red, <code>T</code> for orange. See the <a href="#classification-levels">Classification Levels</a> table for all values.</div></div>
+      </div>
+    </div>
+
+    <div class="card doc-section" id="web-resources">
+      <div class="card-header"><span class="card-header-icon">&#x1F4E6;</span><div><div class="card-title">Web Resource Reference</div><div class="card-subtitle">All five web resources included in this solution</div></div></div>
+      <div class="card-body" style="padding:0">
+        <table class="ref-table">
+          <thead><tr><th>Schema Name</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td><div class="schema-name">dodbl_bannercore</div><div style="font-weight:600;font-size:12px;margin-top:2px">banner-core</div></td><td><span class="badge badge-info">CSS</span></td><td>Shared stylesheet. Responsive DoD consent modal layout and classification mark color rules for all five levels. Must be loaded before any banner markup.</td></tr>
+            <tr><td><div class="schema-name">dodbl_dodconsentbanner</div><div style="font-weight:600;font-size:12px;margin-top:2px">dod-consent-banner</div></td><td><span class="badge badge-info">HTML</span></td><td>Consent modal logic. Vanilla JavaScript for cookie-based consent tracking and fade animation. For Power Pages: extract the <code>&lt;script&gt;</code> block contents into a separate <code>.js</code> web file.</td></tr>
+            <tr><td><div class="schema-name">dodbl_cuiconsentbanner</div><div style="font-weight:600;font-size:12px;margin-top:2px">cui-consent-banner</div></td><td><span class="badge badge-info">HTML</span></td><td>CUI classification mark fragment. Single <code>&lt;link&gt;</code> reference to <code>dodbl_bannercore</code>. CSS-only &mdash; no JavaScript required.</td></tr>
+            <tr><td><div class="schema-name">dodbl_docs</div><div style="font-weight:600;font-size:12px;margin-top:2px">docs</div></td><td><span class="badge badge-optional">HTML</span></td><td>This documentation page. Link from the Model-Driven App sitemap for in-environment access.</td></tr>
+            <tr><td><div class="schema-name">dodbl_release-notes</div><div style="font-weight:600;font-size:12px;margin-top:2px">release-notes</div></td><td><span class="badge badge-optional">HTML</span></td><td>Version history and changelog for all solution releases.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card doc-section" id="classification-levels">
+      <div class="card-header"><span class="card-header-icon">&#x1F3A8;</span><div><div class="card-title">Classification Levels</div><div class="card-subtitle">Supported data-classification values and banner colors</div></div></div>
+      <div class="card-body" style="padding:0">
+        <table class="classif-table">
+          <thead><tr><th>data-classification value</th><th>Banner</th><th>Hex</th><th>CSS match</th></tr></thead>
+          <tbody>
+            <tr><td><code>CUI</code> &mdash; any value starting with <code>CU</code></td><td><span class="swatch" style="background:#5a04b0">CUI</span></td><td><code>#5a04b0</code></td><td><code>^=&quot;CU&quot;</code></td></tr>
+            <tr><td><code>U</code> &mdash; any value starting with <code>U</code></td><td><span class="swatch" style="background:#5cb85c">UNCLASSIFIED</span></td><td><code>#5cb85c</code></td><td><code>^=&quot;U&quot;</code></td></tr>
+            <tr><td><code>CONFIDENTIAL</code> &mdash; any value starting with <code>CO</code></td><td><span class="swatch" style="background:#286090">CONFIDENTIAL</span></td><td><code>#286090</code></td><td><code>^=&quot;CO&quot;</code></td></tr>
+            <tr><td><code>SECRET</code> &mdash; any value starting with <code>S</code></td><td><span class="swatch" style="background:#d9534f">SECRET</span></td><td><code>#d9534f</code></td><td><code>^=&quot;S&quot;</code></td></tr>
+            <tr><td><code>TOP SECRET</code> &mdash; any value starting with <code>T</code></td><td><span class="swatch" style="background:#f0ad4e;color:#333">TOP SECRET</span></td><td><code>#f0ad4e</code></td><td><code>^=&quot;T&quot;</code></td></tr>
+            <tr><td>Any other value</td><td><span class="swatch" style="background:#5e5e5e">CUSTOM</span></td><td><code>#5e5e5e</code></td><td>Default fallback</td></tr>
+          </tbody>
+        </table>
+        <div style="padding:16px"><div class="callout callout-warning"><span class="callout-icon">&#x26A0;&#xFE0F;</span><div>Values are <strong>case-sensitive</strong>. <code>cui</code> (lowercase) will not match CUI purple &mdash; use <code>CUI</code>. Use <code>data-banner-content</code> to display a different label while keeping the correct color.</div></div></div>
+      </div>
+    </div>
+
+    <div class="card doc-section" id="ai-disclosure">
+      <div class="card-header"><span class="card-header-icon">&#x1F916;</span><div><div class="card-title">AI Disclosure</div><div class="card-subtitle">Use of AI assistance in this project</div></div></div>
+      <div class="card-body prose">
+        <p>The assets, scripts, and documentation in this solution were developed with the assistance of <strong>GitHub Copilot</strong> (Claude Sonnet 4.6 model, via GitHub Copilot Pro). All output was reviewed by a human before inclusion in this solution.</p>
+        <div class="callout callout-warning" style="margin-top:8px"><span class="callout-icon">&#x26A0;&#xFE0F;</span><div>Apply the same due diligence you would to any third-party code &mdash; review all scripts before deploying to a production environment.</div></div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+  const sections = document.querySelectorAll('.doc-section');
+  const navLinks = document.querySelectorAll('.sidebar a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(l => l.classList.remove('active'));
+        const link = document.querySelector('.sidebar a[href="#' + entry.target.id + '"]');
+        if (link) link.classList.add('active');
+      }
+    });
+  }, { rootMargin: '-20% 0px -70% 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>

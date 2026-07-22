@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DoD Banner Library &mdash; Release Notes</title>
+  <style>
+    :root {
+      --primary:        #1b3a6b;
+      --primary-light:  #e8edf5;
+      --success-border: #c3e6c3;
+      --warning-border: #fde7a0;
+      --error-border:   #f3c6c7;
+      --bg:             #f3f2f1;
+      --surface:        #ffffff;
+      --border:         #edebe9;
+      --text:           #323130;
+      --text-secondary: #605e5c;
+      --text-disabled:  #a19f9d;
+      --radius:         4px;
+      --shadow:         0 1.6px 3.6px rgba(0,0,0,.13), 0 .3px .9px rgba(0,0,0,.11);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; font-size: 14px; line-height: 1.6; color: var(--text); background: var(--bg); min-height: 100vh; }
+    .app-header { background: var(--primary); color: #fff; padding: 18px 32px; display: flex; align-items: center; gap: 16px; }
+    .app-header-icon { width: 40px; height: 40px; background: rgba(255,255,255,.18); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+    .app-header h1 { font-size: 18px; font-weight: 600; }
+    .app-header p  { font-size: 12px; opacity: .85; margin-top: 2px; }
+    .back-link { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; margin: 20px 32px 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); font-size: 12px; color: var(--text-secondary); text-decoration: none; box-shadow: var(--shadow); }
+    .back-link:hover { color: var(--primary); background: var(--primary-light); }
+    .main { max-width: 720px; margin: 0 auto; padding: 24px 32px 48px; }
+    .version-block { margin-bottom: 32px; }
+    .version-header { display: flex; align-items: baseline; gap: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border); margin-bottom: 16px; }
+    .version-tag { font-size: 20px; font-weight: 700; color: var(--text); font-family: 'Cascadia Code','Consolas',monospace; }
+    .version-date { font-size: 13px; color: var(--text-secondary); }
+    .version-badge { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; background: var(--success-border); color: #0e5a0e; margin-left: auto; }
+    .change-group { margin-bottom: 16px; }
+    .change-group-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-disabled); margin-bottom: 8px; }
+    .change-list { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .change-item { display: flex; gap: 12px; align-items: flex-start; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; box-shadow: var(--shadow); font-size: 13px; }
+    .change-pill { flex-shrink: 0; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; margin-top: 1px; }
+    .pill-new    { background: #dce9f8; color: #004578; }
+    .pill-remove { background: var(--error-border); color: #6b0c0e; }
+    .change-text { color: var(--text-secondary); flex: 1; }
+    .change-text strong { color: var(--text); }
+    code { font-family: 'Cascadia Code','Consolas',monospace; font-size: 12px; background: var(--bg); border: 1px solid var(--border); border-radius: 3px; padding: 1px 5px; color: #005a9e; }
+  </style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="app-header-icon">&#x1F4CB;</div>
+  <div>
+    <h1>DoD Banner Library</h1>
+    <p>Release Notes</p>
+  </div>
+</div>
+
+<a class="back-link" href="dodbl_docs">&larr; Documentation</a>
+
+<div class="main">
+
+  <div class="version-block">
+    <div class="version-header">
+      <span class="version-tag">v1.0.0</span>
+      <span class="version-date">2026-07-22</span>
+      <span class="version-badge">Latest</span>
+    </div>
+    <div class="change-group">
+      <div class="change-group-title">New</div>
+      <ul class="change-list">
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>banner-core.css</strong> &mdash; shared stylesheet combining DoD consent modal responsive layout (3 breakpoints) and CUI classification mark color rules for all five levels.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>dod-consent-banner.html</strong> &mdash; DoD system-use notification consent modal. Vanilla JavaScript, no external dependencies. GCC High / IL4/IL5 safe.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>cui-consent-banner.html</strong> &mdash; CUI classification mark banner fragment. CSS-only, no JavaScript required. Supports top (<code>.classification-banner</code>) and bottom (<code>.classification-banner-bot</code>) placement via <code>data-classification</code> attribute.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Solution packaging</strong> &mdash; all assets packaged as a managed Power Platform solution (<code>dod_banner_library</code>) with publisher prefix <code>dodbl</code>. Supports GCC High tenant import.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Documentation web resources</strong> &mdash; <code>dodbl_docs</code> and <code>dodbl_release-notes</code> included in the solution for in-environment reference.</span></li>
+      </ul>
+    </div>
+    <div class="change-group">
+      <div class="change-group-title">Removed</div>
+      <ul class="change-list">
+        <li class="change-item"><span class="change-pill pill-remove">REMOVED</span><span class="change-text"><strong>jQuery CDN dependency</strong> &mdash; the <code>jquery-3.7.1.js</code> CDN script tag was removed from the consent banner. All jQuery calls replaced with vanilla JavaScript equivalents. No behavior change for end users.</span></li>
+        <li class="change-item"><span class="change-pill pill-remove">REMOVED</span><span class="change-text"><strong>Inline <code>&lt;style&gt;</code> blocks</strong> &mdash; CSS extracted from both HTML files and consolidated into <code>banner-core.css</code> to enable a single web resource upload for all platforms.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="version-block">
+    <div class="version-header">
+      <span class="version-tag" style="color:var(--text-disabled)">v1.1.0</span>
+      <span class="version-date" style="color:var(--text-disabled)">Planned</span>
+    </div>
+    <div class="change-group">
+      <div class="change-group-title">Planned</div>
+      <ul class="change-list">
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>PCF Virtual Component &mdash; DodBannerControl</strong> &mdash; consent and classification banner for Canvas Apps and Model-Driven Apps. Dataverse consent write via <code>WebApiClient</code>. Requires Power Apps Premium or Managed Environment.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>JS web resource fallback</strong> &mdash; <code>dodbl_dodbanner.js</code> for Model-Driven App form <code>OnLoad</code>. No PCF or Premium license required.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Dataverse consent audit table</strong> &mdash; <code>dodbl_consent_record</code> with columns: <code>user_upn</code>, <code>banner_type</code>, <code>consent_datetime</code>, <code>session_id</code>, <code>environment_url</code>. Table-level auditing enabled.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Environment variables (4)</strong> &mdash; <code>BannerEnabled</code>, <code>BannerType</code>, <code>DoDConsentText</code>, <code>ConsentExpiryDays</code> for post-import configuration without code changes.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Power Pages Web Template</strong> &mdash; <code>dod-consent-banner</code> Liquid fragment with <code>BannerEnabled</code> environment variable guard and <code>DoDConsentText</code> content snippet support.</span></li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
