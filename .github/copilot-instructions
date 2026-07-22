@@ -1,0 +1,60 @@
+# GitHub Copilot Instructions
+#
+# This file is automatically read by GitHub Copilot in every chat session
+# in this repository. It does not need to be referenced manually.
+#
+# PURPOSE: Ground Copilot in the project's AI context so that every
+# suggestion is consistent with the team's decisions, naming conventions,
+# and constraints — without requiring a manual bootstrap prompt each session.
+#
+# HOW TO CUSTOMIZE: Replace the bracketed placeholders below with your
+# project's actual values. Delete any sections that do not apply.
+# Keep this file concise — Copilot reads the full file on every session.
+# -----------------------------------------------------------------------
+
+## Project Context
+
+Before answering any question or generating any code in this repository,
+read `.ai/context.md`. It defines what this project is, its current state,
+and the rules that must always be followed.
+
+## Rules That Always Apply
+
+- Follow all rules listed under the "Key Rules" section of `.ai/context.md`
+  without exception, even if a different approach seems reasonable.
+- Never rename, remove, or modify anything listed under "Known Gotchas"
+  in `.ai/context.md` without explicit confirmation from the user.
+- When generating schema, tables, or columns, use the prefix defined in
+  the `schema-prefix` field of `.ai/context.md` YAML frontmatter.
+
+## Where to Find More Context
+
+If you are uncertain about any of the following topics, read the
+corresponding file before generating a response:
+
+| Topic | File |
+|-------|------|
+| Domain terminology and definitions | `.ai/domain.md` |
+| Table and column definitions | `.ai/data-model.md` |
+| Security roles and access constraints | `.ai/security.md` |
+| Pipeline and deployment standards | `.ai/pipelines.md` |
+| Why a past decision was made | `.ai/decisions/` |
+
+## What You Must Never Do
+
+- Generate, suggest, or output credentials, connection strings, API keys,
+  or secrets in any form — even as placeholders with real structure.
+- Output or log Personally Identifiable Information (PII).
+- Rename tables, columns, or components listed as deprecated or frozen
+  in `.ai/data-model.md`.
+- Bypass or work around security roles and access patterns defined in
+  `.ai/security.md`.
+- Treat `.ai/` documents as the authoritative source of truth — they are
+  derived from authoritative sources and should be used for context, not
+  as the definitive record.
+
+## Confirming Context at Session Start
+
+When a user starts a new conversation, confirm you have read `.ai/context.md`
+by briefly stating the project name and one or two of the active Key Rules.
+This confirms grounding before the first substantive response.
