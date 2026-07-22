@@ -30,6 +30,12 @@
           </Titles>
         </SubArea>
       </Group>
+      <Group Id="group_8fb47287" ResourceId="SitemapDesigner.NewGroup" DescriptionResourceId="SitemapDesigner.NewGroup" IntroducedVersion="7.0.0.0" IsProfile="false" ToolTipResourseId="SitemapDesigner.Unknown">
+        <Titles>
+          <Title LCID="1033" Title="Demo" />
+        </Titles>
+        <SubArea Id="subarea_944d7318" Icon="/_imgs/imagestrips/transparent_spacer.gif" Entity="dodbl_banner_demo" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA" />
+      </Group>
     </Area>
   </SiteMap>
   <LocalizedNames>
