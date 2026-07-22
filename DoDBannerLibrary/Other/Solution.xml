@@ -88,6 +88,10 @@
       <RootComponent type="61" schemaName="dodbl_webtemplatesource" behavior="0" />
       <RootComponent type="62" schemaName="dodbl_DoDBannerLibraryManagement" behavior="0" />
       <RootComponent type="80" schemaName="dodbl_DoDBannerLibraryManagement" behavior="0" />
+      <RootComponent type="380" schemaName="dodbl_BannerEnabled" behavior="0" />
+      <RootComponent type="380" schemaName="dodbl_BannerType" behavior="0" />
+      <RootComponent type="380" schemaName="dodbl_ConsentExpiryDays" behavior="0" />
+      <RootComponent type="380" schemaName="dodbl_DoDConsentText" behavior="0" />
     </RootComponents>
     <MissingDependencies>
       <MissingDependency>
