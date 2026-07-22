@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WebResource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <WebResourceId>{7e3a4b91-0a86-f111-ab10-001dd80f953a}</WebResourceId>
+  <Name>dodbl_webtemplatesource</Name>
+  <DisplayName>web-template-source</DisplayName>
+  <Description>Power Pages Web Template source for the dod-consent-banner Liquid template. Open this web resource in a browser, copy the Liquid source from the textarea, and paste it into a new Web Template record named dod-consent-banner in Portal Management. Supports optional BannerEnabled and DoDConsentText site settings.</Description>
+  <WebResourceType>1</WebResourceType>
+  <IntroducedVersion>1.0.0.0</IntroducedVersion>
+  <IsEnabledForMobileClient>0</IsEnabledForMobileClient>
+  <IsAvailableForMobileOffline>0</IsAvailableForMobileOffline>
+  <IsCustomizable>1</IsCustomizable>
+  <CanBeDeleted>1</CanBeDeleted>
+  <IsHidden>0</IsHidden>
+  <FileName>/WebResources/dodbl_webtemplatesource7E3A4B91-0A86-F111-AB10-001DD80F953A</FileName>
+</WebResource>

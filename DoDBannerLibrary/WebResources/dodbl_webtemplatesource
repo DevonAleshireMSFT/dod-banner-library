@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DoD Banner Library — Power Pages Web Template Source</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; font-size: 14px; line-height: 1.6; color: #323130; background: #f3f2f1; min-height: 100vh; }
+    .app-header { background: #1b3a6b; color: #fff; padding: 18px 32px; display: flex; align-items: center; gap: 16px; }
+    .app-header-icon { width: 40px; height: 40px; background: rgba(255,255,255,.18); border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0; }
+    .app-header h1 { font-size: 18px; font-weight: 600; }
+    .app-header p { font-size: 12px; opacity: .85; margin-top: 2px; }
+    .app-main { max-width: 860px; margin: 28px auto; padding: 0 32px 40px; }
+    .card { background: #fff; border: 1px solid #edebe9; border-radius: 4px; box-shadow: 0 1.6px 3.6px rgba(0,0,0,.13); margin-bottom: 20px; }
+    .card-header { padding: 14px 20px; border-bottom: 1px solid #edebe9; display: flex; align-items: center; gap: 10px; }
+    .card-title { font-size: 14px; font-weight: 600; }
+    .card-subtitle { font-size: 12px; color: #605e5c; margin-top: 1px; }
+    .card-body { padding: 20px; }
+    .steps { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+    .step { display: flex; gap: 14px; align-items: flex-start; padding: 12px 14px; background: #f3f2f1; border: 1px solid #edebe9; border-radius: 4px; }
+    .step-num { width: 26px; height: 26px; flex-shrink: 0; background: #0078d4; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+    .step-title { font-weight: 600; font-size: 13px; margin-bottom: 3px; }
+    .step-desc { font-size: 12px; color: #605e5c; }
+    code { font-family: 'Cascadia Code','Consolas',monospace; font-size: 12px; background: #f3f2f1; border: 1px solid #edebe9; border-radius: 3px; padding: 1px 5px; color: #005a9e; }
+    .source-area { width: 100%; min-height: 360px; font-family: 'Cascadia Code','Consolas',monospace; font-size: 12px; line-height: 1.6; padding: 14px 16px; background: #1e1e1e; color: #d4d4d4; border: 1px solid #edebe9; border-radius: 4px; resize: vertical; }
+    .copy-btn { margin-top: 10px; padding: 6px 16px; background: #0078d4; color: #fff; border: none; border-radius: 4px; font-size: 13px; font-family: inherit; cursor: pointer; }
+    .copy-btn:hover { background: #005a9e; }
+    .callout { display: flex; gap: 12px; align-items: flex-start; padding: 12px 16px; border-radius: 4px; margin: 12px 0; font-size: 12px; }
+    .callout-warning { background: #fffbee; border: 1px solid #fde7a0; }
+    .callout-info { background: #e1effa; border: 1px solid #b0d0ef; }
+    .back-link { font-size: 13px; color: #0078d4; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; margin-bottom: 16px; }
+    .back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="app-header-icon">&#x1F6E1;&#xFE0F;</div>
+  <div>
+    <h1>DoD Banner Library</h1>
+    <p>Power Pages Web Template Source &mdash; v1.0</p>
+  </div>
+</div>
+
+<main class="app-main">
+  <a class="back-link" href="dodbl_docs">&#x2190; Documentation</a>
+
+  <div class="card">
+    <div class="card-header">
+      <span style="font-size:18px">&#x1F4CB;</span>
+      <div>
+        <div class="card-title">dod-consent-banner &mdash; Liquid Web Template Source</div>
+        <div class="card-subtitle">Copy the source below and paste it into a new Web Template record in Portal Management</div>
+      </div>
+    </div>
+    <div class="card-body">
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div>
+            <div class="step-title">Create a new Web Template record</div>
+            <div class="step-desc">Portal Management &rarr; Content &rarr; Web Templates &rarr; New. Set <strong>Name</strong> to <code>dod-consent-banner</code>. Set <strong>Website</strong> to your site.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div>
+            <div class="step-title">Paste the Liquid source</div>
+            <div class="step-desc">Click <strong>Select All</strong> on the source textarea below (or use the Copy button), then paste into the <strong>Source</strong> field of the new Web Template record. Save the record.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div>
+            <div class="step-title">Include the template in your site header</div>
+            <div class="step-desc">In your site&rsquo;s header Web Template, add <code>{% include 'dod-consent-banner' %}</code> at the point where you want the banner rendered on every page.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <span style="font-size:16px">&#x2139;&#xFE0F;</span>
+        <div><strong>Prerequisites:</strong> The web files <code>/banner-core.css</code> and <code>/dod-consent-banner.js</code> must exist on the site before this template renders correctly. See the <a href="dodbl_docs#dod-consent" style="color:#0078d4">DoD Consent Banner setup steps</a> in the main documentation.</div>
+      </div>
+
+      <div class="callout callout-warning">
+        <span style="font-size:16px">&#x26A0;&#xFE0F;</span>
+        <div>
+          <strong>Optional site settings:</strong>
+          <ul style="margin-top:4px;margin-left:16px;line-height:1.8">
+            <li><code>BannerEnabled</code> &mdash; set to <code>false</code> to disable the banner site-wide (default: enabled)</li>
+            <li><code>DoDConsentText</code> &mdash; your AO-approved system-use notification text; overrides the default DoD warning language</li>
+          </ul>
+        </div>
+      </div>
+
+      <textarea id="liquidSource" class="source-area" readonly onclick="this.select()"></textarea>
+      <button class="copy-btn" id="copyBtn">Copy to Clipboard</button>
+
+    </div>
+  </div>
+</main>
+
+<script>
+  (function () {
+    var lines = [
+      "{% comment %}",
+      "  dod-consent-banner \u2014 Power Pages Web Template",
+      "  Source: DoD Banner Library v1.0  |  dodbl_webtemplatesource",
+      "",
+      "  Prerequisites (web files must exist on the site):",
+      "    /banner-core.css         \u2014 content from the dodbl_bannercore web resource",
+      "    /dod-consent-banner.js   \u2014 <script> block from dodbl_dodconsentbanner (without the <script> tags)",
+      "",
+      "  Optional site settings:",
+      "    BannerEnabled   \u2014 set to \"false\" to disable the banner site-wide (default: enabled)",
+      "    DoDConsentText  \u2014 AO-approved system-use notification text; falls back to default DoD language",
+      "{% endcomment %}",
+      "{% assign banner_enabled = settings[\"BannerEnabled\"] | default: \"true\" %}",
+      "{% if banner_enabled != \"false\" %}",
+      "<link rel=\"stylesheet\" href=\"/banner-core.css\">",
+      "<script src=\"/dod-consent-banner.js\" defer><\/script>",
+      "<div id=\"cookieConsent\">",
+      "  <a id=\"closeCookieConsent\">&#x2715;</a>",
+      "  {% assign consent_text = settings[\"DoDConsentText\"] %}",
+      "  {% if consent_text %}",
+      "    <p>{{ consent_text }}</p>",
+      "  {% else %}",
+      "    <p>WARNING: This is a U.S. Government computer system, which may be accessed and used only for authorized Government business by authorized personnel. Unauthorized access or use of this computer system may subject violators to criminal, civil, and/or administrative action. All information on this system may be intercepted, recorded, read, copied, and disclosed by and to authorized personnel for official purposes, including criminal investigations. Such information includes sensitive data encrypted to comply with confidentiality and privacy requirements. Access or use of this computer system by any person, whether authorized or unauthorized, constitutes consent to these terms. There is no right of privacy in this system.</p>",
+      "  {% endif %}",
+      "  <a class=\"cookieConsentOK\">I Acknowledge</a>",
+      "</div>",
+      "<div class=\"consentBackground\"></div>",
+      "{% endif %}"
+    ];
+    document.getElementById('liquidSource').value = lines.join('\n');
+
+    document.getElementById('copyBtn').addEventListener('click', function () {
+      var src = document.getElementById('liquidSource').value;
+      var btn = this;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(src).then(function () {
+          btn.textContent = 'Copied!';
+          setTimeout(function () { btn.textContent = 'Copy to Clipboard'; }, 2000);
+        });
+      } else {
+        document.getElementById('liquidSource').select();
+        document.execCommand('copy');
+        btn.textContent = 'Copied!';
+        setTimeout(function () { btn.textContent = 'Copy to Clipboard'; }, 2000);
+      }
+    });
+  })();
+</script>
+</body>
+</html>
