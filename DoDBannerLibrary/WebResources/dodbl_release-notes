@@ -64,7 +64,6 @@
     <div class="version-header">
       <span class="version-tag">v1.0.0</span>
       <span class="version-date">2026-07-22</span>
-      <span class="version-badge">Latest</span>
     </div>
     <div class="change-group">
       <div class="change-group-title">New</div>
@@ -88,15 +87,20 @@
   <div class="version-block">
     <div class="version-header">
       <span class="version-tag">v1.1.0</span>
-      <span class="version-date">2026-07-22</span>
+      <span class="version-date">2026-07-23</span>
+      <span class="version-badge">Latest</span>
     </div>
     <div class="change-group">
       <div class="change-group-title">New</div>
       <ul class="change-list">
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>dodbl_dodbanner.js</strong> &mdash; Model-Driven App form OnLoad script. Reads environment variables via <code>Xrm.WebApi</code> and injects the DoD consent modal or CUI classification CSS. No PCF or Premium license required. Handler: <code>DoDBannerLibrary.DodBanner.onFormLoad</code>.</span></li>
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Environment variables (4)</strong> &mdash; <code>dodbl_BannerEnabled</code>, <code>dodbl_BannerType</code>, <code>dodbl_DoDConsentText</code>, <code>dodbl_ConsentExpiryDays</code> for post-import configuration without code changes.</span></li>
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>dodbl_webtemplatesource</strong> &mdash; Power Pages Web Template source page. Open in browser to copy the Liquid source for the <code>dod-consent-banner</code> Web Template. Supports <code>BannerEnabled</code> and <code>DoDConsentText</code> site setting hooks.</span></li>
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>DoD Banner Library Management app</strong> &mdash; model-driven app providing in-environment access to documentation, release notes, and web template source from the app switcher.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>dodbl_dodbanner &mdash; MDA form OnLoad script</strong> &mdash; Reads six <code>dodbl_</code> environment variables via <code>Xrm.WebApi</code>. Handler: <code>DoDBannerLibrary.DodBanner.onFormLoad</code>. No PCF or Premium license required.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Consent via <code>Xrm.App.addGlobalNotification</code></strong> &mdash; DoD system-use notification renders as a native UCI yellow warning bar with &ldquo;I Acknowledge&rdquo; action. Replaces the DOM-injected modal. Persists across form navigation. Requires no <code>window.top</code> access.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>dodbl_ShowConsentBanner</strong> env var (Boolean) &mdash; Decouples consent from the classification bar. Set to <code>yes</code> to show the DoD system-use notification independently of <code>dodbl_BannerType</code>.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>dodbl_BannerPosition</strong> env var (String) &mdash; Controls classification bar placement: <code>Bottom</code> (default), <code>Top</code>, or <code>Both</code>. Top placement shifts the MDA global nav header down 28&thinsp;px to avoid overlap.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Environment variables (6 total)</strong> &mdash; <code>dodbl_BannerEnabled</code>, <code>dodbl_BannerType</code>, <code>dodbl_DoDConsentText</code>, <code>dodbl_ConsentExpiryDays</code>, <code>dodbl_ShowConsentBanner</code>, <code>dodbl_BannerPosition</code>.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>DodBannerControl PCF for Canvas Apps</strong> &mdash; PCF field control providing consent modal and classification bar for Canvas Apps. Requires Power Apps Premium or Managed Environment. Properties: <code>bannerEnabled</code>, <code>bannerType</code>, <code>consentExpiryDays</code>, <code>consentText</code>.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>dodbl_webtemplatesource</strong> &mdash; Power Pages Web Template source page with step-by-step Liquid setup instructions.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>DoD Banner Library Management app</strong> &mdash; Model-driven app providing in-environment access to documentation, release notes, and web template source from the app switcher.</span></li>
       </ul>
     </div>
   </div>
@@ -109,8 +113,7 @@
     <div class="change-group">
       <div class="change-group-title">Planned</div>
       <ul class="change-list">
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>PCF Virtual Component &mdash; DodBannerControl</strong> &mdash; consent and classification banner for Canvas Apps. Requires Power Apps Premium or Managed Environment.</span></li>
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Dataverse consent audit table</strong> &mdash; <code>dodbl_consent_record</code> with columns: <code>user_upn</code>, <code>banner_type</code>, <code>consent_datetime</code>, <code>session_id</code>, <code>environment_url</code>. Table-level auditing enabled.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Dataverse consent audit table</strong> &mdash; <code>dodbl_consent_record</code> with columns: <code>dodbl_systemuser</code> (Lookup), <code>dodbl_acknowledgedon</code>, <code>dodbl_expirydate</code>, <code>dodbl_consenttype</code>, <code>dodbl_consenttext</code>, <code>dodbl_isactive</code>. Table-level auditing enabled.</span></li>
         <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Security role</strong> &mdash; <code>DoD Banner &mdash; Consent Write</code> for granting consent record create access to Authenticated Users in Power Pages.</span></li>
       </ul>
     </div>
