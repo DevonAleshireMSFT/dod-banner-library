@@ -22,6 +22,12 @@ var DoDBannerLibrary = DoDBannerLibrary || {};
 
 DoDBannerLibrary.DodBanner = (function () {
 
+  // ── Target document ──────────────────────────────────────────────────────────
+  // MDA UCI runs form web resource scripts inside a 0×0 hidden iframe.
+  // All DOM injection must target window.top.document to be visible in the
+  // outer UCI shell page. Falls back to document for non-iframe contexts.
+  var _doc = (window.top && window.top.document) ? window.top.document : document;
+
   // ── Defaults ────────────────────────────────────────────────────────────────
 
   var BANNER_TYPE_DEFAULT  = "DoD";
@@ -43,7 +49,7 @@ DoDBannerLibrary.DodBanner = (function () {
   function setCookie(name, value, days) {
     var expiry = new Date();
     expiry.setTime(expiry.getTime() + days * 24 * 60 * 60 * 1000);
-    document.cookie =
+    _doc.cookie =
       name + "=" + value +
       ";expires=" + expiry.toUTCString() +
       ";path=/;SameSite=Lax";
@@ -51,7 +57,7 @@ DoDBannerLibrary.DodBanner = (function () {
 
   function getCookie(name) {
     var prefix = name + "=";
-    var parts = decodeURIComponent(document.cookie).split(";");
+    var parts = decodeURIComponent(_doc.cookie).split(";");
     for (var i = 0; i < parts.length; i++) {
       var c = parts[i].trimStart();
       if (c.indexOf(prefix) === 0) return c.substring(prefix.length);
@@ -62,7 +68,7 @@ DoDBannerLibrary.DodBanner = (function () {
   // ── DOM helpers ──────────────────────────────────────────────────────────────
 
   function injectCSS() {
-    if (document.querySelector("style[data-dodbl-core]")) return;
+    if (_doc.querySelector("style[data-dodbl-core]")) return;
     // Inline the consent modal CSS — MDA form iframes do not reliably load
     // external web resource stylesheets via <link>, so we embed the styles
     // directly. banner-core.css remains the source of truth for Power Pages.
@@ -97,21 +103,21 @@ DoDBannerLibrary.DodBanner = (function () {
       ".consentBackground{position:fixed;display:none;top:0;left:0;",
       "width:100%;height:100%;background-color:#fff;opacity:.8;z-index:9997;}"
     ].join("");
-    var style = document.createElement("style");
+    var style = _doc.createElement("style");
     style.setAttribute("data-dodbl-core", "1");
     style.textContent = css;
-    document.head.appendChild(style);
+    _doc.head.appendChild(style);
   }
 
   function injectModal(consentText) {
-    if (document.getElementById("cookieConsent")) return;
+    if (_doc.getElementById("cookieConsent")) return;
 
     var text = (consentText && consentText.trim()) ? consentText : CONSENT_TEXT_DEFAULT;
 
     // Build DOM nodes directly — avoids any innerHTML XSS risk on the consent text.
     // All structural styles are applied as inline properties rather than relying on
     // the injected <style> tag, which is blocked by MDA GCC High nonce-based CSP.
-    var closeBtn = document.createElement("a");
+    var closeBtn = _doc.createElement("a");
     closeBtn.id = "closeCookieConsent";
     closeBtn.textContent = "\u2715";
     closeBtn.style.float          = "right";
@@ -119,12 +125,12 @@ DoDBannerLibrary.DodBanner = (function () {
     closeBtn.style.textDecoration = "none";
     closeBtn.style.color          = "inherit";
 
-    var p = document.createElement("p");
+    var p = _doc.createElement("p");
     p.textContent    = text;
     p.style.margin   = "0 0 10px 0";
     p.style.overflow = "auto";
 
-    var okBtn = document.createElement("a");
+    var okBtn = _doc.createElement("a");
     okBtn.className              = "cookieConsentOK";
     okBtn.textContent            = "I Acknowledge";
     okBtn.style.backgroundColor  = "#f1d600";
@@ -138,7 +144,7 @@ DoDBannerLibrary.DodBanner = (function () {
     okBtn.style.lineHeight       = "26px";
     okBtn.style.display          = "inline-block";
 
-    var modal = document.createElement("div");
+    var modal = _doc.createElement("div");
     modal.id                  = "cookieConsent";
     modal.style.background    = "#f6f6f6";
     modal.style.fontSize      = "14px";
@@ -164,7 +170,7 @@ DoDBannerLibrary.DodBanner = (function () {
     modal.appendChild(p);
     modal.appendChild(okBtn);
 
-    var overlay = document.createElement("div");
+    var overlay = _doc.createElement("div");
     overlay.className                = "consentBackground";
     overlay.style.position           = "fixed";
     overlay.style.display            = "none";
@@ -176,12 +182,12 @@ DoDBannerLibrary.DodBanner = (function () {
     overlay.style.opacity            = "0.8";
     overlay.style.zIndex             = "9997";
 
-    var root = document.createElement("div");
+    var root = _doc.createElement("div");
     root.setAttribute("data-dodbl-root", "1");
     root.appendChild(modal);
     root.appendChild(overlay);
 
-    document.body.appendChild(root);
+    _doc.body.appendChild(root);
   }
 
   function fadeIn(el, duration) {
@@ -215,8 +221,8 @@ DoDBannerLibrary.DodBanner = (function () {
 
   function showBanner(expiryDays) {
     if (getCookie("Accepted") !== "") return;
-    var modal = document.getElementById("cookieConsent");
-    var bg    = document.querySelector(".consentBackground");
+    var modal = _doc.getElementById("cookieConsent");
+    var bg    = _doc.querySelector(".consentBackground");
     if (!modal || !bg) return;
 
     setTimeout(function () {
@@ -224,7 +230,7 @@ DoDBannerLibrary.DodBanner = (function () {
       bg.style.display = "block";
     }, 800);
 
-    document.querySelectorAll("#closeCookieConsent, .cookieConsentOK").forEach(function (el) {
+    _doc.querySelectorAll("#closeCookieConsent, .cookieConsentOK").forEach(function (el) {
       el.addEventListener("click", function () {
         setCookie("Accepted", "Yes", expiryDays);
         fadeOut(modal, 200);
@@ -247,10 +253,10 @@ DoDBannerLibrary.DodBanner = (function () {
 
   function injectClassificationBar(bannerType) {
     // Idempotent — remove any existing bar before (re-)rendering
-    var existing = document.querySelector("[data-dodbl-bar]");
+    var existing = _doc.querySelector("[data-dodbl-bar]");
     if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
 
-    var bar = document.createElement("div");
+    var bar = _doc.createElement("div");
     bar.setAttribute("data-dodbl-bar", "1");
     bar.textContent = bannerType.toUpperCase();
     bar.style.position       = "fixed";
@@ -270,7 +276,7 @@ DoDBannerLibrary.DodBanner = (function () {
     bar.style.textShadow     = "1px 1px 0 rgba(0,0,0,.3)";
     bar.style.zIndex         = "9999";
     bar.style.boxSizing      = "border-box";
-    document.body.insertBefore(bar, document.body.firstChild);
+    _doc.body.insertBefore(bar, _doc.body.firstChild);
   }
 
   // ── Environment variable reader ──────────────────────────────────────────────
