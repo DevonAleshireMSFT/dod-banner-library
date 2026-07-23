@@ -6,6 +6,7 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
     private _bannerRoot: HTMLDivElement | null = null;
     private _clickListeners: { el: Element; fn: EventListener }[] = [];
     private _rendered = false;
+    private _consentSetup = false;
 
     private static readonly COOKIE_NAME = "Accepted";
     private static readonly DEFAULT_EXPIRY_DAYS = 30;
@@ -74,10 +75,13 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
         requestAnimationFrame(step);
     }
 
-    // ── Banner rendering ──────────────────────────────────────────────────────
+    // ── Consent modal ─────────────────────────────────────────────────────────
+    // Self-guarded: no-ops if cookie already set or modal already wired.
+    // Decoupled from bannerType — called whenever showConsent=true (or legacy DoD).
 
-    private buildModal(consentText: string): void {
-        if (document.getElementById("cookieConsent")) return;
+    private showConsentModal(consentText: string, expiryDays: number): void {
+        if (this._consentSetup) return;                                    // already wired
+        if (this.getCookie(DodBannerControl.COOKIE_NAME) !== "") return;  // cookie set — no-op
 
         const text = (consentText && consentText.trim())
             ? consentText
@@ -109,31 +113,25 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
         this._bannerRoot.appendChild(overlay);
 
         document.body.appendChild(this._bannerRoot);
-    }
-
-    private showBanner(expiryDays: number): void {
-        if (this.getCookie(DodBannerControl.COOKIE_NAME) !== "") return;
-
-        const modal = document.getElementById("cookieConsent") as HTMLElement | null;
-        const bg = document.querySelector(".consentBackground") as HTMLElement | null;
-        if (!modal || !bg) return;
-
-        setTimeout(() => {
-            this.fadeIn(modal, 200);
-            bg.style.display = "block";
-        }, 800);
 
         const dismiss = () => {
             this.setCookie(DodBannerControl.COOKIE_NAME, "Yes", expiryDays);
             this.fadeOut(modal, 200);
-            bg.style.display = "none";
+            overlay.style.display = "none";
         };
 
-        document.querySelectorAll("#closeCookieConsent, .cookieConsentOK").forEach(el => {
+        [closeBtn, okBtn].forEach(el => {
             const handler: EventListener = () => dismiss();
             el.addEventListener("click", handler);
             this._clickListeners.push({ el, fn: handler });
         });
+
+        this._consentSetup = true;
+
+        setTimeout(() => {
+            this.fadeIn(modal, 200);
+            overlay.style.display = "block";
+        }, 800);
     }
 
     // ── Classification bar ────────────────────────────────────────────────────
@@ -166,6 +164,46 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
         this._container.style.textShadow = "";
     }
 
+    private clearPlaceholder(): void {
+        if (!this._container.hasAttribute("data-dodbl-consent")) return;
+        this._container.removeAttribute("data-dodbl-consent");
+        this._container.textContent = "";
+        this._container.style.backgroundColor = "";
+        this._container.style.border = "";
+        this._container.style.color = "";
+        this._container.style.fontSize = "";
+        this._container.style.fontFamily = "";
+        this._container.style.fontWeight = "";
+        this._container.style.display = "";
+        this._container.style.height = "";
+        this._container.style.boxSizing = "";
+        this._container.style.alignItems = "";
+        this._container.style.justifyContent = "";
+        this._container.style.letterSpacing = "";
+    }
+
+    // Renders a subtle navy tint so the control is visible in the Canvas editor
+    // when showConsent=true (or legacy bannerType="DoD") but no classification bar.
+    private renderDodPlaceholder(): void {
+        this.clearBar();
+        if (this._container.hasAttribute("data-dodbl-consent")) return;  // already rendered
+        this._container.setAttribute("data-dodbl-consent", "1");
+        this._container.textContent = "\u26A0 DoD Consent";
+        this._container.style.backgroundColor = "rgba(27, 58, 107, 0.07)";
+        this._container.style.border = "1.5px dashed rgba(27, 58, 107, 0.30)";
+        this._container.style.color = "#1b3a6b";
+        this._container.style.fontSize = "12px";
+        this._container.style.fontFamily = '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif';
+        this._container.style.fontWeight = "600";
+        this._container.style.display = "flex";
+        const parentHeight = this._container.parentElement?.offsetHeight ?? 0;
+        this._container.style.height = parentHeight > 0 ? `${parentHeight}px` : "100%";
+        this._container.style.boxSizing = "border-box";
+        this._container.style.alignItems = "center";
+        this._container.style.justifyContent = "center";
+        this._container.style.letterSpacing = "0.04em";
+    }
+
     private renderClassificationBar(bannerType: string): void {
         this.clearBar();
         const color = this.getClassificationColor(bannerType);
@@ -191,25 +229,35 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
 
     private renderBanner(context: ComponentFramework.Context<IInputs>): void {
         const enabled = context.parameters.bannerEnabled.raw;
-        if (enabled === false || enabled === null) return;
+        if (enabled === false || enabled === null) {
+            this.clearBar();
+            this.clearPlaceholder();
+            return;
+        }
 
-        const bannerType = ((context.parameters.bannerType.raw) || "DoD").trim();
-        const expiry = context.parameters.consentExpiryDays.raw;
-        const expiryDays = (expiry !== null && expiry !== undefined && !isNaN(expiry) && expiry >= 0)
-            ? expiry
-            : DodBannerControl.DEFAULT_EXPIRY_DAYS;
+        const rawType     = ((context.parameters.bannerType.raw) || "").trim();
+        const showConsent = context.parameters.showConsent.raw === true ||
+                            rawType.toUpperCase() === "DOD";  // legacy compat
+        const expiry      = context.parameters.consentExpiryDays.raw;
+        const expiryDays  = (expiry !== null && expiry !== undefined && !isNaN(expiry) && expiry >= 0)
+            ? expiry : DodBannerControl.DEFAULT_EXPIRY_DAYS;
         const consentText = context.parameters.consentText.raw || "";
 
-        if (bannerType === "DoD") {
-            // Consent modal: clear any classification bar, hide container, render full-page overlay
-            this.clearBar();
-            this._container.style.display = "none";
-            this.buildModal(consentText);
-            this.showBanner(expiryDays);
-        } else {
-            // Classification bar: show the PCF container and render colored bar inside it
+        // Classification bar: any non-empty, non-"DoD" bannerType
+        const hasBar = rawType !== "" && rawType.toUpperCase() !== "DOD";
+
+        if (hasBar) {
+            this.clearPlaceholder();
             this._container.style.display = "block";
-            this.renderClassificationBar(bannerType);
+            this.renderClassificationBar(rawType);
+        } else {
+            // No classification bar — render DoD placeholder so the control is
+            // visible in the Canvas editor and indicates consent is configured.
+            this.renderDodPlaceholder();
+        }
+
+        if (showConsent) {
+            this.showConsentModal(consentText, expiryDays);
         }
     }
 
@@ -228,16 +276,7 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
 
     public updateView(context: ComponentFramework.Context<IInputs>): void {
         if (!this._rendered) return;
-        const bannerType = ((context.parameters.bannerType.raw) || "DoD").trim();
-        if (bannerType === "DoD") {
-            // Re-show consent modal only if cookie not yet set
-            if (this.getCookie(DodBannerControl.COOKIE_NAME) === "") {
-                this.renderBanner(context);
-            }
-        } else {
-            // Always re-render classification bar (bannerType may have changed)
-            this.renderBanner(context);
-        }
+        this.renderBanner(context);
     }
 
     public getOutputs(): IOutputs {
@@ -251,5 +290,6 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
             this._bannerRoot.parentNode.removeChild(this._bannerRoot);
         }
         this.clearBar();
+        this.clearPlaceholder();
     }
 }
