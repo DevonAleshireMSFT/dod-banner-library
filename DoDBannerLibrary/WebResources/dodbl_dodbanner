@@ -118,7 +118,7 @@ DoDBannerLibrary.DodBanner = (function () {
     bar.setAttribute("data-dodbl-bar", "1");
     bar.textContent = bannerType.toUpperCase();
     bar.style.position       = "fixed";
-    bar.style.top            = "0";
+    bar.style.bottom         = "0";
     bar.style.left           = "0";
     bar.style.width          = "100%";
     bar.style.height         = "28px";
@@ -134,7 +134,7 @@ DoDBannerLibrary.DodBanner = (function () {
     bar.style.textShadow     = "1px 1px 0 rgba(0,0,0,.3)";
     bar.style.zIndex         = "9999";
     bar.style.boxSizing      = "border-box";
-    _doc.body.insertBefore(bar, _doc.body.firstChild);
+    _doc.body.appendChild(bar);
   }
 
   // ── Environment variable reader ──────────────────────────────────────────────
