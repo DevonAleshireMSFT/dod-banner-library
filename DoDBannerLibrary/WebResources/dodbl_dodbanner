@@ -111,7 +111,14 @@ DoDBannerLibrary.DodBanner = (function () {
   }
 
   function injectClassificationBar(bannerType, position) {
-    // Idempotent — remove ALL existing bars (covers top, bottom, and both)
+    var BAR_HEIGHT = 28;
+
+    // ── Cleanup — restore any previously shifted MDA header, then remove old bars
+    var shiftedHeader = _doc.querySelector("[data-dodbl-shifted]");
+    if (shiftedHeader) {
+      shiftedHeader.style.top = shiftedHeader.getAttribute("data-dodbl-shifted") || "";
+      shiftedHeader.removeAttribute("data-dodbl-shifted");
+    }
     _doc.querySelectorAll("[data-dodbl-bar]").forEach(function (el) {
       if (el.parentNode) el.parentNode.removeChild(el);
     });
@@ -127,7 +134,7 @@ DoDBannerLibrary.DodBanner = (function () {
       bar.style.position           = "fixed";
       bar.style.left               = "0";
       bar.style.width              = "100%";
-      bar.style.height             = "28px";
+      bar.style.height             = BAR_HEIGHT + "px";
       bar.style.backgroundColor    = color;
       bar.style.color              = "#fff";
       bar.style.fontWeight         = "bold";
@@ -142,18 +149,32 @@ DoDBannerLibrary.DodBanner = (function () {
       bar.style.boxSizing          = "border-box";
       bar.style.pointerEvents      = "none"; // informational only — clicks pass through
       if (placement === "top") {
-        bar.style.top    = "48px"; // offset clears the standard 48px MDA UCI navigation header
+        bar.style.top    = "0";
       } else {
         bar.style.bottom = "0";
       }
       return bar;
     }
 
+    function shiftMdaHeader() {
+      // Shift the MDA UCI global navigation header down to make room for the bar.
+      // Uses semantic role='banner' first (most version-stable), then known MDA attributes.
+      var header = _doc.querySelector("div[role='banner']") ||
+                   _doc.querySelector("[data-id='navbar']") ||
+                   _doc.querySelector(".pa-navbar");
+      if (header) {
+        header.setAttribute("data-dodbl-shifted", header.style.top || "0");
+        header.style.top = BAR_HEIGHT + "px";
+      }
+    }
+
     if (pos === "both") {
       _doc.body.insertBefore(buildBar("top"), _doc.body.firstChild);
       _doc.body.appendChild(buildBar("bottom"));
+      shiftMdaHeader();
     } else if (pos === "top") {
       _doc.body.insertBefore(buildBar("top"), _doc.body.firstChild);
+      shiftMdaHeader();
     } else {
       _doc.body.appendChild(buildBar("bottom")); // default
     }
