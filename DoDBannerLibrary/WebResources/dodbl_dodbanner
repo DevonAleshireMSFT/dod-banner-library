@@ -7,11 +7,13 @@
 //        Function: DoDBannerLibrary.DodBanner.onFormLoad
 //        Pass execution context: Yes
 //
-// The script reads four environment variables:
-//   dodbl_BannerEnabled     — Boolean  — set to false/no to suppress the banner
-//   dodbl_BannerType        — String   — "DoD" (consent modal) or "CUI" (CSS mark only)
-//   dodbl_ConsentExpiryDays — Number   — cookie lifetime in days (default 30)
-//   dodbl_DoDConsentText    — String   — AO-approved text; falls back to built-in default
+// The script reads five environment variables:
+//   dodbl_BannerEnabled       — Boolean  — set to false/no to suppress all banners
+//   dodbl_BannerType          — String   — "CUI" | "UNCLASSIFIED" | "SECRET" etc. (classification bar)
+//   dodbl_ConsentExpiryDays   — Number   — cookie lifetime in days (default 30)
+//   dodbl_DoDConsentText      — String   — AO-approved text; falls back to built-in default
+//   dodbl_ShowConsentBanner   — Boolean  — set to yes/true to show the DoD system-use notification
+//   dodbl_BannerPosition      — String   — Top | Bottom | Both — where to render the classification bar (default: Bottom)
 //
 // Falls back to built-in defaults if any variable is absent or the API call fails.
 
@@ -22,9 +24,15 @@ var DoDBannerLibrary = DoDBannerLibrary || {};
 
 DoDBannerLibrary.DodBanner = (function () {
 
+  // ── Target document ──────────────────────────────────────────────────────────
+  // MDA UCI runs form web resource scripts inside a 0×0 hidden iframe.
+  // All DOM injection must target window.top.document to be visible in the
+  // outer UCI shell page. Falls back to document for non-iframe contexts.
+  var _doc = (window.top && window.top.document) ? window.top.document : document;
+
   // ── Defaults ────────────────────────────────────────────────────────────────
 
-  var BANNER_TYPE_DEFAULT  = "DoD";
+  var BANNER_TYPE_DEFAULT  = "";
   var EXPIRY_DAYS_DEFAULT  = 30;
   var CONSENT_TEXT_DEFAULT =
     "WARNING: This is a U.S. Government computer system, which may be accessed " +
@@ -43,7 +51,7 @@ DoDBannerLibrary.DodBanner = (function () {
   function setCookie(name, value, days) {
     var expiry = new Date();
     expiry.setTime(expiry.getTime() + days * 24 * 60 * 60 * 1000);
-    document.cookie =
+    _doc.cookie =
       name + "=" + value +
       ";expires=" + expiry.toUTCString() +
       ";path=/;SameSite=Lax";
@@ -51,7 +59,7 @@ DoDBannerLibrary.DodBanner = (function () {
 
   function getCookie(name) {
     var prefix = name + "=";
-    var parts = decodeURIComponent(document.cookie).split(";");
+    var parts = decodeURIComponent(_doc.cookie).split(";");
     for (var i = 0; i < parts.length; i++) {
       var c = parts[i].trimStart();
       if (c.indexOf(prefix) === 0) return c.substring(prefix.length);
@@ -59,131 +67,144 @@ DoDBannerLibrary.DodBanner = (function () {
     return "";
   }
 
-  // ── DOM helpers ──────────────────────────────────────────────────────────────
+  // ── Consent notification ────────────────────────────────────────────────────
+  // Uses Xrm.App.addGlobalNotification — a supported UCI Client API that renders
+  // in the outer app shell (not the form iframe), persists across navigation, and
+  // requires no window.top DOM injection.
 
-  function injectCSS() {
-    if (document.querySelector("style[data-dodbl-core]")) return;
-    // Inline the consent modal CSS — MDA form iframes do not reliably load
-    // external web resource stylesheets via <link>, so we embed the styles
-    // directly. banner-core.css remains the source of truth for Power Pages.
-    var css = [
-      "@media only screen and (max-device-width:480px){",
-      "#cookieConsent{background:#f6f6f6;min-height:26px;min-width:90%;",
-      "font-size:14px;color:black;line-height:26px;padding:10px 15px;",
-      "font-family:\"Trebuchet MS\",Helvetica,sans-serif;",
-      "position:fixed;top:50%;left:50%;transform:translate(-50%,-25%);",
-      "display:none;z-index:9998;border-color:black;border-style:ridge;",
-      "max-height:calc(100% - 26px);overflow-y:auto;}}",
-      "@media (min-width:481px) and (max-width:759px){",
-      "#cookieConsent{background:#f6f6f6;min-height:26px;min-width:80%;",
-      "font-size:14px;color:black;line-height:26px;padding:10px 15px;",
-      "font-family:\"Trebuchet MS\",Helvetica,sans-serif;",
-      "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);",
-      "display:none;z-index:9998;border-color:black;border-style:ridge;",
-      "max-height:calc(100% - 26px);overflow-y:auto;}}",
-      "@media (min-width:760px){",
-      "#cookieConsent{background:#f6f6f6;min-height:26px;",
-      "font-size:14px;color:black;line-height:26px;padding:10px 15px;",
-      "font-family:\"Trebuchet MS\",Helvetica,sans-serif;",
-      "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);",
-      "display:none;z-index:9998;border-color:black;border-style:ridge;",
-      "max-height:calc(100% - 26px);overflow-y:auto;}}",
-      "#cookieConsent a{color:#4b8ee7;text-decoration:none;}",
-      "#closeCookieConsent{float:right;}",
-      "#closeCookieConsent:hover{color:#fff;}",
-      "#cookieConsent a.cookieConsentOK{background-color:#f1d600;color:#000;",
-      "border-radius:5px;padding:0 20px;cursor:pointer;float:right;margin:0 60px 0 10px;}",
-      "#cookieConsent a.cookieConsentOK:hover{background-color:#e0c91f;}",
-      ".consentBackground{position:fixed;display:none;top:0;left:0;",
-      "width:100%;height:100%;background-color:#fff;opacity:.8;z-index:9997;}"
-    ].join("");
-    var style = document.createElement("style");
-    style.setAttribute("data-dodbl-core", "1");
-    style.textContent = css;
-    document.head.appendChild(style);
-  }
-
-  function injectModal(consentText) {
-    if (document.getElementById("cookieConsent")) return;
+  function showConsentNotification(consentText, expiryDays) {
+    if (getCookie("Accepted") !== "") return;
 
     var text = (consentText && consentText.trim()) ? consentText : CONSENT_TEXT_DEFAULT;
+    var notificationId = null;
 
-    // Build DOM nodes directly — avoids any innerHTML XSS risk on the consent text
-    var closeBtn = document.createElement("a");
-    closeBtn.id = "closeCookieConsent";
-    closeBtn.textContent = "\u2715";
-
-    var p = document.createElement("p");
-    p.textContent = text;
-
-    var okBtn = document.createElement("a");
-    okBtn.className = "cookieConsentOK";
-    okBtn.textContent = "I Acknowledge";
-
-    var modal = document.createElement("div");
-    modal.id = "cookieConsent";
-    modal.appendChild(closeBtn);
-    modal.appendChild(p);
-    modal.appendChild(okBtn);
-
-    var overlay = document.createElement("div");
-    overlay.className = "consentBackground";
-
-    var root = document.createElement("div");
-    root.setAttribute("data-dodbl-root", "1");
-    root.appendChild(modal);
-    root.appendChild(overlay);
-
-    document.body.appendChild(root);
+    Xrm.App.addGlobalNotification({
+      type: 2,
+      level: 3,               // Warning — yellow notification bar
+      message: text,
+      showCloseButton: false, // User must explicitly acknowledge; no passive dismissal
+      action: {
+        actionLabel: "I Acknowledge",
+        eventHandler: function () {
+          setCookie("Accepted", "Yes", expiryDays);
+          if (notificationId) {
+            Xrm.App.clearGlobalNotification(notificationId);
+          }
+        }
+      }
+    }).then(
+      function (id) { notificationId = id; },
+      function ()   { /* addGlobalNotification unavailable — continue silently */ }
+    );
   }
 
-  function fadeIn(el, duration) {
-    el.style.opacity = "0";
-    el.style.display = "block";
-    var start = null;
-    function step(ts) {
-      if (!start) start = ts;
-      var p = Math.min((ts - start) / duration, 1);
-      el.style.opacity = String(p);
-      if (p < 1) requestAnimationFrame(step);
+  // ── Classification bar helpers ───────────────────────────────────────────────
+
+  function getClassificationColor(bannerType) {
+    var t = (bannerType || "").toUpperCase();
+    if (t.indexOf("CU") === 0) return "#5a04b0";  // CUI → purple
+    if (t.indexOf("U")  === 0) return "#5cb85c";  // UNCLASSIFIED → green
+    if (t.indexOf("CO") === 0) return "#286090";  // CONFIDENTIAL → blue
+    if (t.indexOf("S")  === 0) return "#d9534f";  // SECRET → red
+    if (t.indexOf("T")  === 0) return "#f0ad4e";  // TOP SECRET → orange
+    return "#5e5e5e";                             // unknown → grey
+  }
+
+  function injectClassificationBar(bannerType, position) {
+    var BAR_HEIGHT = 28;
+
+    // ── Cleanup — restore any previously shifted MDA header, then remove old bars
+    var shiftedHeader = _doc.querySelector("[data-dodbl-shifted]");
+    if (shiftedHeader) {
+      try {
+        var _saved = JSON.parse(shiftedHeader.getAttribute("data-dodbl-shifted"));
+        shiftedHeader.style.top       = _saved.top       || "";
+        shiftedHeader.style.marginTop = _saved.marginTop || "";
+      } catch (_e) {
+        shiftedHeader.style.top = shiftedHeader.style.marginTop = "";
+      }
+      shiftedHeader.removeAttribute("data-dodbl-shifted");
     }
-    requestAnimationFrame(step);
-  }
+    _doc.querySelectorAll("[data-dodbl-bar]").forEach(function (el) {
+      if (el.parentNode) el.parentNode.removeChild(el);
+    });
 
-  function fadeOut(el, duration) {
-    var start = null;
-    function step(ts) {
-      if (!start) start = ts;
-      var p = Math.min((ts - start) / duration, 1);
-      el.style.opacity = String(1 - p);
-      if (p < 1) {
-        requestAnimationFrame(step);
+    var pos   = ((position || "bottom") + "").trim().toLowerCase();
+    var color = getClassificationColor(bannerType);
+    var label = bannerType.toUpperCase();
+
+    function buildBar(placement) {
+      var bar = _doc.createElement("div");
+      bar.setAttribute("data-dodbl-bar", placement);
+      bar.textContent              = label;
+      bar.style.position           = "fixed";
+      bar.style.left               = "0";
+      bar.style.width              = "100%";
+      bar.style.height             = BAR_HEIGHT + "px";
+      bar.style.backgroundColor    = color;
+      bar.style.color              = "#fff";
+      bar.style.fontWeight         = "bold";
+      bar.style.fontFamily         = '"Segoe UI",Tahoma,Geneva,Verdana,sans-serif';
+      bar.style.fontSize           = "14px";
+      bar.style.display            = "flex";
+      bar.style.alignItems         = "center";
+      bar.style.justifyContent     = "center";
+      bar.style.letterSpacing      = "0.06em";
+      bar.style.textShadow         = "1px 1px 0 rgba(0,0,0,.3)";
+      bar.style.zIndex             = "9999";
+      bar.style.boxSizing          = "border-box";
+      bar.style.pointerEvents      = "none"; // informational only — clicks pass through
+      if (placement === "top") {
+        bar.style.top    = "0";
       } else {
-        el.style.display = "none";
-        el.style.opacity = "";
+        bar.style.bottom = "0";
+      }
+      return bar;
+    }
+
+    function shiftMdaHeader() {
+      // Find the global nav bar: must be near the top of the viewport and span
+      // at least half its width.  Explicit MDA selectors come first so we don't
+      // accidentally match a <header> inside a form section or card.
+      var win = (window.top && window.top.document) ? window.top : window;
+      var vw  = win.innerWidth || 800;
+      var sels = ["[role='banner']", "[data-id='navbar']", ".pa-n-w", ".pa-navbar", "header"];
+      var header = null;
+      for (var si = 0; si < sels.length; si++) {
+        var _el = _doc.querySelector(sels[si]);
+        if (!_el) continue;
+        var _r = _el.getBoundingClientRect();
+        if (_r.top <= 10 && _r.width >= vw * 0.5) { header = _el; break; }
+      }
+      if (!header || header.hasAttribute("data-dodbl-shifted")) return;
+
+      // Preserve original inline styles for exact restoration.
+      header.setAttribute("data-dodbl-shifted", JSON.stringify({
+        top: header.style.top, marginTop: header.style.marginTop
+      }));
+
+      var cs = win.getComputedStyle(header);
+      if (cs.position === "fixed" || cs.position === "sticky" || cs.position === "absolute") {
+        // Positioned element — adjust top offset
+        header.style.top = (parseInt(cs.top) || 0) + BAR_HEIGHT + "px";
+      } else {
+        // Static / relative in document flow — use marginTop to push it down
+        header.style.marginTop = (parseInt(cs.marginTop) || 0) + BAR_HEIGHT + "px";
       }
     }
-    requestAnimationFrame(step);
-  }
 
-  function showBanner(expiryDays) {
-    if (getCookie("Accepted") !== "") return;
-    var modal = document.getElementById("cookieConsent");
-    var bg    = document.querySelector(".consentBackground");
-    if (!modal || !bg) return;
-
-    setTimeout(function () {
-      fadeIn(modal, 200);
-      bg.style.display = "block";
-    }, 800);
-
-    document.querySelectorAll("#closeCookieConsent, .cookieConsentOK").forEach(function (el) {
-      el.addEventListener("click", function () {
-        setCookie("Accepted", "Yes", expiryDays);
-        fadeOut(modal, 200);
-        bg.style.display = "none";
-      });
-    });
+    if (pos === "both") {
+      _doc.body.insertBefore(buildBar("top"), _doc.body.firstChild);
+      _doc.body.appendChild(buildBar("bottom"));
+      shiftMdaHeader();
+      setTimeout(shiftMdaHeader, 800);  // retry — MDA may finish rendering after onFormLoad
+    } else if (pos === "top") {
+      _doc.body.insertBefore(buildBar("top"), _doc.body.firstChild);
+      shiftMdaHeader();
+      setTimeout(shiftMdaHeader, 800);  // retry — MDA may finish rendering after onFormLoad
+    } else {
+      _doc.body.appendChild(buildBar("bottom")); // default
+    }
   }
 
   // ── Environment variable reader ──────────────────────────────────────────────
@@ -196,7 +217,9 @@ DoDBannerLibrary.DodBanner = (function () {
       "dodbl_BannerEnabled",
       "dodbl_BannerType",
       "dodbl_ConsentExpiryDays",
-      "dodbl_DoDConsentText"
+      "dodbl_DoDConsentText",
+      "dodbl_ShowConsentBanner",
+      "dodbl_BannerPosition"
     ];
     var schemaFilter = schemas
       .map(function (s) { return "schemaname eq '" + s + "'"; })
@@ -252,21 +275,23 @@ DoDBannerLibrary.DodBanner = (function () {
         var expiryDays  = parseInt(vars["dodbl_ConsentExpiryDays"] || EXPIRY_DAYS_DEFAULT, 10);
         if (isNaN(expiryDays) || expiryDays < 0) expiryDays = EXPIRY_DAYS_DEFAULT;
         var consentText = vars["dodbl_DoDConsentText"] || "";
+        var showConsent = String(vars["dodbl_ShowConsentBanner"] || "").toLowerCase();
+        var showConsentBanner = (showConsent === "yes" || showConsent === "true" || showConsent === "1");
+        var barPosition = ((vars["dodbl_BannerPosition"] || "Bottom") + "").trim();
 
-        injectCSS();
-
-        if (bannerType === "DoD") {
-          injectModal(consentText);
-          showBanner(expiryDays);
+        // Classification bar — driven by dodbl_BannerType; position by dodbl_BannerPosition
+        if (bannerType) {
+          injectClassificationBar(bannerType, barPosition);
         }
-        // BannerType "CUI": injectCSS above is sufficient —
-        // add data-classification to a container element in the form layout.
+
+        // Consent notification — driven by dodbl_ShowConsentBanner (independent of bar)
+        if (showConsentBanner) {
+          showConsentNotification(consentText, expiryDays);
+        }
       })
       .catch(function () {
-        // Env vars unavailable — show banner with built-in defaults
-        injectCSS();
-        injectModal("");
-        showBanner(EXPIRY_DAYS_DEFAULT);
+        // Env vars unavailable — show default consent notification as fallback
+        showConsentNotification("", EXPIRY_DAYS_DEFAULT);
       });
   }
 
