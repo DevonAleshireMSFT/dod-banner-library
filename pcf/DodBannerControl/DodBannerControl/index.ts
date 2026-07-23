@@ -87,28 +87,25 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
         style.setAttribute("data-dodbl-pcf-styles", "1");
         style.textContent = [
             "#cookieConsent{",
-                "background:#f6f6f6;min-width:60%;max-height:calc(100% - 40px);",
+                "background:#fff;min-width:60%;max-height:calc(100% - 40px);",
                 "overflow-y:auto;font-size:14px;color:#000;line-height:1.7;",
-                "padding:16px 20px;",
+                "padding:24px 28px;",
                 "font-family:\"Trebuchet MS\",Helvetica,sans-serif;",
                 "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);",
-                "z-index:9998;border:2px ridge #000;box-sizing:border-box;",
+                "z-index:9998;border:2px solid #555;box-sizing:border-box;",
+                "box-shadow:0 8px 32px rgba(0,0,0,0.45),0 2px 8px rgba(0,0,0,0.25);",
+                "border-radius:4px;",
             "}",
             "#cookieConsent a{color:#4b8ee7;text-decoration:none;}",
-            "#closeCookieConsent{",
-                "float:right;cursor:pointer;font-size:18px;line-height:1;",
-                "margin:0 0 10px 14px;color:#333;",
-            "}",
-            "#closeCookieConsent:hover{color:#000;}",
             "#cookieConsent a.cookieConsentOK{",
                 "display:inline-block;background-color:#f1d600;color:#000;",
-                "border-radius:5px;padding:6px 20px;cursor:pointer;",
-                "float:right;margin:10px 60px 0 10px;font-weight:bold;",
+                "border-radius:5px;padding:6px 20px;cursor:pointer!important;",
+                "float:right;margin:10px 60px 0 10px;font-weight:bold;user-select:none;",
             "}",
             "#cookieConsent a.cookieConsentOK:hover{background-color:#e0c91f;}",
             ".consentBackground{",
                 "position:fixed;top:0;left:0;width:100%;height:100%;",
-                "background-color:#fff;opacity:0.8;z-index:9997;",
+                "background-color:rgba(0,0,0,0.45);z-index:9997;",
             "}",
         ].join("");
         document.head.appendChild(style);
@@ -124,10 +121,6 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
             ? consentText
             : DodBannerControl.DEFAULT_CONSENT_TEXT;
 
-        const closeBtn = document.createElement("a");
-        closeBtn.id = "closeCookieConsent";
-        closeBtn.textContent = "\u2715";
-
         const p = document.createElement("p");
         p.textContent = text;  // textContent prevents XSS
 
@@ -138,7 +131,6 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
         const modal = document.createElement("div");
         modal.id = "cookieConsent";
         modal.style.display = "none";  // hidden until fadeIn; prevents flash before 800ms delay
-        modal.appendChild(closeBtn);
         modal.appendChild(p);
         modal.appendChild(okBtn);
 
@@ -158,11 +150,9 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
             overlay.style.display = "none";
         };
 
-        [closeBtn, okBtn].forEach(el => {
-            const handler: EventListener = () => dismiss();
-            el.addEventListener("click", handler);
-            this._clickListeners.push({ el, fn: handler });
-        });
+        const handler: EventListener = () => dismiss();
+        okBtn.addEventListener("click", handler);
+        this._clickListeners.push({ el: okBtn, fn: handler });
 
         this._consentSetup = true;
 
