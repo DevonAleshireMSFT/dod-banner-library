@@ -79,9 +79,46 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
     // Self-guarded: no-ops if cookie already set or modal already wired.
     // Decoupled from bannerType — called whenever showConsent=true (or legacy DoD).
 
+    // Injects modal CSS once per document. Mirrors dodbl_bannercore styles so
+    // the modal renders correctly in Canvas Apps where that CSS is not loaded.
+    private injectConsentStyles(): void {
+        if (document.querySelector("style[data-dodbl-pcf-styles]")) return;
+        const style = document.createElement("style");
+        style.setAttribute("data-dodbl-pcf-styles", "1");
+        style.textContent = [
+            "#cookieConsent{",
+                "background:#f6f6f6;min-width:60%;max-height:calc(100% - 40px);",
+                "overflow-y:auto;font-size:14px;color:#000;line-height:1.7;",
+                "padding:16px 20px;",
+                "font-family:\"Trebuchet MS\",Helvetica,sans-serif;",
+                "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);",
+                "z-index:9998;border:2px ridge #000;box-sizing:border-box;",
+            "}",
+            "#cookieConsent a{color:#4b8ee7;text-decoration:none;}",
+            "#closeCookieConsent{",
+                "float:right;cursor:pointer;font-size:18px;line-height:1;",
+                "margin:0 0 10px 14px;color:#333;",
+            "}",
+            "#closeCookieConsent:hover{color:#000;}",
+            "#cookieConsent a.cookieConsentOK{",
+                "display:inline-block;background-color:#f1d600;color:#000;",
+                "border-radius:5px;padding:6px 20px;cursor:pointer;",
+                "float:right;margin:10px 60px 0 10px;font-weight:bold;",
+            "}",
+            "#cookieConsent a.cookieConsentOK:hover{background-color:#e0c91f;}",
+            ".consentBackground{",
+                "position:fixed;top:0;left:0;width:100%;height:100%;",
+                "background-color:#fff;opacity:0.8;z-index:9997;",
+            "}",
+        ].join("");
+        document.head.appendChild(style);
+    }
+
     private showConsentModal(consentText: string, expiryDays: number): void {
         if (this._consentSetup) return;                                    // already wired
         if (this.getCookie(DodBannerControl.COOKIE_NAME) !== "") return;  // cookie set — no-op
+
+        this.injectConsentStyles();
 
         const text = (consentText && consentText.trim())
             ? consentText
@@ -100,6 +137,7 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
 
         const modal = document.createElement("div");
         modal.id = "cookieConsent";
+        modal.style.display = "none";  // hidden until fadeIn; prevents flash before 800ms delay
         modal.appendChild(closeBtn);
         modal.appendChild(p);
         modal.appendChild(okBtn);
@@ -129,6 +167,7 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
         this._consentSetup = true;
 
         setTimeout(() => {
+            modal.style.display = "block";  // reveal before fade
             this.fadeIn(modal, 200);
             overlay.style.display = "block";
         }, 800);
