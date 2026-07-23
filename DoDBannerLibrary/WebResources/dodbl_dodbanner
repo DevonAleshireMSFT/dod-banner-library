@@ -7,11 +7,12 @@
 //        Function: DoDBannerLibrary.DodBanner.onFormLoad
 //        Pass execution context: Yes
 //
-// The script reads four environment variables:
-//   dodbl_BannerEnabled     — Boolean  — set to false/no to suppress the banner
-//   dodbl_BannerType        — String   — "DoD" (consent modal) or "CUI" (CSS mark only)
-//   dodbl_ConsentExpiryDays — Number   — cookie lifetime in days (default 30)
-//   dodbl_DoDConsentText    — String   — AO-approved text; falls back to built-in default
+// The script reads five environment variables:
+//   dodbl_BannerEnabled       — Boolean  — set to false/no to suppress all banners
+//   dodbl_BannerType          — String   — "CUI" | "UNCLASSIFIED" | "SECRET" etc. (classification bar)
+//   dodbl_ConsentExpiryDays   — Number   — cookie lifetime in days (default 30)
+//   dodbl_DoDConsentText      — String   — AO-approved text; falls back to built-in default
+//   dodbl_ShowConsentBanner   — Boolean  — set to yes/true to show the DoD system-use notification
 //
 // Falls back to built-in defaults if any variable is absent or the API call fails.
 
@@ -30,7 +31,7 @@ DoDBannerLibrary.DodBanner = (function () {
 
   // ── Defaults ────────────────────────────────────────────────────────────────
 
-  var BANNER_TYPE_DEFAULT  = "DoD";
+  var BANNER_TYPE_DEFAULT  = "";
   var EXPIRY_DAYS_DEFAULT  = 30;
   var CONSENT_TEXT_DEFAULT =
     "WARNING: This is a U.S. Government computer system, which may be accessed " +
@@ -65,182 +66,35 @@ DoDBannerLibrary.DodBanner = (function () {
     return "";
   }
 
-  // ── DOM helpers ──────────────────────────────────────────────────────────────
+  // ── Consent notification ────────────────────────────────────────────────────
+  // Uses Xrm.App.addGlobalNotification — a supported UCI Client API that renders
+  // in the outer app shell (not the form iframe), persists across navigation, and
+  // requires no window.top DOM injection.
 
-  function injectCSS() {
-    if (_doc.querySelector("style[data-dodbl-core]")) return;
-    // Inline the consent modal CSS — MDA form iframes do not reliably load
-    // external web resource stylesheets via <link>, so we embed the styles
-    // directly. banner-core.css remains the source of truth for Power Pages.
-    var css = [
-      "@media only screen and (max-device-width:480px){",
-      "#cookieConsent{background:#f6f6f6;min-height:26px;min-width:90%;",
-      "font-size:14px;color:black;line-height:26px;padding:10px 15px;",
-      "font-family:\"Trebuchet MS\",Helvetica,sans-serif;",
-      "position:fixed;top:50%;left:50%;transform:translate(-50%,-25%);",
-      "display:none;z-index:9998;border-color:black;border-style:ridge;",
-      "max-height:calc(100% - 26px);overflow-y:auto;}}",
-      "@media (min-width:481px) and (max-width:759px){",
-      "#cookieConsent{background:#f6f6f6;min-height:26px;min-width:80%;",
-      "font-size:14px;color:black;line-height:26px;padding:10px 15px;",
-      "font-family:\"Trebuchet MS\",Helvetica,sans-serif;",
-      "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);",
-      "display:none;z-index:9998;border-color:black;border-style:ridge;",
-      "max-height:calc(100% - 26px);overflow-y:auto;}}",
-      "@media (min-width:760px){",
-      "#cookieConsent{background:#f6f6f6;min-height:26px;",
-      "font-size:14px;color:black;line-height:26px;padding:10px 15px;",
-      "font-family:\"Trebuchet MS\",Helvetica,sans-serif;",
-      "position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);",
-      "display:none;z-index:9998;border-color:black;border-style:ridge;",
-      "max-height:calc(100% - 26px);overflow-y:auto;}}",
-      "#cookieConsent a{color:#4b8ee7;text-decoration:none;}",
-      "#closeCookieConsent{position:absolute;top:14px;right:16px;font-size:20px;line-height:1;}",
-      "#closeCookieConsent:hover{color:#fff;}",
-      "#cookieConsent a.cookieConsentOK{background-color:#f1d600;color:#000;",
-      "border-radius:5px;padding:0 20px;cursor:pointer;float:right;margin:0 60px 0 10px;}",
-      "#cookieConsent a.cookieConsentOK:hover{background-color:#e0c91f;}",
-      ".consentBackground{position:fixed;display:none;top:0;left:0;",
-      "width:100%;height:100%;background-color:#fff;opacity:.8;z-index:9997;}"
-    ].join("");
-    var style = _doc.createElement("style");
-    style.setAttribute("data-dodbl-core", "1");
-    style.textContent = css;
-    _doc.head.appendChild(style);
-  }
-
-  function injectModal(consentText) {
-    if (_doc.getElementById("cookieConsent")) return;
+  function showConsentNotification(consentText, expiryDays) {
+    if (getCookie("Accepted") !== "") return;
 
     var text = (consentText && consentText.trim()) ? consentText : CONSENT_TEXT_DEFAULT;
+    var notificationId = null;
 
-    // Build DOM nodes directly — avoids any innerHTML XSS risk on the consent text.
-    // All structural styles are applied as inline properties rather than relying on
-    // the injected <style> tag, which is blocked by MDA GCC High nonce-based CSP.
-    var closeBtn = _doc.createElement("a");
-    closeBtn.id = "closeCookieConsent";
-    closeBtn.textContent = "\u2715";
-    closeBtn.style.position       = "absolute";
-    closeBtn.style.top            = "14px";
-    closeBtn.style.right          = "16px";
-    closeBtn.style.fontSize       = "20px";
-    closeBtn.style.lineHeight     = "1";
-    closeBtn.style.cursor         = "pointer";
-    closeBtn.style.textDecoration = "none";
-    closeBtn.style.color          = "inherit";
-
-    var p = _doc.createElement("p");
-    p.textContent    = text;
-    p.style.margin   = "0 0 10px 0";
-    p.style.overflow = "auto";
-
-    var okBtn = _doc.createElement("a");
-    okBtn.className              = "cookieConsentOK";
-    okBtn.textContent            = "I Acknowledge";
-    okBtn.style.backgroundColor  = "#f1d600";
-    okBtn.style.color            = "#000";
-    okBtn.style.borderRadius     = "5px";
-    okBtn.style.padding          = "0 20px";
-    okBtn.style.cursor           = "pointer";
-    okBtn.style.float            = "right";
-    okBtn.style.margin           = "0 0 0 10px";
-    okBtn.style.textDecoration   = "none";
-    okBtn.style.lineHeight       = "26px";
-    okBtn.style.display          = "inline-block";
-
-    var modal = _doc.createElement("div");
-    modal.id                  = "cookieConsent";
-    modal.style.background    = "#f6f6f6";
-    modal.style.fontSize      = "14px";
-    modal.style.color         = "black";
-    modal.style.lineHeight    = "26px";
-    modal.style.padding       = "44px 24px 20px 24px";
-    modal.style.fontFamily    = '"Trebuchet MS", Helvetica, sans-serif';
-    modal.style.position      = "fixed";
-    modal.style.top           = "50%";
-    modal.style.left          = "50%";
-    modal.style.transform     = "translate(-50%, -50%)";
-    modal.style.display       = "none";
-    modal.style.zIndex        = "9998";
-    modal.style.borderColor   = "black";
-    modal.style.borderStyle   = "ridge";
-    modal.style.maxHeight     = "calc(100% - 26px)";
-    modal.style.overflowY     = "auto";
-    modal.style.boxSizing     = "border-box";
-    modal.style.width         = "80%";
-    modal.style.maxWidth      = "760px";
-    modal.style.minWidth      = "280px";
-    modal.appendChild(closeBtn);
-    modal.appendChild(p);
-    modal.appendChild(okBtn);
-
-    var overlay = _doc.createElement("div");
-    overlay.className                = "consentBackground";
-    overlay.style.position           = "fixed";
-    overlay.style.display            = "none";
-    overlay.style.top                = "0";
-    overlay.style.left               = "0";
-    overlay.style.width              = "100%";
-    overlay.style.height             = "100%";
-    overlay.style.backgroundColor    = "#fff";
-    overlay.style.opacity            = "0.8";
-    overlay.style.zIndex             = "9997";
-
-    var root = _doc.createElement("div");
-    root.setAttribute("data-dodbl-root", "1");
-    root.appendChild(modal);
-    root.appendChild(overlay);
-
-    _doc.body.appendChild(root);
-  }
-
-  function fadeIn(el, duration) {
-    el.style.opacity = "0";
-    el.style.display = "block";
-    var start = null;
-    function step(ts) {
-      if (!start) start = ts;
-      var p = Math.min((ts - start) / duration, 1);
-      el.style.opacity = String(p);
-      if (p < 1) requestAnimationFrame(step);
-    }
-    requestAnimationFrame(step);
-  }
-
-  function fadeOut(el, duration) {
-    var start = null;
-    function step(ts) {
-      if (!start) start = ts;
-      var p = Math.min((ts - start) / duration, 1);
-      el.style.opacity = String(1 - p);
-      if (p < 1) {
-        requestAnimationFrame(step);
-      } else {
-        el.style.display = "none";
-        el.style.opacity = "";
+    Xrm.App.addGlobalNotification({
+      type: 2,
+      level: 3,               // Warning — yellow notification bar
+      message: text,
+      showCloseButton: false, // User must explicitly acknowledge; no passive dismissal
+      action: {
+        actionLabel: "I Acknowledge",
+        eventHandler: function () {
+          setCookie("Accepted", "Yes", expiryDays);
+          if (notificationId) {
+            Xrm.App.clearGlobalNotification(notificationId);
+          }
+        }
       }
-    }
-    requestAnimationFrame(step);
-  }
-
-  function showBanner(expiryDays) {
-    if (getCookie("Accepted") !== "") return;
-    var modal = _doc.getElementById("cookieConsent");
-    var bg    = _doc.querySelector(".consentBackground");
-    if (!modal || !bg) return;
-
-    setTimeout(function () {
-      fadeIn(modal, 200);
-      bg.style.display = "block";
-    }, 800);
-
-    _doc.querySelectorAll("#closeCookieConsent, .cookieConsentOK").forEach(function (el) {
-      el.addEventListener("click", function () {
-        setCookie("Accepted", "Yes", expiryDays);
-        fadeOut(modal, 200);
-        bg.style.display = "none";
-      });
-    });
+    }).then(
+      function (id) { notificationId = id; },
+      function ()   { /* addGlobalNotification unavailable — continue silently */ }
+    );
   }
 
   // ── Classification bar helpers ───────────────────────────────────────────────
@@ -293,7 +147,8 @@ DoDBannerLibrary.DodBanner = (function () {
       "dodbl_BannerEnabled",
       "dodbl_BannerType",
       "dodbl_ConsentExpiryDays",
-      "dodbl_DoDConsentText"
+      "dodbl_DoDConsentText",
+      "dodbl_ShowConsentBanner"
     ];
     var schemaFilter = schemas
       .map(function (s) { return "schemaname eq '" + s + "'"; })
@@ -349,21 +204,22 @@ DoDBannerLibrary.DodBanner = (function () {
         var expiryDays  = parseInt(vars["dodbl_ConsentExpiryDays"] || EXPIRY_DAYS_DEFAULT, 10);
         if (isNaN(expiryDays) || expiryDays < 0) expiryDays = EXPIRY_DAYS_DEFAULT;
         var consentText = vars["dodbl_DoDConsentText"] || "";
+        var showConsent = String(vars["dodbl_ShowConsentBanner"] || "").toLowerCase();
+        var showConsentBanner = (showConsent === "yes" || showConsent === "true" || showConsent === "1");
 
-        injectCSS();
-
-        if (bannerType === "DoD") {
-          injectModal(consentText);
-          showBanner(expiryDays);
-        } else {
+        // Classification bar — driven by dodbl_BannerType (CUI, UNCLASSIFIED, etc.)
+        if (bannerType) {
           injectClassificationBar(bannerType);
+        }
+
+        // Consent notification — driven by dodbl_ShowConsentBanner (independent of bar)
+        if (showConsentBanner) {
+          showConsentNotification(consentText, expiryDays);
         }
       })
       .catch(function () {
-        // Env vars unavailable — show banner with built-in defaults
-        injectCSS();
-        injectModal("");
-        showBanner(EXPIRY_DAYS_DEFAULT);
+        // Env vars unavailable — show default consent notification as fallback
+        showConsentNotification("", EXPIRY_DAYS_DEFAULT);
       });
   }
 
