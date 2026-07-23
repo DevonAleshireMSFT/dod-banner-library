@@ -142,7 +142,7 @@ DoDBannerLibrary.DodBanner = (function () {
       bar.style.boxSizing          = "border-box";
       bar.style.pointerEvents      = "none"; // informational only — clicks pass through
       if (placement === "top") {
-        bar.style.top    = "0";
+        bar.style.top    = "48px"; // offset clears the standard 48px MDA UCI navigation header
       } else {
         bar.style.bottom = "0";
       }
