@@ -116,7 +116,13 @@ DoDBannerLibrary.DodBanner = (function () {
     // ── Cleanup — restore any previously shifted MDA header, then remove old bars
     var shiftedHeader = _doc.querySelector("[data-dodbl-shifted]");
     if (shiftedHeader) {
-      shiftedHeader.style.top = shiftedHeader.getAttribute("data-dodbl-shifted") || "";
+      try {
+        var _saved = JSON.parse(shiftedHeader.getAttribute("data-dodbl-shifted"));
+        shiftedHeader.style.top       = _saved.top       || "";
+        shiftedHeader.style.marginTop = _saved.marginTop || "";
+      } catch (_e) {
+        shiftedHeader.style.top = shiftedHeader.style.marginTop = "";
+      }
       shiftedHeader.removeAttribute("data-dodbl-shifted");
     }
     _doc.querySelectorAll("[data-dodbl-bar]").forEach(function (el) {
@@ -157,14 +163,33 @@ DoDBannerLibrary.DodBanner = (function () {
     }
 
     function shiftMdaHeader() {
-      // Shift the MDA UCI global navigation header down to make room for the bar.
-      // Uses semantic role='banner' first (most version-stable), then known MDA attributes.
-      var header = _doc.querySelector("div[role='banner']") ||
-                   _doc.querySelector("[data-id='navbar']") ||
-                   _doc.querySelector(".pa-navbar");
-      if (header) {
-        header.setAttribute("data-dodbl-shifted", header.style.top || "0");
-        header.style.top = BAR_HEIGHT + "px";
+      // Find the global nav bar: must be near the top of the viewport and span
+      // at least half its width.  Explicit MDA selectors come first so we don't
+      // accidentally match a <header> inside a form section or card.
+      var win = (window.top && window.top.document) ? window.top : window;
+      var vw  = win.innerWidth || 800;
+      var sels = ["[role='banner']", "[data-id='navbar']", ".pa-n-w", ".pa-navbar", "header"];
+      var header = null;
+      for (var si = 0; si < sels.length; si++) {
+        var _el = _doc.querySelector(sels[si]);
+        if (!_el) continue;
+        var _r = _el.getBoundingClientRect();
+        if (_r.top <= 10 && _r.width >= vw * 0.5) { header = _el; break; }
+      }
+      if (!header || header.hasAttribute("data-dodbl-shifted")) return;
+
+      // Preserve original inline styles for exact restoration.
+      header.setAttribute("data-dodbl-shifted", JSON.stringify({
+        top: header.style.top, marginTop: header.style.marginTop
+      }));
+
+      var cs = win.getComputedStyle(header);
+      if (cs.position === "fixed" || cs.position === "sticky" || cs.position === "absolute") {
+        // Positioned element — adjust top offset
+        header.style.top = (parseInt(cs.top) || 0) + BAR_HEIGHT + "px";
+      } else {
+        // Static / relative in document flow — use marginTop to push it down
+        header.style.marginTop = (parseInt(cs.marginTop) || 0) + BAR_HEIGHT + "px";
       }
     }
 
@@ -172,9 +197,11 @@ DoDBannerLibrary.DodBanner = (function () {
       _doc.body.insertBefore(buildBar("top"), _doc.body.firstChild);
       _doc.body.appendChild(buildBar("bottom"));
       shiftMdaHeader();
+      setTimeout(shiftMdaHeader, 800);  // retry — MDA may finish rendering after onFormLoad
     } else if (pos === "top") {
       _doc.body.insertBefore(buildBar("top"), _doc.body.firstChild);
       shiftMdaHeader();
+      setTimeout(shiftMdaHeader, 800);  // retry — MDA may finish rendering after onFormLoad
     } else {
       _doc.body.appendChild(buildBar("bottom")); // default
     }
