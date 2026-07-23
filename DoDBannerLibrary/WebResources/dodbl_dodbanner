@@ -95,7 +95,7 @@ DoDBannerLibrary.DodBanner = (function () {
       "display:none;z-index:9998;border-color:black;border-style:ridge;",
       "max-height:calc(100% - 26px);overflow-y:auto;}}",
       "#cookieConsent a{color:#4b8ee7;text-decoration:none;}",
-      "#closeCookieConsent{float:right;}",
+      "#closeCookieConsent{position:absolute;top:14px;right:16px;font-size:20px;line-height:1;}",
       "#closeCookieConsent:hover{color:#fff;}",
       "#cookieConsent a.cookieConsentOK{background-color:#f1d600;color:#000;",
       "border-radius:5px;padding:0 20px;cursor:pointer;float:right;margin:0 60px 0 10px;}",
@@ -120,7 +120,11 @@ DoDBannerLibrary.DodBanner = (function () {
     var closeBtn = _doc.createElement("a");
     closeBtn.id = "closeCookieConsent";
     closeBtn.textContent = "\u2715";
-    closeBtn.style.float          = "right";
+    closeBtn.style.position       = "absolute";
+    closeBtn.style.top            = "14px";
+    closeBtn.style.right          = "16px";
+    closeBtn.style.fontSize       = "20px";
+    closeBtn.style.lineHeight     = "1";
     closeBtn.style.cursor         = "pointer";
     closeBtn.style.textDecoration = "none";
     closeBtn.style.color          = "inherit";
@@ -139,7 +143,7 @@ DoDBannerLibrary.DodBanner = (function () {
     okBtn.style.padding          = "0 20px";
     okBtn.style.cursor           = "pointer";
     okBtn.style.float            = "right";
-    okBtn.style.margin           = "0 60px 0 10px";
+    okBtn.style.margin           = "0 0 0 10px";
     okBtn.style.textDecoration   = "none";
     okBtn.style.lineHeight       = "26px";
     okBtn.style.display          = "inline-block";
@@ -150,7 +154,7 @@ DoDBannerLibrary.DodBanner = (function () {
     modal.style.fontSize      = "14px";
     modal.style.color         = "black";
     modal.style.lineHeight    = "26px";
-    modal.style.padding       = "10px 15px";
+    modal.style.padding       = "44px 24px 20px 24px";
     modal.style.fontFamily    = '"Trebuchet MS", Helvetica, sans-serif';
     modal.style.position      = "fixed";
     modal.style.top           = "50%";
@@ -164,7 +168,7 @@ DoDBannerLibrary.DodBanner = (function () {
     modal.style.overflowY     = "auto";
     modal.style.boxSizing     = "border-box";
     modal.style.width         = "80%";
-    modal.style.maxWidth      = "600px";
+    modal.style.maxWidth      = "760px";
     modal.style.minWidth      = "280px";
     modal.appendChild(closeBtn);
     modal.appendChild(p);
