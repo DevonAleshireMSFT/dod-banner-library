@@ -13,6 +13,7 @@
 //   dodbl_ConsentExpiryDays   — Number   — cookie lifetime in days (default 30)
 //   dodbl_DoDConsentText      — String   — AO-approved text; falls back to built-in default
 //   dodbl_ShowConsentBanner   — Boolean  — set to yes/true to show the DoD system-use notification
+//   dodbl_BannerPosition      — String   — Top | Bottom | Both — where to render the classification bar (default: Bottom)
 //
 // Falls back to built-in defaults if any variable is absent or the API call fails.
 
@@ -109,32 +110,53 @@ DoDBannerLibrary.DodBanner = (function () {
     return "#5e5e5e";                             // unknown → grey
   }
 
-  function injectClassificationBar(bannerType) {
-    // Idempotent — remove any existing bar before (re-)rendering
-    var existing = _doc.querySelector("[data-dodbl-bar]");
-    if (existing && existing.parentNode) existing.parentNode.removeChild(existing);
+  function injectClassificationBar(bannerType, position) {
+    // Idempotent — remove ALL existing bars (covers top, bottom, and both)
+    _doc.querySelectorAll("[data-dodbl-bar]").forEach(function (el) {
+      if (el.parentNode) el.parentNode.removeChild(el);
+    });
 
-    var bar = _doc.createElement("div");
-    bar.setAttribute("data-dodbl-bar", "1");
-    bar.textContent = bannerType.toUpperCase();
-    bar.style.position       = "fixed";
-    bar.style.bottom         = "0";
-    bar.style.left           = "0";
-    bar.style.width          = "100%";
-    bar.style.height         = "28px";
-    bar.style.backgroundColor = getClassificationColor(bannerType);
-    bar.style.color          = "#fff";
-    bar.style.fontWeight     = "bold";
-    bar.style.fontFamily     = '"Segoe UI",Tahoma,Geneva,Verdana,sans-serif';
-    bar.style.fontSize       = "14px";
-    bar.style.display        = "flex";
-    bar.style.alignItems     = "center";
-    bar.style.justifyContent = "center";
-    bar.style.letterSpacing  = "0.06em";
-    bar.style.textShadow     = "1px 1px 0 rgba(0,0,0,.3)";
-    bar.style.zIndex         = "9999";
-    bar.style.boxSizing      = "border-box";
-    _doc.body.appendChild(bar);
+    var pos   = ((position || "bottom") + "").trim().toLowerCase();
+    var color = getClassificationColor(bannerType);
+    var label = bannerType.toUpperCase();
+
+    function buildBar(placement) {
+      var bar = _doc.createElement("div");
+      bar.setAttribute("data-dodbl-bar", placement);
+      bar.textContent              = label;
+      bar.style.position           = "fixed";
+      bar.style.left               = "0";
+      bar.style.width              = "100%";
+      bar.style.height             = "28px";
+      bar.style.backgroundColor    = color;
+      bar.style.color              = "#fff";
+      bar.style.fontWeight         = "bold";
+      bar.style.fontFamily         = '"Segoe UI",Tahoma,Geneva,Verdana,sans-serif';
+      bar.style.fontSize           = "14px";
+      bar.style.display            = "flex";
+      bar.style.alignItems         = "center";
+      bar.style.justifyContent     = "center";
+      bar.style.letterSpacing      = "0.06em";
+      bar.style.textShadow         = "1px 1px 0 rgba(0,0,0,.3)";
+      bar.style.zIndex             = "9999";
+      bar.style.boxSizing          = "border-box";
+      bar.style.pointerEvents      = "none"; // informational only — clicks pass through
+      if (placement === "top") {
+        bar.style.top    = "0";
+      } else {
+        bar.style.bottom = "0";
+      }
+      return bar;
+    }
+
+    if (pos === "both") {
+      _doc.body.insertBefore(buildBar("top"), _doc.body.firstChild);
+      _doc.body.appendChild(buildBar("bottom"));
+    } else if (pos === "top") {
+      _doc.body.insertBefore(buildBar("top"), _doc.body.firstChild);
+    } else {
+      _doc.body.appendChild(buildBar("bottom")); // default
+    }
   }
 
   // ── Environment variable reader ──────────────────────────────────────────────
@@ -148,7 +170,8 @@ DoDBannerLibrary.DodBanner = (function () {
       "dodbl_BannerType",
       "dodbl_ConsentExpiryDays",
       "dodbl_DoDConsentText",
-      "dodbl_ShowConsentBanner"
+      "dodbl_ShowConsentBanner",
+      "dodbl_BannerPosition"
     ];
     var schemaFilter = schemas
       .map(function (s) { return "schemaname eq '" + s + "'"; })
@@ -206,10 +229,11 @@ DoDBannerLibrary.DodBanner = (function () {
         var consentText = vars["dodbl_DoDConsentText"] || "";
         var showConsent = String(vars["dodbl_ShowConsentBanner"] || "").toLowerCase();
         var showConsentBanner = (showConsent === "yes" || showConsent === "true" || showConsent === "1");
+        var barPosition = ((vars["dodbl_BannerPosition"] || "Bottom") + "").trim();
 
-        // Classification bar — driven by dodbl_BannerType (CUI, UNCLASSIFIED, etc.)
+        // Classification bar — driven by dodbl_BannerType; position by dodbl_BannerPosition
         if (bannerType) {
-          injectClassificationBar(bannerType);
+          injectClassificationBar(bannerType, barPosition);
         }
 
         // Consent notification — driven by dodbl_ShowConsentBanner (independent of bar)
