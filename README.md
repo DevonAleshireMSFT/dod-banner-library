@@ -15,8 +15,8 @@ Zero external dependencies. No CDN calls. No jQuery.
 | `dodbl_bannercore` | CSS | Shared stylesheet — responsive consent modal layout and classification mark color rules |
 | `dodbl_dodconsentbanner` | HTML | DoD consent modal — vanilla JS cookie-based consent tracking with fade animation |
 | `dodbl_cuiconsentbanner` | HTML | CUI classification mark fragment — CSS-only, no JavaScript required |
-| `dodbl_dodbanner` | JS | Model-Driven App form `OnLoad` script — reads `dodbl_` environment variables, shows consent notification, and injects the classification bar |
-| `dodbl_banner-launch-page` | HTML | Model-Driven App home/landing page — blocking consent gate with navigation tiles into the management app |
+| `dodbl_dodbanner` | JS | Model-Driven App form `OnLoad` script — reads `dodbl_` environment variables and injects the classification bar |
+| `dodbl_banner-launch-page` | HTML | Model-Driven App custom home page — single consent entry point with navigation tiles into the management app |
 | `dodbl_webtemplatesource` | HTML | Power Pages Liquid Web Template source — copy/paste setup page |
 | `dodbl_docs` | HTML | In-environment documentation page |
 | `dodbl_release-notes` | HTML | Version history and changelog |
@@ -30,7 +30,7 @@ Zero external dependencies. No CDN calls. No jQuery.
 | `dodbl_BannerType` | Environment Variable | Classification bar to render — `CUI`, `UNCLASSIFIED`, `SECRET`, etc. Empty = no bar. (String) |
 | `dodbl_ConsentExpiryDays` | Environment Variable | Cookie lifetime in days (Number, default: `30`) |
 | `dodbl_DoDConsentText` | Environment Variable | AO-approved consent text override (String, optional) |
-| `dodbl_ShowConsentBanner` | Environment Variable | Set to `yes`/`true` to show the DoD system-use notification (Boolean) |
+| `dodbl_ShowConsentBanner` | Environment Variable | Legacy form-script consent notification toggle (Boolean); the v1.3 management app consent gate uses `dodbl_banner-launch-page` |
 | `dodbl_BannerPosition` | Environment Variable | Classification bar placement — `Bottom` (default), `Top`, or `Both` (String) |
 
 ---
@@ -131,8 +131,8 @@ These variables are available for Canvas App and Model-Driven App integrations (
 | `dodbl_BannerEnabled` | Boolean | `true` | Set to `false` to disable banners environment-wide |
 | `dodbl_BannerType` | String | *(empty)* | Classification bar to render: `CUI`, `UNCLASSIFIED`, `CONFIDENTIAL`, `SECRET`, `TOP SECRET`. Empty = no bar |
 | `dodbl_ConsentExpiryDays` | Number | `30` | Days before the consent cookie expires |
-| `dodbl_DoDConsentText` | String | *(empty)* | AO-approved consent text; overrides the built-in default when set |
-| `dodbl_ShowConsentBanner` | Boolean | `false` | Set to `yes`/`true` to show the DoD system-use notification via `Xrm.App.addGlobalNotification` |
+| `dodbl_DoDConsentText` | String | *(empty)* | AO-approved consent text; used by the MDA home-page consent gate after query-string overrides and before the built-in default |
+| `dodbl_ShowConsentBanner` | Boolean | `false` | Legacy form-script consent notification toggle; the v1.3 management app consent gate uses the custom home page instead of a global notification |
 | `dodbl_BannerPosition` | String | `Bottom` | Classification bar placement: `Bottom`, `Top`, or `Both`. `Top` shifts the MDA nav header down 28 px |
 
 ---
@@ -141,6 +141,7 @@ These variables are available for Canvas App and Model-Driven App integrations (
 
 - **GCC High / IL4/IL5 safe** — no external CDN calls, no third-party scripts
 - Consent is tracked **client-side only** via browser cookie in v1.3, including the new Model-Driven App home-page consent gate — no server-side audit log yet
+- The Model-Driven App home-page consent gate is a UX-level entry pattern, not hard security enforcement; deep links, global search, pinned items, and recent items can bypass it (tracked in issue #13)
 - The jQuery dependency present in prior versions was **removed in v1.0**
 - Review all scripts before deploying to a production environment
 - Replace placeholder consent text with your organization's AO-approved language
@@ -151,9 +152,11 @@ These variables are available for Canvas App and Model-Driven App integrations (
 
 **v1.3 (Released 2026-07-24)**
 
-- Model-Driven App consent gate landing page (`dodbl_banner-launch-page`) with blocking overlay before access to the management app home screen
-- Native UCI global-notification acknowledgement path now dismisses the home-page overlay and reveals content just like the overlay button
-- `dodbl_DoDConsentText` now drives the home-page consent copy with the existing built-in warning text as fallback
+- Model-Driven App consent gate custom home page (`dodbl_banner-launch-page`) with blocking overlay before the management app home content is shown
+- Custom home page is the single MDA consent entry point; the duplicate shell-level global notification banner was removed
+- `dodbl_DoDConsentText` now drives the home-page consent copy after query-string overrides and before the built-in warning fallback
+- Consent cookie uses `SameSite=Lax; Secure`, and the acknowledge path consistently reveals the home content
+- Known limitation: the sitemap/home-page gate is UX-level only, not hard enforcement; issue #13 tracks deep-link/search/pinned/recent bypasses
 
 **v1.4 (Planned)**
 

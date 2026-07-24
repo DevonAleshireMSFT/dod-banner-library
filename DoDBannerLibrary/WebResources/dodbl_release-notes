@@ -40,6 +40,7 @@
     .change-item { display: flex; gap: 12px; align-items: flex-start; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; box-shadow: var(--shadow); font-size: 13px; }
     .change-pill { flex-shrink: 0; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; margin-top: 1px; }
     .pill-new    { background: #dce9f8; color: #004578; }
+    .pill-note   { background: var(--warning-border); color: #8a6d00; }
     .pill-remove { background: var(--error-border); color: #6b0c0e; }
     .change-text { color: var(--text-secondary); flex: 1; }
     .change-text strong { color: var(--text); }
@@ -69,14 +70,20 @@
     <div class="change-group">
       <div class="change-group-title">New</div>
       <ul class="change-list">
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>dodbl_banner-launch-page</strong> &mdash; Model-Driven App landing page that blocks access behind a full-page DoD consent gate until the user acknowledges the warning.</span></li>
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Home-page consent text override</strong> &mdash; the launch page now honors <code>dodbl_DoDConsentText</code> with the same built-in fallback behavior used by <code>dodbl_dodbanner</code>.</span></li>
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Acknowledge-path parity</strong> &mdash; clicking &ldquo;I Acknowledge&rdquo; from either the blocking overlay or the native UCI global notification now sets the cookie, dismisses the overlay, and reveals the home content.</span></li>
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Cookie hardening for the new home page</strong> &mdash; the consent cookie written by <code>dodbl_banner-launch-page</code> now includes <code>SameSite=Lax; Secure</code>.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>dodbl_banner-launch-page</strong> &mdash; Model-Driven App custom home page that presents the DoD consent gate before showing the management app navigation tiles.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Single consent entry point</strong> &mdash; the home-page overlay is now the MDA consent experience; the duplicate shell-level <code>Xrm.App.addGlobalNotification</code> banner was removed to keep the architecture simple and unambiguous.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Configurable consent text</strong> &mdash; the launch page resolves text from a query-string override first, then <code>dodbl_DoDConsentText</code> via <code>Xrm.WebApi</code>, then the built-in DoD warning fallback.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Consent UI polish</strong> &mdash; the page title is now &ldquo;U.S. Government System - Authorized Users Only&rdquo;, the subtitle is &ldquo;DoD Banner Library&rdquo;, and the <strong style="color:#a4262c">WARNING:</strong> label is emphasized in red.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Consent cookie hardening</strong> &mdash; the home-page consent cookie uses <code>SameSite=Lax; Secure</code>, and the acknowledge path now consistently dismisses the overlay and reveals the home content.</span></li>
+      </ul>
+    </div>
+    <div class="change-group">
+      <div class="change-group-title">Known limitation</div>
+      <ul class="change-list">
+        <li class="change-item"><span class="change-pill pill-note">NOTE</span><span class="change-text"><strong>Sitemap gate != enforcement</strong> &mdash; the v1.3.0 MDA gate is a UX-level home-page entry pattern, not a hard security boundary. Deep links, global search, pinned items, and recent items can bypass the home page; enforcement is tracked separately in issue #13 and deferred beyond v1.3.0.</span></li>
       </ul>
     </div>
   </div>
-
   <div class="version-block">
     <div class="version-header">
       <span class="version-tag">v1.0.0</span>
