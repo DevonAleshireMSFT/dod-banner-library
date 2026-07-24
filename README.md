@@ -15,6 +15,8 @@ Zero external dependencies. No CDN calls. No jQuery.
 | `dodbl_bannercore` | CSS | Shared stylesheet — responsive consent modal layout and classification mark color rules |
 | `dodbl_dodconsentbanner` | HTML | DoD consent modal — vanilla JS cookie-based consent tracking with fade animation |
 | `dodbl_cuiconsentbanner` | HTML | CUI classification mark fragment — CSS-only, no JavaScript required |
+| `dodbl_dodbanner` | JS | Model-Driven App form `OnLoad` script — reads `dodbl_` environment variables, shows consent notification, and injects the classification bar |
+| `dodbl_banner-launch-page` | HTML | Model-Driven App home/landing page — blocking consent gate with navigation tiles into the management app |
 | `dodbl_webtemplatesource` | HTML | Power Pages Liquid Web Template source — copy/paste setup page |
 | `dodbl_docs` | HTML | In-environment documentation page |
 | `dodbl_release-notes` | HTML | Version history and changelog |
@@ -59,7 +61,7 @@ Open the **DoD Banner Library Management** app from the app switcher. Navigate t
 
 The in-solution documentation page (`dodbl_docs`) contains the full post-import checklist. The key steps are:
 
-1. Verify all six web resources and the management app are present
+1. Verify all eight web resources and the management app are present
 2. **Power Pages** — create `banner-core.css` and `dod-consent-banner.js` web files on your site
 3. **Power Pages** — create the `dod-consent-banner` Web Template using the source in `dodbl_webtemplatesource`
 
@@ -138,7 +140,7 @@ These variables are available for Canvas App and Model-Driven App integrations (
 ## Security Notes
 
 - **GCC High / IL4/IL5 safe** — no external CDN calls, no third-party scripts
-- Consent is tracked **client-side only** via browser cookie in v1.0 — no server-side audit log
+- Consent is tracked **client-side only** via browser cookie in v1.3, including the new Model-Driven App home-page consent gate — no server-side audit log yet
 - The jQuery dependency present in prior versions was **removed in v1.0**
 - Review all scripts before deploying to a production environment
 - Replace placeholder consent text with your organization's AO-approved language
@@ -147,17 +149,19 @@ These variables are available for Canvas App and Model-Driven App integrations (
 
 ## Roadmap
 
-**v1.1 (Released 2026-07-23)**
+**v1.3 (Released 2026-07-24)**
 
-- PCF Virtual Component (`DodBannerControl`) for Canvas Apps
-- JavaScript web resource (`dodbl_dodbanner`) for Model-Driven App form `OnLoad` — consent via `Xrm.App.addGlobalNotification`, classification bar via `window.top` DOM injection
-- `dodbl_ShowConsentBanner` — decouples consent notification from classification bar
-- `dodbl_BannerPosition` — `Top`, `Bottom`, or `Both` classification bar placement
+- Model-Driven App consent gate landing page (`dodbl_banner-launch-page`) with blocking overlay before access to the management app home screen
+- Native UCI global-notification acknowledgement path now dismisses the home-page overlay and reveals content just like the overlay button
+- `dodbl_DoDConsentText` now drives the home-page consent copy with the existing built-in warning text as fallback
 
-**v1.2 (Planned)**
+**v1.4 (Planned)**
 
 - Dataverse consent audit table (`dodbl_consent_record`)
 - Security role `DoD Banner — Consent Write`
+- PCF acknowledge action writes consent records (#10)
+- Model-Driven App JS acknowledge action writes consent records (#11)
+- Power Pages server-side consent record write (#12)
 
 ---
 

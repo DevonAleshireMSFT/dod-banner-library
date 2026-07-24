@@ -62,6 +62,23 @@
 
   <div class="version-block">
     <div class="version-header">
+      <span class="version-tag">v1.3.0</span>
+      <span class="version-date">2026-07-24</span>
+      <span class="version-badge">Latest</span>
+    </div>
+    <div class="change-group">
+      <div class="change-group-title">New</div>
+      <ul class="change-list">
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>dodbl_banner-launch-page</strong> &mdash; Model-Driven App landing page that blocks access behind a full-page DoD consent gate until the user acknowledges the warning.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Home-page consent text override</strong> &mdash; the launch page now honors <code>dodbl_DoDConsentText</code> with the same built-in fallback behavior used by <code>dodbl_dodbanner</code>.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Acknowledge-path parity</strong> &mdash; clicking &ldquo;I Acknowledge&rdquo; from either the blocking overlay or the native UCI global notification now sets the cookie, dismisses the overlay, and reveals the home content.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Cookie hardening for the new home page</strong> &mdash; the consent cookie written by <code>dodbl_banner-launch-page</code> now includes <code>SameSite=Lax; Secure</code>.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="version-block">
+    <div class="version-header">
       <span class="version-tag">v1.0.0</span>
       <span class="version-date">2026-07-22</span>
     </div>
@@ -88,7 +105,6 @@
     <div class="version-header">
       <span class="version-tag">v1.1.0</span>
       <span class="version-date">2026-07-23</span>
-      <span class="version-badge">Latest</span>
     </div>
     <div class="change-group">
       <div class="change-group-title">New</div>
@@ -107,7 +123,7 @@
 
   <div class="version-block">
     <div class="version-header">
-      <span class="version-tag" style="color:var(--text-disabled)">v1.2.0</span>
+      <span class="version-tag" style="color:var(--text-disabled)">v1.4.0</span>
       <span class="version-date" style="color:var(--text-disabled)">Planned</span>
     </div>
     <div class="change-group">

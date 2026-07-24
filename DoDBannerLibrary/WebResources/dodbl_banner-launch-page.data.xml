@@ -3,9 +3,9 @@
   <WebResourceId>{75803b3a-9187-f111-ab0f-001dd8029b52}</WebResourceId>
   <Name>dodbl_banner-launch-page</Name>
   <DisplayName>banner-launch-page</DisplayName>
-  <Description>Launch page to initialize the consent and DoD data classification banner</Description>
+  <Description>Launch page for the Model-Driven App consent gate home page. Reads dodbl_DoDConsentText from query-string config or Xrm.WebApi environment variables, then shows the blocking consent overlay and navigation home.</Description>
   <WebResourceType>1</WebResourceType>
-  <IntroducedVersion>1.1.0.0</IntroducedVersion>
+  <IntroducedVersion>1.3.0.0</IntroducedVersion>
   <IsEnabledForMobileClient>0</IsEnabledForMobileClient>
   <IsAvailableForMobileOffline>0</IsAvailableForMobileOffline>
   <IsCustomizable>1</IsCustomizable>
