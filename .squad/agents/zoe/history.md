@@ -10,3 +10,6 @@
 
 **2026-07-24:** Reviewed v1.3.0 consent gate for compliance posture and identified the AC-8 hard-enforcement gap now tracked in issue #13.
 Confirmed AO-approved consent text must come from `dodbl_DoDConsentText`; noted Secure cookie flag gap for remediation.
+
+**2026-07-24:** Documented AC-8 posture for adopters in README and in-app docs (dodbl_docs): AC-8 is inherited at tenant/workstation logon pending adopter AO/ISSM confirmation, in-app consent is optional supplementary hardening, and the classification bar is the library's primary compliance contribution. Commit: 09734b5.
+

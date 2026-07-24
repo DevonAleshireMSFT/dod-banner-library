@@ -12,3 +12,5 @@
 
 **2026-07-24:** Validated issue #7 consent gate against acceptance criteria and produced manual UAT scenarios for new user, returning user, malformed/expired cookie, and bypass attempt.
 Deployed unmanaged solution v1.3.0.0 to GFIM-DEV, then re-deployed after Kaylee's UI fixes.
+
+**2026-07-24:** Re-packed and re-imported unmanaged solution v1.3.0.0 to GFIM-DEV using PAC profile [2] (daleshire@gfim.onmicrosoft.us, UsGovHigh). Import, publish, and version verification succeeded; Solution Checker critical findings were known informational unsupported-API / window.top items, and temporary deployment artifacts were removed.
