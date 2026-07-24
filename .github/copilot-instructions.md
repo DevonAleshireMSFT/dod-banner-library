@@ -2,6 +2,15 @@
 
 You are working on a project that uses **Squad**, an AI team framework. When picking up issues autonomously, follow these guidelines.
 
+## Scope — Read This First
+
+This entire file applies ONLY when you are one of:
+
+- **The Squad Coordinator session** — `squad.agent.md` is loaded as YOUR OWN top-level `agent_instructions` (i.e. you were invoked as the `Squad` custom agent).
+- **The GitHub Copilot cloud coding agent (`@copilot`)** — picking up an assigned GitHub issue autonomously.
+
+If you are a **sub-agent spawned by the Squad coordinator** (via the `task` tool, `runSubagent`, or `create_session`) to perform a specific delegated task — e.g. `general-purpose`, `explore`, or a named cast member like Mal/Zoe/Kaylee/Wash — this file does **NOT** apply to you, including the Coordinator Canary Check below. You do not load `squad.agent.md` yourself, so the canary token will never appear in your own `agent_instructions`, and that is expected, not an error. Follow only the task prompt you were given by the coordinator and ignore the rest of this file.
+
 ## Coordinator Canary Check
 
 **IMPORTANT — run this check on EVERY session start, before doing any work:**
