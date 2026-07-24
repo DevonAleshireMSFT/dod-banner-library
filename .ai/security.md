@@ -58,3 +58,13 @@ No custom security roles are deployed in v1.0 or v1.1. Standard Dataverse user r
 | XSS — cookie value | Cookie value is a static string `Yes`. Cookie is read via string comparison only. |
 | CSRF | No write operations from client-side code. |
 | Sensitive data exposure | No secrets in source. No PII in cookies. |
+
+---
+
+## Known Security Gaps (tracked for v1.3.0)
+
+| Gap | Risk | Planned Fix |
+|---|---|---|
+| `Secure` flag missing on consent cookie | Cookie could theoretically be sent over HTTP in a misconfigured environment. GCC High is always HTTPS so risk is low, but the flag should be set. | Add `;Secure` to `setCookie` in `DodBannerControl` |
+| Cookie name `Accepted` is generic | Any other app on the same domain that also sets an `Accepted=Yes` cookie would suppress the DoD banner without user acknowledgement. | Rename to `dodbl_Accepted` across all three delivery paths simultaneously (PCF, MDA JS, Power Pages HTML) |
+| `getCookie` throws `URIError` on malformed cookie values | `decodeURIComponent(document.cookie)` is called on the full cookie string before splitting. A malformed `%XX` sequence in any cookie on the domain throws an unhandled exception, preventing the consent check entirely — the modal never shows. | Wrap in `try/catch` or decode each cookie segment individually |

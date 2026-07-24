@@ -3,8 +3,8 @@ project: DoD Banner Library
 schema-prefix: dodbl_
 platform: Power Platform / Dataverse
 cloud: GCC High (DoD IL4/IL5)
-context-version: 1.2.0
-last-updated: 2026-07-23
+context-version: 1.3.0
+last-updated: 2026-07-24
 owner: Tech Lead
 review-cadence: every-sprint
 ---
@@ -21,7 +21,7 @@ The **DoD Banner Library** is a managed Power Platform solution that provides re
 
 ---
 
-## Current State (v1.1.0)
+## Current State (v1.2.0)
 
 ### Web Resources
 - ✅ `dodbl_bannercore` — shared CSS (classification marks + consent modal layout)
@@ -30,15 +30,17 @@ The **DoD Banner Library** is a managed Power Platform solution that provides re
 - ✅ `dodbl_webtemplatesource` — Power Pages Web Template source (copy/paste Liquid page)
 - ✅ `dodbl_dodbanner` — MDA form OnLoad JS script; reads **6** env vars via Xrm.WebApi. Uses `Xrm.App.addGlobalNotification` for consent (supported UCI API, no window.top). Uses `window.top.document` DOM injection for classification bar only (known anti-pattern — see Decision 006). Supports `Top`/`Bottom`/`Both` bar placement; shifts MDA nav header down when bar is at top.
 - ✅ `dodbl_docs` — in-solution documentation (post-import checklist, all 7 web resources documented)
-- ✅ `dodbl_release-notes` — version history (v1.0.0 released, v1.1.0 published 2026-07-22)
+- ✅ `dodbl_release-notes` — version history (latest first, oldest last). v1.0.0, v1.1.0, v1.2.0 released. v1.3.0 planned at top.
 
 ### PCF Control
-- ✅ `DodBannerControl` (namespace `DoDBannerLibrary`) — PCF field control for Canvas Apps
+- ✅ `DodBannerControl` (namespace `DoDBannerLibrary`) — PCF field control for Canvas Apps and Custom Pages (MDA)
   - `bannerEnabled` (TwoOptions, bound) — show/hide the banner
-  - `bannerType` (SingleLine.Text, input) — `DoD` = consent modal; any other value = classification color bar
+  - `bannerType` (SingleLine.Text, input) — classification bar type; `DoD` = legacy consent alias; empty = no bar
+  - `showConsent` (TwoOptions, input) — show the DoD consent modal independently of `bannerType` (v1.2+)
   - `consentExpiryDays` (Whole.None, input) — cookie lifetime
   - `consentText` (SingleLine.Text, input) — AO-approved text override
-  - Built: webpack bundle 5.92 KiB (production, minified, no eval). CSS embedded inline (self-contained).
+  - Bundle is **fully self-contained**: injects modal CSS into `document.head` at runtime (`<style data-dodbl-pcf-styles>`). `dodbl_bannercore.css` is not required in Canvas Apps.
+  - Built: webpack bundle ~5.92 KiB (production, minified, no eval).
   - `pcfconfig.json` sets `"buildMode": "production"` — plain `npm run build` always produces a production build.
   - Source: `pcf/DodBannerControl/`
 
@@ -47,7 +49,7 @@ The **DoD Banner Library** is a managed Power Platform solution that provides re
 - ✅ `dodbl_DoDBannerLibraryManagement` — MDA management app (docs, release notes, web template source, banner demo)
 - ✅ `dodbl_banner_demo` — custom Dataverse table for MDA banner demo; Main form has `dodbl_dodbanner` library registered
 - ✅ `dodbl_DoDBannerLibrary.DodBannerControl` — PCF registered as custom control (type 66) in solution
-- ✅ Solution version: `1.1.0.0`
+- ✅ Solution version: `1.2.0.0`
 
 ### Not Yet Built (v1.2 roadmap)
 - 🔲 `dodbl_consent_record` — Dataverse consent audit table
@@ -76,7 +78,8 @@ The env vars (`dodbl_BannerEnabled`, `dodbl_BannerType`, `dodbl_ConsentExpiryDay
 
 - **No external CDN calls.** GCC High blocks them. All JS and CSS must be fully self-contained. Never add jQuery, lodash, or any CDN-hosted library.
 - **Publisher prefix is `dodbl_`.** Every new Dataverse component, web resource, table, column, environment variable, and PCF namespace must use this prefix.
-- **Do not change consent banner element IDs/classes.** `#cookieConsent`, `#closeCookieConsent`, `.cookieConsentOK`, `.consentBackground` are referenced by exact name in `dodbl_dodconsentbanner`, `dodbl_dodbanner`, and `DodBannerControl`. Renaming breaks everything.
+- **Do not change consent banner element IDs/classes.** `#cookieConsent`, `.cookieConsentOK`, `.consentBackground` are referenced by exact name in `dodbl_dodconsentbanner` (Power Pages) and `DodBannerControl` (PCF). Renaming breaks everything. Note: `#closeCookieConsent` was intentionally removed from the PCF modal in v1.2 — do not restore it. It still exists in `dodbl_dodconsentbanner` (Power Pages path).
+- **Release notes are reverse chronological.** `dodbl_release-notes` always lists the newest version (or Planned) at the top and oldest at the bottom. When adding a new version block, insert it above the previous latest, and move the Planned block above the new entry.
 - **CSS classification values are case-sensitive.** `data-classification` startsWith match — always use `CUI`, `U`, `CONFIDENTIAL`, `SECRET`, `TOP SECRET`. Not lowercase.
 - **Do not include a website record in the solution.** Power Pages web files need a `Website` FK that is environment-specific.
 - **MDA consent uses `addGlobalNotification` — not DOM injection.** The classification bar uses inline `element.style.*` assignments (no `<style>` tag, no `<link>` tag). GCC High CSP blocks nonce-less `<style>` injection. `dodbl_bannercore` CSS is for Power Pages only; MDA sets all bar styles inline.
@@ -91,6 +94,7 @@ The env vars (`dodbl_BannerEnabled`, `dodbl_BannerType`, `dodbl_ConsentExpiryDay
 - **MDA classification bar uses `window.top.document` (known anti-pattern).** No supported UCI API exists for injecting a persistent visible DOM element into the outer shell page. The window.top path is explicitly flagged by MS Solution Checker (Impact: High, Category: Supportability) and accepted as a known risk. See Decision 006.
 - **MDA iframes block external stylesheets.** The classification bar uses inline element styles (not `<style>` or `<link>`). GCC High CSP blocks nonce-less `<style>` injection.
 - **PCF `bannerEnabled` defaults to `null` in test harness.** The test harness resets `TwoOptions` to no value on reload. Always explicitly set it to `True` before testing. In Canvas Apps, bind to `true` or a toggle variable.
+- **Canvas App / Custom Page bundle baking.** When a Canvas App or Custom Page is published, the PCF bundle is snapshotted into the app package at that moment. `pac pcf push` updates the bundle in the environment, but the app will not pick it up until the Canvas App/Custom Page is republished in Power Apps Studio (Save → Publish → Publish this version). In some cases, if the page was already published with a prior bundle version, a full remove/re-add of the PCF control on the page is required — republish alone is insufficient. See Decision 008.
 - **Power Pages web files cannot be pre-packaged** — `adx_webfile` requires `Website` FK. Deployers create manually post-import.
 - **jQuery was intentionally removed.** Do not re-add. Fade animation uses `requestAnimationFrame`.
 - **PCF classification bar styles `_container` directly** (not a child div). Uses individual `style.*` property assignments, not `cssText` (which breaks when font-family contains quoted strings in some browsers).
@@ -107,8 +111,8 @@ The env vars (`dodbl_BannerEnabled`, `dodbl_BannerType`, `dodbl_ConsentExpiryDay
 
 ## Active Priorities
 
-1. **PCF classification bar sizing** — thin white artifact below bar in test harness; investigating whether it is test harness chrome or real Canvas App issue
-2. **v1.1.0 release** — managed solution export, git tag `v1.1.0`, GitHub release
+1. **v1.2.0 release** — pack managed solution, push git tag `v1.2.0`, create GitHub release
+2. **Known bugs (v1.3.0)** — `getCookie` URIError on malformed cookie values; cookie name `Accepted` collision risk; missing `Secure` flag on `setCookie`; `_consentSetup` not reset when `showConsent` cycles without destroy/init
 3. **Phase 5** — `dodbl_consent_record` Dataverse table, `DoD Banner — Consent Write` security role
 4. **Canvas App demo** — `DoD Banner Preview` canvas app with PCF + property controls (planned for solution)
 
