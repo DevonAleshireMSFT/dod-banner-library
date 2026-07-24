@@ -51,6 +51,7 @@
     #consentCard p {
       font-size: 13px; color: #222; line-height: 1.75; margin-bottom: 24px;
     }
+    .consent-warning-label { font-weight: 700; color: #a4262c; }
     .consent-footer {
       display: flex; align-items: center; justify-content: space-between; gap: 16px;
     }
@@ -137,11 +138,11 @@
     <div class="consent-header">
       <div class="consent-icon">🛡️</div>
       <div>
-        <div class="consent-title">U.S. Government System &mdash; Consent Required</div>
-        <div class="consent-sub">DoD Banner Library Management &middot; GCC High IL4/IL5 &middot; Authorized Users Only</div>
+        <div class="consent-title">U.S. Government System - Authorized Users Only</div>
+        <div class="consent-sub">DoD Banner Library</div>
       </div>
     </div>
-    <p id="consentText">WARNING: This is a U.S. Government computer system, which may be accessed and used only for authorized Government business by authorized personnel. Unauthorized access or use of this computer system may subject violators to criminal, civil, and/or administrative action. All information on this system may be intercepted, recorded, read, copied, and disclosed by and to authorized personnel for official purposes, including criminal investigations. Such information includes sensitive data encrypted to comply with confidentiality and privacy requirements. Access or use of this computer system by any person, whether authorized or unauthorized, constitutes consent to these terms. There is no right of privacy in this system.</p>
+    <p id="consentText"><span id="consentWarningLabel" class="consent-warning-label">WARNING:</span> <span id="consentTextBody">This is a U.S. Government computer system, which may be accessed and used only for authorized Government business by authorized personnel. Unauthorized access or use of this computer system may subject violators to criminal, civil, and/or administrative action. All information on this system may be intercepted, recorded, read, copied, and disclosed by and to authorized personnel for official purposes, including criminal investigations. Such information includes sensitive data encrypted to comply with confidentiality and privacy requirements. Access or use of this computer system by any person, whether authorized or unauthorized, constitutes consent to these terms. There is no right of privacy in this system.</span></p>
     <div class="consent-footer">
       <span class="consent-note">By clicking <strong>I Acknowledge</strong> you confirm you have read and accept these terms. Your acknowledgement is required before accessing this system.</span>
       <button id="consentBtn" type="button">I Acknowledge</button>
@@ -222,6 +223,7 @@ catch (_e) { _doc = document; }
 var COOKIE_NAME  = "Accepted";
 var EXPIRY_DAYS  = 30;
 var CONSENT_TEXT_SCHEMA = "dodbl_DoDConsentText";
+var CONSENT_WARNING_PREFIX = "WARNING:";
 var CONSENT_TEXT_DEFAULT =
   "WARNING: This is a U.S. Government computer system, which may be accessed " +
   "and used only for authorized Government business by authorized personnel. " +
@@ -311,9 +313,17 @@ function getConsentTextOverride() {
 
 function applyConsentText(consentText) {
   var text = (consentText && consentText.trim()) ? consentText : CONSENT_TEXT_DEFAULT;
-  var el = document.getElementById("consentText");
-  if (el) {
-    el.textContent = text;
+  var labelEl = document.getElementById("consentWarningLabel");
+  var bodyEl = document.getElementById("consentTextBody");
+  if (labelEl && bodyEl) {
+    if (text.indexOf(CONSENT_WARNING_PREFIX) === 0) {
+      labelEl.textContent = CONSENT_WARNING_PREFIX;
+      labelEl.style.display = "inline";
+      bodyEl.textContent = text.substring(CONSENT_WARNING_PREFIX.length).trimStart();
+    } else {
+      labelEl.style.display = "none";
+      bodyEl.textContent = text;
+    }
   }
   return text;
 }
@@ -333,32 +343,6 @@ function navTo(type, name) {
       );
     }
   } catch (_e) { /* Xrm unavailable — standalone view, no-op */ }
-}
-
-// ── Belt-and-suspenders: addGlobalNotification ───────────────────────────────
-// Called alongside the overlay. Ensures consent is enforced at the UCI shell
-// level even if the user navigates away from the home page iframe before clicking
-// the overlay button.
-var _notifId = null;
-
-function addGlobalNotif(text) {
-  if (getCookie(COOKIE_NAME) === "Yes") return;
-  try {
-    parent.Xrm.App.addGlobalNotification({
-      type: 2, level: 3, message: text,
-      showCloseButton: false,
-      action: { actionLabel: "I Acknowledge", eventHandler: function () { onAcknowledge(); } }
-    }).then(
-      function (id) { _notifId = id; },
-      function ()   { /* API unavailable */ }
-    );
-  } catch (_e) { /* parent.Xrm unavailable */ }
-}
-
-function clearGlobalNotif() {
-  if (!_notifId) return;
-  try { parent.Xrm.App.clearGlobalNotification(_notifId); _notifId = null; }
-  catch (_e) { /* ignore */ }
 }
 
 // ── Acknowledge ───────────────────────────────────────────────────────────────
@@ -393,7 +377,6 @@ function revealHomeContent(skipFade) {
 
 function onAcknowledge() {
   setCookie(COOKIE_NAME, "Yes", EXPIRY_DAYS);
-  clearGlobalNotif();
   revealHomeContent(false);
   updateCookieStatus();
 }
@@ -422,11 +405,13 @@ function updateCookieStatus() {
   getConsentTextOverride()
     .then(function (consentText) {
       if (getCookie(COOKIE_NAME) === "Yes") return;
-      addGlobalNotif(applyConsentText(consentText));
+      // 2026-07-24 UAT decision: the launch-page overlay is the single consent
+      // entry point. Do not duplicate it with a shell-level global notification.
+      applyConsentText(consentText);
     })
     .catch(function () {
       if (getCookie(COOKIE_NAME) === "Yes") return;
-      addGlobalNotif(applyConsentText(""));
+      applyConsentText("");
     });
 
   updateCookieStatus();
