@@ -9,3 +9,6 @@
 **Requested by:** Devon Aleshire.
 
 **2026-07-24:** Team stood up (Squad init). No decisions recorded yet — starting fresh.
+
+**2026-07-24:** Validated issue #7 consent gate against acceptance criteria and produced manual UAT scenarios for new user, returning user, malformed/expired cookie, and bypass attempt.
+Deployed unmanaged solution v1.3.0.0 to GFIM-DEV, then re-deployed after Kaylee's UI fixes.

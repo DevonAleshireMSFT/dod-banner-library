@@ -9,3 +9,6 @@
 **Requested by:** Devon Aleshire.
 
 **2026-07-24:** Team stood up (Squad init). No decisions recorded yet — starting fresh.
+
+**2026-07-24:** Authored the Power Platform Squad skill and started v1.3.0 documentation updates across release notes, `dodbl_docs`, and README.
+Flagged that the PCF manifest uses `control-type="standard"`, not `virtual`.

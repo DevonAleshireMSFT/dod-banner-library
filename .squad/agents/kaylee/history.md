@@ -9,3 +9,6 @@
 **Requested by:** Devon Aleshire.
 
 **2026-07-24:** Team stood up (Squad init). No decisions recorded yet — starting fresh.
+
+**2026-07-24:** Fixed v1.3.0 consent-gate bugs covering overlay dismissal, Secure cookie flag, `dodbl_DoDConsentText` wiring, and stale docs.
+Refined the MDA consent UI to a single custom home page overlay, updated page copy, and made the WARNING label bold red.

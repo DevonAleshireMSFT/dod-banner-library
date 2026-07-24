@@ -7,3 +7,6 @@
 **Requested by:** Devon Aleshire.
 
 **2026-07-24:** Team stood up (Squad init). No decisions recorded yet — starting fresh.
+
+**2026-07-24:** Reviewed v1.3.0 consent gate for compliance posture and identified the AC-8 hard-enforcement gap now tracked in issue #13.
+Confirmed AO-approved consent text must come from `dodbl_DoDConsentText`; noted Secure cookie flag gap for remediation.
