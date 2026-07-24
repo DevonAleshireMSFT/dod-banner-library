@@ -99,6 +99,7 @@
     <a href="dodbl_banner-launch-page">&#x2190; Home</a>
     <div class="sidebar-section-label">Getting Started</div>
     <a href="#overview">Overview</a>
+    <a href="#compliance-ac8">Compliance &amp; AC-8</a>
     <a href="#post-import">Post-Import Checklist</a>
     <div class="sidebar-section-label">Banners</div>
     <a href="#dod-consent">DoD Consent Banner</a>
@@ -125,6 +126,23 @@
         </ul>
         <p>The solution also includes the <strong>DoD Banner Library Management</strong> model-driven app, providing in-environment access to this documentation, release notes, and the Power Pages web template source directly from the app switcher.</p>
         <div class="callout callout-tip"><span class="callout-icon">&#x2705;</span><div><strong>GCC High / IL4/IL5 safe.</strong> All assets are self-contained &mdash; no external CDN calls, no third-party scripts. The jQuery dependency present in prior versions was removed in v1.0.</div></div>
+      </div>
+    </div>
+
+    <div class="card doc-section" id="compliance-ac8">
+      <div class="card-header"><span class="card-header-icon">&#x1F6E1;&#xFE0F;</span><div><div class="card-title">Compliance &amp; AC-8 Posture</div><div class="card-subtitle">Adopter verification responsibilities for system-use notification and data marking</div></div></div>
+      <div class="card-body prose">
+        <p>This library helps present system-use notification text and classification markings, but it does <strong>not</strong> define or guarantee an adopter&rsquo;s accreditation boundary.</p>
+        <div class="callout callout-warning"><span class="callout-icon">&#x26A0;&#xFE0F;</span><div><strong>Adopter verification required.</strong> For AC-8 (System Use Notification), the expected GCC High / DoD posture is that AC-8 is normally inherited at the tenant, workstation, or network logon boundary &mdash; for example, the Entra ID / Microsoft 365 sign-in banner or Windows logon banner. Once a user is authenticated into the government tenant, that authenticated tenant access is the real boundary. Each adopting organization must confirm this inheritance assumption with its own Authorizing Official (AO), ISSM, or security personnel.</div></div>
+        <p><strong>In-app consent is optional supplementary hardening.</strong> The agreed consent configuration model is <code>dodbl_ConsentMode</code>: <code>Off</code> (default), <code>HomePage</code> (<code>dodbl_banner-launch-page</code>), or <code>GlobalNotification</code> (<code>dodbl_dodbanner</code> / <code>Xrm.App.addGlobalNotification</code>).</p>
+        <p>These modes are informational/UX controls, not technical access-control boundaries. Client-side consent can be bypassed through deep links, browser developer tools, disabled JavaScript, or direct API/OData access. Organizations that require enforced acknowledgement beyond authenticated tenant access should use platform-level controls such as Entra Conditional Access Terms-of-Use, security-role gating, or a gated entry app. GitHub issue #13 tracks this as optional advanced-enforcement guidance, not as a guarantee provided by this library.</p>
+        <p><strong>The classification marking bar is the primary compliance-significant contribution.</strong> The <code>CUI</code>, <code>U</code>, <code>CONFIDENTIAL</code>, <code>SECRET</code>, and <code>TOP SECRET</code> markings support visible marking/handling expectations such as CUI handling. Do not assume a precise control mapping without review; consult your ISSM or security personnel for the controls and data-handling requirements that apply to your environment.</p>
+        <p><strong>Adopters are responsible for:</strong></p>
+        <ul>
+          <li>Confirming with their AO / ISSM how AC-8 is satisfied or inherited within their authorization boundary.</li>
+          <li>Supplying AO-approved system-use-notification language in <code>dodbl_DoDConsentText</code> if in-app consent is enabled.</li>
+          <li>Determining the classification, CUI, and data-handling requirements for their own environment.</li>
+        </ul>
       </div>
     </div>
 

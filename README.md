@@ -148,6 +148,32 @@ These variables are available for Canvas App and Model-Driven App integrations (
 
 ---
 
+## Compliance & AC-8 Posture
+
+This library helps present system-use notification text and classification markings, but it does **not** define or guarantee an adopter's accreditation boundary.
+
+For AC-8 (System Use Notification), the expected posture for GCC High / DoD tenants is that AC-8 is normally inherited at the tenant, workstation, or network logon boundary — for example, the Entra ID / Microsoft 365 sign-in banner or Windows logon banner. Once a user is authenticated into the government tenant, that authenticated tenant access is the real boundary. **Each adopting organization must confirm this inheritance assumption with its own Authorizing Official (AO), ISSM, or security personnel.**
+
+In-app consent in this library is optional, supplementary hardening. The agreed consent configuration model is `dodbl_ConsentMode`:
+
+| Value | Meaning |
+|---|---|
+| `Off` | No in-app consent prompt; this is the default posture |
+| `HomePage` | Show the `dodbl_banner-launch-page` consent experience |
+| `GlobalNotification` | Show the Model-Driven App shell notification through `dodbl_dodbanner` / `Xrm.App.addGlobalNotification` |
+
+These modes are informational/UX controls, not technical access-control boundaries. Client-side consent can be bypassed through deep links, browser developer tools, disabled JavaScript, or direct API/OData access. Organizations that require enforced acknowledgement beyond authenticated tenant access should use platform-level controls such as Entra Conditional Access Terms-of-Use, security-role gating, or a gated entry app. GitHub issue #13 tracks this as optional advanced-enforcement guidance, not as a guarantee provided by this library.
+
+The library's primary compliance-significant contribution is the data classification marking bar (`CUI`, `U`, `CONFIDENTIAL`, `SECRET`, `TOP SECRET`), which supports visible marking/handling expectations such as CUI handling. Do not assume a precise control mapping without review; consult your ISSM or security personnel for the controls and data-handling requirements that apply to your environment.
+
+Adopters are responsible for:
+
+1. Confirming with their AO / ISSM how AC-8 is satisfied or inherited within their authorization boundary.
+2. Supplying AO-approved system-use-notification language in `dodbl_DoDConsentText` if in-app consent is enabled.
+3. Determining the classification, CUI, and data-handling requirements for their own environment.
+
+---
+
 ## Roadmap
 
 **v1.3 (Released 2026-07-24)**
