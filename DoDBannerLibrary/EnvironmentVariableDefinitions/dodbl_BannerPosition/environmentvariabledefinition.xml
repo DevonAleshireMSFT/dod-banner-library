@@ -1,0 +1,14 @@
+<environmentvariabledefinition schemaname="dodbl_BannerPosition">
+  <defaultvalue>Bottom</defaultvalue>
+  <description default="Controls where the classification bar renders. Valid values: Top, Bottom, Both. &quot;Top&quot; overlaps the MDA navigation chrome — use only if acceptable for your deployment.">
+    <label description="Controls where the classification bar renders. Valid values: Top, Bottom, Both. &quot;Top&quot; overlaps the MDA navigation chrome — use only if acceptable for your deployment." languagecode="1033" />
+  </description>
+  <displayname default="Banner Position">
+    <label description="Banner Position" languagecode="1033" />
+  </displayname>
+  <introducedversion>1.1.0.0</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>0</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000000</type>
+</environmentvariabledefinition>

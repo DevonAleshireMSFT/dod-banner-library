@@ -1,0 +1,14 @@
+<environmentvariabledefinition schemaname="dodbl_ShowConsentBanner">
+  <defaultvalue>no</defaultvalue>
+  <description default="Determines if the DoD Consent Banner should be displayed when the User access the application.">
+    <label description="Determines if the DoD Consent Banner should be displayed when the User access the application." languagecode="1033" />
+  </description>
+  <displayname default="Show Consent Banner">
+    <label description="Show Consent Banner" languagecode="1033" />
+  </displayname>
+  <introducedversion>1.1.0.0</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>0</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000002</type>
+</environmentvariabledefinition>

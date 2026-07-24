@@ -1,4 +1,5 @@
 <environmentvariabledefinition schemaname="dodbl_BannerType">
+  <defaultvalue>CUI</defaultvalue>
   <description default="Controls which banner component is rendered. Accepted values: DoD (consent modal with cookie tracking) or CUI (classification mark only, no JavaScript).">
     <label description="Controls which banner component is rendered. Accepted values: DoD (consent modal with cookie tracking) or CUI (classification mark only, no JavaScript)." languagecode="1033" />
   </description>
