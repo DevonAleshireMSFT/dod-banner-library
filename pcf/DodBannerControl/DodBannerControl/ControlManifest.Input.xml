@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <manifest>
-  <control namespace="DoDBannerLibrary" constructor="DodBannerControl" version="1.1.0" display-name-key="DodBannerControl_Display_Key" description-key="DodBannerControl_Desc_Key" control-type="standard" >
+  <control namespace="DoDBannerLibrary" constructor="DodBannerControl" version="1.2.0" display-name-key="DodBannerControl_Display_Key" description-key="DodBannerControl_Desc_Key" control-type="standard" >
     <external-service-usage enabled="false">
     </external-service-usage>
     <!-- bannerEnabled is the required bound property. In Canvas Apps bind to a boolean
@@ -11,11 +11,20 @@
               of-type="TwoOptions"
               usage="bound"
               required="false" />
-    <!-- Banner type: "DoD" (consent modal) or "CUI" (classification mark CSS only) -->
+    <!-- Classification bar type: "CUI", "UNCLASSIFIED", "CONFIDENTIAL", "SECRET", "TOP SECRET".
+         Empty = no bar. Legacy: "DoD" still triggers consent modal (same as showConsent=true). -->
     <property name="bannerType"
               display-name-key="BannerType_Display_Key"
               description-key="BannerType_Desc_Key"
               of-type="SingleLine.Text"
+              usage="input"
+              required="false" />
+    <!-- Set to true to show the DoD system-use notification consent modal,
+         independent of bannerType. Decouples consent from the classification bar. -->
+    <property name="showConsent"
+              display-name-key="ShowConsent_Display_Key"
+              description-key="ShowConsent_Desc_Key"
+              of-type="TwoOptions"
               usage="input"
               required="false" />
     <!-- Days before the consent cookie expires. Default: 30 -->
