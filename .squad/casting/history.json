@@ -1,0 +1,10 @@
+{
+  "universe_usage_history": ["Firefly"],
+  "assignment_cast_snapshots": {
+    "assignment-2026-07-24T13-13-18-07-00": {
+      "universe": "Firefly",
+      "created_at": "2026-07-24T13:13:18-07:00",
+      "members": ["Mal", "Zoe", "Kaylee", "Wash"]
+    }
+  }
+}
