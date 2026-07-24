@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WebResource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <WebResourceId>{75803b3a-9187-f111-ab0f-001dd8029b52}</WebResourceId>
+  <Name>dodbl_banner-launch-page</Name>
+  <DisplayName>banner-launch-page</DisplayName>
+  <Description>Launch page to initialize the consent and DoD data classification banner</Description>
+  <WebResourceType>1</WebResourceType>
+  <IntroducedVersion>1.1.0.0</IntroducedVersion>
+  <IsEnabledForMobileClient>0</IsEnabledForMobileClient>
+  <IsAvailableForMobileOffline>0</IsAvailableForMobileOffline>
+  <IsCustomizable>1</IsCustomizable>
+  <CanBeDeleted>1</CanBeDeleted>
+  <IsHidden>0</IsHidden>
+  <FileName>/WebResources/dodbl_banner-launch-page75803B3A-9187-F111-AB0F-001DD8029B52</FileName>
+</WebResource>

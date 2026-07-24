@@ -95,6 +95,8 @@
 
 <div class="app-body">
   <nav class="sidebar" id="sidebar">
+    <div class="sidebar-section-label">Navigation</div>
+    <a href="dodbl_banner-launch-page">&#x2190; Home</a>
     <div class="sidebar-section-label">Getting Started</div>
     <a href="#overview">Overview</a>
     <a href="#post-import">Post-Import Checklist</a>

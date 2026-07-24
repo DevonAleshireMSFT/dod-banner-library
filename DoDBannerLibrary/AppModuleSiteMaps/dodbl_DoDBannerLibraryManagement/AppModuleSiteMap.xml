@@ -10,6 +10,16 @@
       <Titles>
         <Title LCID="1033" Title="DoD Banner Library" />
       </Titles>
+      <Group Id="group_home_dodbl" ResourceId="SitemapDesigner.NewGroup" DescriptionResourceId="SitemapDesigner.NewGroup" IntroducedVersion="7.0.0.0" IsProfile="false" ToolTipResourseId="SitemapDesigner.Unknown">
+        <Titles>
+          <Title LCID="1033" Title="Home" />
+        </Titles>
+        <SubArea Id="subarea_home_dodbl" ResourceId="SitemapDesigner.NewSubArea" Icon="/_imgs/imagestrips/transparent_spacer.gif" Url="$webresource:dodbl_banner-launch-page" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA">
+          <Titles>
+            <Title LCID="1033" Title="Home" />
+          </Titles>
+        </SubArea>
+      </Group>
       <Group Id="group_0d633e2a" ResourceId="SitemapDesigner.NewGroup" DescriptionResourceId="SitemapDesigner.NewGroup" IntroducedVersion="7.0.0.0" IsProfile="false" ToolTipResourseId="SitemapDesigner.Unknown">
         <Titles>
           <Title LCID="1033" Title="Resources" />
@@ -34,7 +44,11 @@
         <Titles>
           <Title LCID="1033" Title="Demo" />
         </Titles>
-        <SubArea Id="subarea_944d7318" Icon="/_imgs/imagestrips/transparent_spacer.gif" Entity="dodbl_banner_demo" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA" />
+        <SubArea Id="subarea_bce36843" Icon="/_imgs/imagestrips/transparent_spacer.gif" Client="All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web" AvailableOffline="true" PassParams="false" Sku="All,OnPremise,Live,SPLA" Page="dodbl_canvasappdemo_bb4ae">
+          <Titles>
+            <Title LCID="1033" Title="Canvas App Demo" />
+          </Titles>
+        </SubArea>
       </Group>
     </Area>
   </SiteMap>
