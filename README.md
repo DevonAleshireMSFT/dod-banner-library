@@ -187,7 +187,7 @@ Adopters are responsible for:
 - Model-Driven App consent gate custom home page (`dodbl_banner-launch-page`) with blocking overlay before the management app home content is shown
 - Custom home page is the single MDA consent entry point; the duplicate shell-level global notification banner was removed
 - `dodbl_DoDConsentText` now drives the home-page consent copy after query-string overrides and before the built-in warning fallback
-- Consent cookie uses `SameSite=Lax; Secure`, and the acknowledge path consistently reveals the home content
+- Consent cookie `dodbl_Accepted` uses `Secure; SameSite=Strict`, and the acknowledge path consistently reveals the home content
 - Known limitation: the sitemap/home-page gate is UX-level only, not hard enforcement; issue #13 tracks deep-link/search/pinned/recent bypasses
 
 **v1.4 (Planned)**

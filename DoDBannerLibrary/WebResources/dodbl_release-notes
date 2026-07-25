@@ -88,13 +88,17 @@
         <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Single consent entry point</strong> &mdash; the home-page overlay is now the MDA consent experience; the duplicate shell-level <code>Xrm.App.addGlobalNotification</code> banner was removed to keep the architecture simple and unambiguous.</span></li>
         <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Configurable consent text</strong> &mdash; the launch page resolves text from a query-string override first, then <code>dodbl_DoDConsentText</code> via <code>Xrm.WebApi</code>, then the built-in DoD warning fallback.</span></li>
         <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Consent UI polish</strong> &mdash; the page title is now &ldquo;U.S. Government System - Authorized Users Only&rdquo;, the subtitle is &ldquo;DoD Banner Library&rdquo;, and the <strong style="color:#a4262c">WARNING:</strong> label is emphasized in red.</span></li>
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Consent cookie hardening</strong> &mdash; the home-page consent cookie uses <code>SameSite=Lax; Secure</code>, and the acknowledge path now consistently dismisses the overlay and reveals the home content.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Consent cookie hardening</strong> &mdash; the consent cookie was renamed to <code>dodbl_Accepted</code> and is written with <code>Secure; SameSite=Strict</code>; the acknowledge path now consistently dismisses the overlay and reveals the home content.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Cookie parsing hardening</strong> &mdash; <code>getCookie</code> now splits on the first <code>=</code> before <code>decodeURIComponent</code>, preventing malformed cookie values from throwing <code>URIError</code> (#3).</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>PCF consent re-arm</strong> &mdash; <code>DodBannerControl</code> now resets its consent setup guard when <code>showConsent</code> transitions from off to on so the consent gate can re-arm without a reload (#6).</span></li>
+        <li class="change-item"><span class="change-pill pill-note">NOTE</span><span class="change-text"><strong>PCF bundle version</strong> &mdash; the PCF control version was bumped from <code>1.2.0</code> to <code>1.2.1</code> so Canvas apps pick up the updated bundle.</span></li>
       </ul>
     </div>
     <div class="change-group">
       <div class="change-group-title">Known limitation</div>
       <ul class="change-list">
         <li class="change-item"><span class="change-pill pill-note">NOTE</span><span class="change-text"><strong>Sitemap gate != enforcement</strong> &mdash; the v1.3.0 MDA gate is a UX-level home-page entry pattern, not a hard security boundary. Deep links, global search, pinned items, and recent items can bypass the home page; enforcement is tracked separately in issue #13 and deferred beyond v1.3.0.</span></li>
+        <li class="change-item"><span class="change-pill pill-note">NOTE</span><span class="change-text"><strong>Canvas consent persistence</strong> &mdash; consent acknowledgment does not persist across sessions in Canvas apps because of the PCF sandbox; persistent Canvas consent is tracked in issue #21 and planned for v1.4.0. The Model-Driven App home-page gate persists consent normally.</span></li>
       </ul>
     </div>
   </div>
