@@ -15,3 +15,5 @@ Refined the MDA consent UI to a single custom home page overlay, updated page co
 
 📌 Team update (2026-07-24T17:49:13-07:00): Home custom page now self-renders the classification bar because form OnLoad never fires on custom pages; shared data-dodbl-bar dedupe contract is preserved, with shared-helper refactor debt tracked under #17 — decided by Kaylee.
 
+
+📌 Team update (2026-07-24T18:24:15-07:00): Classification bar env-var reads now use a fresh modifiedon filter and hardened enabled parsing in Home-page and MDA shell assets; GFIM-DEV off→on stale-read fix committed as 6fdced4 — decided by Kaylee.

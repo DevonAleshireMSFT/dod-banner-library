@@ -17,3 +17,5 @@ Deployed unmanaged solution v1.3.0.0 to GFIM-DEV, then re-deployed after Kaylee'
 
 📌 Team update (2026-07-24T17:49:13-07:00): v1.3.0 consent-gate UAT now includes Home-page classification bar scenarios UAT-023 through UAT-029; static validation passed and live GFIM-DEV validation remains pending Devon — decided by Wash.
 
+
+📌 Team update (2026-07-24T18:24:15-07:00): v1.3.0.0 redeploy to GFIM-DEV includes Kaylee's classification-bar re-enable fix; validate off→on behavior during UAT — decided by Kaylee/Wash.

@@ -48,10 +48,14 @@
 **What:** Extended `docs/uat/UAT-v1.3.0-consent-gate.md` with Home-page classification bar coverage in UAT-023 through UAT-029, including Bottom/Top/Both positions, disabled state, SECRET color mapping, shared `data-dodbl-bar` no-double-stacking, and env-var read failure graceful degradation. Live browser validation remains pending Devon's manual GFIM-DEV execution; static code validation of `dodbl_banner-launch-page` passed.
 **Why:** The v1.3.0.0 fix made the custom Home page self-render the classification bar independently of configured forms, so UAT needs explicit Home-page coverage without fabricating unobserved live results.
 
+### 2026-07-24: Fresh env-var reads for classification bar re-enable
+**By:** Kaylee
+**What:** `dodbl_banner-launch-page` and `dodbl_dodbanner` now add a changing, valid `modifiedon le {now+5m}` predicate to environment-variable WebApi reads and normalize `dodbl_BannerEnabled` with trim/null/default handling.
+**Why:** GFIM-DEV UAT showed an off→on asymmetry: disabling removed the Home-page classification bar, but re-enabling did not restore it on reload. The defensible root cause is a stale cached `environmentvariablevalue` read returning the old `No` value after re-enable; the fresh predicate changes the OData URL without using unsupported custom query parameters, and empty/null values still default to enabled.
+
 ## Governance
 
 - All meaningful changes require team consensus
 - Document architectural decisions here
 - Keep history focused on work, decisions focused on direction
-
 
