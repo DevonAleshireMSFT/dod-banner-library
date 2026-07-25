@@ -85,7 +85,7 @@ This repo is a **managed Power Platform solution** for GCC High / IL4-IL5 deploy
 - Cookie parsing gotcha: **split before decode, not decode before split.** Issue #3 exists because `decodeURIComponent(document.cookie)` can throw `URIError` if any unrelated cookie on the host contains malformed percent-encoding. The old root `dod-consent-banner.html` still shows the risky decode-then-split pattern.
 - Cookie hardening gotcha: use `Secure` and an explicit `SameSite` mode. Trusted tenant does not remove browser risks; issue #5 tracks the missing `Secure` flag, and `SameSite` reduces ambient cross-site send behavior.
 - Cookie naming gotcha: generic names collide. Issue #4 documents why `Accepted` is too broad and why a solution-owned name like `dodbl_Accepted` is safer.
-- Classification banner rules are CSS-driven and case-sensitive in this repo. `banner-core.css` uses prefix selectors like `data-classification^="CU"` and `^="S"`. `cui` is not the same as `CUI`.
+- Static HTML classification banner rules are CSS-driven and case-sensitive for `data-classification`. `banner-core.css` uses prefix selectors like `data-classification^="CU"` and `^="S"`, so `cui` is not the same as `CUI`. The JS/environment-variable path is case-insensitive.
 - Good cross-surface pattern: hardcoded safe default text + AO-approved override. This repo already exposes the override as `dodbl_DoDConsentText` and as a PCF `consentText` input. Treat any surface that ships only a hardcoded string and skips the override as drift.
 - The `dodbl_banner-launch-page` feature commit originally hardcoded the full consent text in the web resource while other surfaces already had override plumbing. That is the bug class to avoid: one surface honoring AO text, another silently freezing it.
 - Configuration can come from:
@@ -105,7 +105,7 @@ This repo is a **managed Power Platform solution** for GCC High / IL4-IL5 deploy
 
 - No external CDN or third-party script references. This repo's README, team history, and decisions are consistent on this: self-contained assets only. It matters for ATO scope, dependency review, and tenant CSP behavior.
 - AC-8 is about **system use notification**, but a dismissible banner is not the same thing as an **enforced access-control gate**. The v1.3.0 MDA home-page review and issue #13 are the concrete reminder.
-- Classification marking in this repo is data-driven via `data-classification` and optional `data-banner-content`. The values are case-sensitive, prefix-matched, and mapped to fixed colors in `banner-core.css`.
+- Static HTML classification marking in this repo is data-driven via `data-classification` and optional `data-banner-content`. Those CSS-matched values are case-sensitive, prefix-matched, and mapped to fixed colors in `banner-core.css`; the JS/environment-variable path is case-insensitive.
 - AO-approved text overrides must be applied consistently across every delivery surface: web resource, PCF, and Power Pages. The safe pattern is "built-in default exists, but tenant-approved override wins everywhere."
 - Compliance drift often comes from surface skew, not bad intent: one channel reads `dodbl_DoDConsentText`, another embeds a literal string, a third uses a stale cookie name. Check every surface before calling the work done.
 

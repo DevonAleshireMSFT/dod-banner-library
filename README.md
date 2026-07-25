@@ -118,7 +118,7 @@ Add the `data-classification` attribute to any container element. No JavaScript 
 | `SECRET` (starts with `S`) | Red | `#d9534f` |
 | `TOP SECRET` (starts with `T`) | Orange | `#f0ad4e` |
 
-> **Values are case-sensitive.** `cui` will not match CUI purple — use `CUI`.
+> **The `data-classification` HTML attribute is case-sensitive** (it's matched by CSS attribute selectors) — use the canonical uppercase forms (`CUI`, `U`, `CONFIDENTIAL`, `SECRET`, `TOP SECRET`). Note: this applies only to the static HTML/CSS usage above — the environment-variable–driven banner below is case-insensitive.
 
 ---
 
@@ -134,6 +134,8 @@ These variables are available for Canvas App and Model-Driven App integrations (
 | `dodbl_DoDConsentText` | String | *(empty)* | AO-approved consent text; used by the MDA home-page consent gate after query-string overrides and before the built-in default |
 | `dodbl_ShowConsentBanner` | Boolean | `false` | Legacy form-script consent notification toggle; the v1.3 management app consent gate uses the custom home page instead of a global notification |
 | `dodbl_BannerPosition` | String | `Bottom` | Classification bar placement: `Bottom`, `Top`, or `Both`. `Top` shifts the MDA nav header down 28 px |
+
+Environment-variable values for the JS-driven banner are case-insensitive: `dodbl_BannerType` is normalized and prefix-matched (`secret`, `SECRET`, and `Secret` all render the red `SECRET` bar, and bar text is always uppercase); `dodbl_BannerEnabled` and `dodbl_BannerPosition` are also compared case-insensitively.
 
 ---
 
