@@ -139,6 +139,10 @@ Environment-variable values for the JS-driven banner are case-insensitive: `dodb
 
 ---
 
+## Known Limitations
+
+- Consent acknowledgment does not persist across sessions when `DodBannerControl` is used inside a Canvas app; the consent modal reappears each session. This is a Power Apps canvas code-component sandbox limitation. The modal still functions per session, persistent Canvas consent is planned for v1.4.0 (tracked in issue #21), and the Model-Driven App consent gate (`dodbl_banner-launch-page`) persists consent normally.
+
 ## Security Notes
 
 - **GCC High / IL4/IL5 safe** — no external CDN calls, no third-party scripts
