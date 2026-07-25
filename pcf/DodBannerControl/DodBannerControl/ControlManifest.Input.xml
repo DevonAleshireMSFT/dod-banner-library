@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <manifest>
-  <control namespace="DoDBannerLibrary" constructor="DodBannerControl" version="1.2.0" display-name-key="DodBannerControl_Display_Key" description-key="DodBannerControl_Desc_Key" control-type="standard" >
+  <control namespace="DoDBannerLibrary" constructor="DodBannerControl" version="1.2.1" display-name-key="DodBannerControl_Display_Key" description-key="DodBannerControl_Desc_Key" control-type="standard" >
     <external-service-usage enabled="false">
     </external-service-usage>
     <!-- bannerEnabled is the required bound property. In Canvas Apps bind to a boolean

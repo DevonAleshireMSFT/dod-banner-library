@@ -156,8 +156,7 @@
   <div class="app-header">
     <div class="app-header-icon">🛡️</div>
     <div>
-      <h1>DoD Banner Library</h1>
-      <p>Management App &mdash; GCC High / IL4/IL5</p>
+      <h1>DoD Banner Library Management App</h1>
     </div>
     <span class="app-header-badge">v1.3.0</span>
   </div>
@@ -202,7 +201,7 @@
       <div class="status-row"><span class="status-lbl">Solution Version</span><span class="status-val">1.3.0.0</span></div>
       <div class="status-row"><span class="status-lbl">Publisher Prefix</span><span class="status-val">dodbl_</span></div>
       <div class="status-row"><span class="status-lbl">Cloud</span><span class="status-val">GCC High &middot; IL4/IL5</span></div>
-      <div class="status-row"><span class="status-lbl">PCF Control</span><span class="status-val">DoDBannerLibrary.DodBannerControl v1.2.0 &nbsp;<span class="badge-green">Active</span></span></div>
+      <div class="status-row"><span class="status-lbl">PCF Control</span><span class="status-val">DoDBannerLibrary.DodBannerControl v1.2.1 &nbsp;<span class="badge-green">Active</span></span></div>
       <div class="status-row"><span class="status-lbl">Consent Cookie</span><span class="status-val" id="cookieStatus">Checking&hellip;</span></div>
     </div>
 
@@ -220,7 +219,7 @@ try { _doc = (window.top && window.top.document) ? window.top.document : documen
 catch (_e) { _doc = document; }
 
 // ── Cookie helpers ───────────────────────────────────────────────────────────
-var COOKIE_NAME  = "Accepted";
+var COOKIE_NAME  = "dodbl_Accepted";
 var EXPIRY_DAYS  = 30;
 var CONSENT_TEXT_SCHEMA = "dodbl_DoDConsentText";
 var CONSENT_WARNING_PREFIX = "WARNING:";
@@ -241,7 +240,7 @@ function setCookie(name, value, days) {
   try {
     var exp = new Date();
     exp.setTime(exp.getTime() + days * 24 * 60 * 60 * 1000);
-    _doc.cookie = name + "=" + value + ";expires=" + exp.toUTCString() + ";path=/;SameSite=Lax;Secure";
+    _doc.cookie = name + "=" + value + ";expires=" + exp.toUTCString() + ";path=/; Secure; SameSite=Strict";
   } catch (_e) { /* cross-origin guard */ }
 }
 
