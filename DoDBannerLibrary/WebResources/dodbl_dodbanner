@@ -260,7 +260,9 @@ DoDBannerLibrary.DodBanner = (function () {
         // Per-environment values override the definition defaults
         valResult.entities.forEach(function (val) {
           var defId = val["_environmentvariabledefinitionid_value"];
-          if (defMap[defId]) defMap[defId].resolvedValue = val.value;
+          if (defMap[defId] && val.value != null && String(val.value).trim() !== "") {
+            defMap[defId].resolvedValue = val.value;
+          }
         });
 
         var vars = {};
