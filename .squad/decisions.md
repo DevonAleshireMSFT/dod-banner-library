@@ -109,8 +109,20 @@
 **What:** Reconciled release notes, `dodbl_docs`, and README with shipped PR #20 cookie-hardening behavior: consent cookie references now use `dodbl_Accepted`; cookie flags are documented as `Secure; SameSite=Strict`; release notes include malformed-cookie `getCookie` hardening, PCF `showConsent` off-to-on re-arm behavior, PCF bundle version `1.2.1`, and the Canvas consent-persistence limitation tracked in #21.
 **Why:** Documentation needed to match the shipped v1.3.0 behavior without overstating certification or compliance claims.
 
-## Governance
 
+### 2026-07-24: Governance boundary for .ai and .squad
+**By:** Mal
+**What:** `.ai/` is durable PRODUCT truth: ADRs plus living docs such as context, domain, data model, security, and pipelines. `.squad/` is team direction, routing, and session log. `.squad/decisions.md` must link to `.ai/` product truth, never restate product decisions. Squad grounding stays tiered: the coordinator injects one relevant `.ai/` file per spawn; agents must not bulk-load the `.ai/` tree. The freed `.ai/decisions/009` number is available for Kaylee's Canvas-limitation product ADR.
+**Why:** Product facts need one durable home, while Squad needs fast routing and session memory without duplicated content or context bloat.
+
+
+### 2026-07-24: AI security context must avoid compliance overclaims
+**By:** Zoe
+**What:** `.ai/security.md` now treats GCC High / IL4/IL5 as the intended deployment environment and describes implemented controls factually, without claiming certification, accreditation, ATO, AC-8 compliance, or other standards compliance.
+**Why:** The `.ai/` context will ground agents; if it overstates compliance posture, agents may repeat unsupported claims in docs, PRs, or release material.
+
+## Governance
 - All meaningful changes require team consensus
 - Document architectural decisions here
 - Keep history focused on work, decisions focused on direction
+

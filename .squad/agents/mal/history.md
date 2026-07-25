@@ -12,3 +12,6 @@
 
 **2026-07-24:** Authored the Power Platform Squad skill and started v1.3.0 documentation updates across release notes, `dodbl_docs`, and README.
 Flagged that the PCF manifest uses `control-type="standard"`, not `virtual`.
+
+📌 Team update (2026-07-24T23:20:00-07:00): Scribe merged Mal's governance boundary decision: .ai/ is product truth, .squad/ is team/routing/session memory, and agents should link rather than restate .ai/ product decisions while using tiered .ai/ loading. — decided by Mal
+

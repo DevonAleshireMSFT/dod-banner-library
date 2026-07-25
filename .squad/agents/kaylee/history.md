@@ -21,3 +21,6 @@ Refined the MDA consent UI to a single custom home page overlay, updated page co
 📌 Team update (2026-07-24T19:53:00-07:00): Fixed Home-page and MDA classification bar rendering by preserving BannerType defaults when env-var value rows are null/empty; commit 6032490. Also recorded the env-var freshness filter revert context.
 
 📌 Team update (2026-07-24T22:50:00-07:00): v1.3.0 closeout shipped PR #20 and tag v1.3.0 with Kaylee's cookie-hardening fixes, launch-page header simplification, PCF control version 1.2.1 rebuild/sync for Canvas cache refresh, and status-card version update. Canvas cross-session consent persistence remains deferred to v1.4.0 issue #21 because the PCF sandbox cannot persist host-origin cookies reliably — decided by Kaylee, Zoe, and Serenity.
+
+📌 Team update (2026-07-24T23:20:00-07:00): Kaylee authored .ai/decisions/009-canvas-pcf-cookie-sandbox-limitation.md; the decision remains in .ai/ as product truth under the new .ai/ / .squad/ boundary. — decided by Kaylee
+
