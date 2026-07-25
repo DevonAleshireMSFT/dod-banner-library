@@ -14,3 +14,6 @@
 Deployed unmanaged solution v1.3.0.0 to GFIM-DEV, then re-deployed after Kaylee's UI fixes.
 
 **2026-07-24:** Re-packed and re-imported unmanaged solution v1.3.0.0 to GFIM-DEV using PAC profile [2] (daleshire@gfim.onmicrosoft.us, UsGovHigh). Import, publish, and version verification succeeded; Solution Checker critical findings were known informational unsupported-API / window.top items, and temporary deployment artifacts were removed.
+
+📌 Team update (2026-07-24T17:49:13-07:00): v1.3.0 consent-gate UAT now includes Home-page classification bar scenarios UAT-023 through UAT-029; static validation passed and live GFIM-DEV validation remains pending Devon — decided by Wash.
+

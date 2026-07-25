@@ -37,8 +37,21 @@
 **What:** Ship v1.3.0 with the UX-only consent gate while consciously accepting the known AC-8 deep-link/global-search bypass limitation, tracked in issue #13.
 **Why:** The team accepted the limitation for v1.3.0 so UAT can proceed while hard enforcement is deferred and tracked explicitly.
 
+### 2026-07-24: Home page classification bar injection
+**By:** Kaylee
+**What:** `dodbl_banner-launch-page` now self-renders the shell-level classification bar on the custom Home page by reading `dodbl_BannerEnabled`, `dodbl_BannerType`, and `dodbl_BannerPosition` from Dataverse environment variables, honoring per-environment overrides, injecting into `window.top.document`, and using the shared `[data-dodbl-bar]` cleanup contract so later form loads dedupe instead of stacking bars.
+**Why:** Model-Driven App form `OnLoad` handlers never fire on custom pages, so the existing `dodbl_dodbanner` shell helper could not create the classification bar on Home. Self-rendering keeps the classification marking visible on the app landing page while preserving the current dedupe contract.
+**Tech debt:** The bar helper logic is duplicated from `dodbl_dodbanner` because the two web resources are separate assets today. Track this under #17: move shared classification-bar rendering into one common web resource or generated source so colors, DOM contract, cleanup, and header-shift behavior cannot drift.
+
+### 2026-07-24: Home-page classification bar UAT extension
+**By:** Wash
+**What:** Extended `docs/uat/UAT-v1.3.0-consent-gate.md` with Home-page classification bar coverage in UAT-023 through UAT-029, including Bottom/Top/Both positions, disabled state, SECRET color mapping, shared `data-dodbl-bar` no-double-stacking, and env-var read failure graceful degradation. Live browser validation remains pending Devon's manual GFIM-DEV execution; static code validation of `dodbl_banner-launch-page` passed.
+**Why:** The v1.3.0.0 fix made the custom Home page self-render the classification bar independently of configured forms, so UAT needs explicit Home-page coverage without fabricating unobserved live results.
+
 ## Governance
 
 - All meaningful changes require team consensus
 - Document architectural decisions here
 - Keep history focused on work, decisions focused on direction
+
+

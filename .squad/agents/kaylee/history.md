@@ -12,3 +12,6 @@
 
 **2026-07-24:** Fixed v1.3.0 consent-gate bugs covering overlay dismissal, Secure cookie flag, `dodbl_DoDConsentText` wiring, and stale docs.
 Refined the MDA consent UI to a single custom home page overlay, updated page copy, and made the WARNING label bold red.
+
+📌 Team update (2026-07-24T17:49:13-07:00): Home custom page now self-renders the classification bar because form OnLoad never fires on custom pages; shared data-dodbl-bar dedupe contract is preserved, with shared-helper refactor debt tracked under #17 — decided by Kaylee.
+
