@@ -62,3 +62,17 @@
 - **Owner:** Devon Aleshire
 - **Description:** Managed Power Platform solution providing reusable, GCC High–safe consent and classification banner assets for Power Pages, Canvas Apps, and Model-Driven Apps in DoD environments (IL4/IL5). Zero external dependencies, no CDN calls, no jQuery.
 - **Universe:** Firefly
+
+## Domain Grounding (.ai/)
+
+Agents read the AI Context Framework in `.ai/` for durable domain knowledge; the coordinator injects the ONE relevant file per spawn, and agents must **NOT** bulk-load the whole `.ai/` tree (performance).
+
+| Role / agent | Primary `.ai/` file(s) |
+|---|---|
+| Lead (Mal) | `.ai/context.md` (Current State, Key Rules) + relevant `.ai/decisions/` |
+| PCF/Frontend (Kaylee) | `.ai/context.md` (PCF Control, Known Gotchas) + `.ai/decisions/003-pcf-field-template.md`, `.ai/decisions/007-pcf-production-build.md`, `.ai/decisions/008-canvas-pcf-bundle-baking.md` |
+| Security/Compliance (Zoe) | `.ai/security.md` + `.ai/context.md` Key Rules |
+| Tester/QA (Wash) | `.ai/context.md` (Architecture Summary, Known Gotchas) + `.ai/pipelines.md` |
+| Any deployment work | `.ai/pipelines.md` |
+
+Durable product decisions belong in `.ai/decisions/` ADRs and living docs; team direction, routing, and session outcomes belong in `.squad/decisions.md`. `.squad` links to `.ai/` product truth and must not restate it.

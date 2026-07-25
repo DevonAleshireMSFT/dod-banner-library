@@ -16,13 +16,15 @@
 | `dodbl_docs` | Web Resource (HTML, type 1) | In-solution setup documentation |
 | `dodbl_release-notes` | Web Resource (HTML, type 1) | Version history and changelog |
 | `dodbl_BannerEnabled` | Environment Variable (TwoOptions) | Master on/off switch for the banner |
-| `dodbl_BannerType` | Environment Variable (String) | Banner type: `DoD`, `CUI`, `U`, `CONFIDENTIAL`, `SECRET`, `TOP SECRET` |
+| `dodbl_BannerType` | Environment Variable (String) | Classification bar type: empty, `CUI`, `U`, `CONFIDENTIAL`, `SECRET`, `TOP SECRET`; `DoD` legacy alias |
 | `dodbl_ConsentExpiryDays` | Environment Variable (Decimal) | Cookie lifetime in days. Default: 1 |
 | `dodbl_DoDConsentText` | Environment Variable (String) | AO-approved consent text override |
+| `dodbl_ShowConsentBanner` | Environment Variable (TwoOptions) | MDA consent notification toggle |
+| `dodbl_BannerPosition` | Environment Variable (String) | MDA classification bar position: `Top`, `Bottom`, `Both` |
 | `dodbl_DoDBannerLibraryManagement` | Model-Driven App | Management app — docs, demo, release notes |
 | `dodbl_DoDBannerLibraryManagement` | App Module Site Map | Navigation for management app |
 | `dodbl_DoDBannerLibrary.DodBannerControl` | PCF Custom Control (type 66) | Canvas App classification bar + DoD modal |
-| `dodbl_banner_demo` | Custom Table (type 1) | Demo entity for MDA banner testing |
+| `dodbl_banner_demo` | Removed custom table | Removed in v1.3.0; demo is now Canvas App `dodbl_canvasappdemo_bb4ae` |
 
 ---
 
@@ -31,31 +33,21 @@
 | Schema Name | Display Name | Type | Default | Description |
 |---|---|---|---|---|
 | `dodbl_BannerEnabled` | Banner Enabled | TwoOptions | true | Master toggle. `false` = no banner shown at all. |
-| `dodbl_BannerType` | Banner Type | String | `DoD` | Which banner to show. See domain.md for valid values. |
-| `dodbl_ConsentExpiryDays` | Consent Expiry Days | Decimal | `1` | Days before `Accepted` cookie expires. Set to `365` for yearly consent. |
+| `dodbl_BannerType` | Banner Type | String | _(empty)_ | Classification bar type. Empty = no bar. See domain.md for valid values. |
+| `dodbl_ConsentExpiryDays` | Consent Expiry Days | Decimal | `1` | Days before `dodbl_Accepted` cookie expires. Set to `365` for yearly consent. |
 | `dodbl_DoDConsentText` | DoD Consent Text | String | _(default text in code)_ | Override text for the DoD system-use notification body. AO-approved. |
+| `dodbl_ShowConsentBanner` | Show Consent Banner | TwoOptions | false | Shows MDA consent notification independently of classification bar. |
+| `dodbl_BannerPosition` | Banner Position | String | `Bottom` | MDA classification bar placement: `Top`, `Bottom`, or `Both`. |
 
 ---
 
 ## Custom Tables
 
-### `dodbl_banner_demo`
-
-Demo entity used to show the MDA banner on a real form. Not intended for production data.
-
-| Column | Schema Name | Type | Notes |
-|---|---|---|---|
-| Name | `dodbl_name` | Single Line Text | Primary name column |
-
-**Forms:**
-- Main form — has `dodbl_dodbanner` JS web resource as library + `DoDBannerLibrary.DodBanner.onFormLoad` OnLoad handler (pass execution context: yes)
-- Card form, Quick View form — standard scaffolding
-
-**Views:** 7 saved queries (All Banner Demos, Active, Inactive + standard system views)
+No live custom tables ship in v1.3.0. `dodbl_banner_demo` was removed; the demo is now the Canvas App `dodbl_canvasappdemo_bb4ae`.
 
 ---
 
-### `dodbl_consent_record` _(PLANNED — v1.2)_
+### `dodbl_consent_record` _(PLANNED — v1.4.0, #8)_
 
 Dataverse audit table for consent acknowledgments. Not yet created.
 
@@ -76,7 +68,8 @@ PCF control: `DoDBannerLibrary.DodBannerControl`
 | Property Name | Type | Binding | Required | Description |
 |---|---|---|---|---|
 | `bannerEnabled` | TwoOptions | bound | false | Show/hide the banner. Null treated as "don't show." |
-| `bannerType` | SingleLine.Text | input | — | `DoD` or classification value. See domain.md. |
+| `bannerType` | SingleLine.Text | input | — | Classification value; `DoD` legacy consent alias. See domain.md. |
+| `showConsent` | TwoOptions | input | — | Show the DoD consent modal independently of `bannerType` (v1.2+). |
 | `consentExpiryDays` | Whole.None | input | — | Cookie lifetime in days. |
 | `consentText` | SingleLine.Text | input | — | AO-approved text override for DoD modal body. |
 
@@ -99,7 +92,7 @@ DoDBannerLibrary/                       PAC CLI solution source
     dodbl_dodbanner                     MDA form JS
     dodbl_docs                          Documentation HTML
     dodbl_release-notes                 Release notes HTML
-  Entities/dodbl_banner_demo/           Entity source (forms, views, ribbon)
+  Entities/dodbl_banner_demo/           Removed in v1.3.0 (do not restore)
   AppModuleSiteMaps/...                 Management app site map
 
 pcf/DodBannerControl/                   PCF TypeScript project

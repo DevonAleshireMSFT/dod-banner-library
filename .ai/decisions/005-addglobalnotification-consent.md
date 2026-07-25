@@ -1,6 +1,8 @@
 # Decision: Use Xrm.App.addGlobalNotification for MDA Consent Banner
 
-**Date:** 2026-07-23  
+> **Update (v1.3.0):** the `Accepted` cookie referenced below was renamed to `dodbl_Accepted` and hardened with `Secure; SameSite=Strict` (#3–#6). See `.ai/security.md` and `.ai/context.md` Key Rules for current cookie design; rationale logged in `.squad/decisions.md`.
+
+**Date:** 2026-07-23
 **Status:** Decided — do not revert to DOM modal
 
 ## Context

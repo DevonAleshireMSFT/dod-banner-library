@@ -2,8 +2,8 @@
 project: DoD Banner Library
 schema-prefix: dodbl_
 platform: Power Platform / Dataverse
-cloud: GCC High (DoD IL4/IL5)
-context-version: 1.4.0
+cloud: GCC High (intended DoD IL4/IL5 deployment environments)
+context-version: 1.4.1
 last-updated: 2026-07-24
 owner: Tech Lead
 review-cadence: every-sprint
@@ -13,32 +13,36 @@ review-cadence: every-sprint
 
 > This is the primary bootstrap document. An AI assistant should read this file first before asking any questions or generating any code.
 
+This `.ai/` framework grounds the Squad agents — see `.squad/team.md` → Domain Grounding for the role→file map and loading rules.
+
 ---
 
 ## What This Is
 
-The **DoD Banner Library** is a managed Power Platform solution that provides reusable CUI classification marks and DoD system-use notification consent banners for Canvas Apps, Model-Driven Apps, and Power Pages. Built exclusively for GCC High / IL4/IL5. Zero external CDN dependencies. All assets packaged as solution web resources under publisher prefix `dodbl_`.
+The **DoD Banner Library** is a managed Power Platform solution that provides reusable CUI classification marks and DoD system-use notification consent banners for Canvas Apps, Model-Driven Apps, and Power Pages. It is intended for GCC High / DoD IL4/IL5 deployment environments; this repository does not assert certification or compliance status. Zero external CDN dependencies. All assets packaged as solution web resources under publisher prefix `dodbl_`.
 
 ---
 
 ## Current State
 
-> **Working branch:** `feature/mda-consent-gate-home-page` (v1.3.0.0, 3 commits ahead of main)  
-> **Released:** v1.2.0 (main branch, git tag `v1.2.0`)  
-> **Environment (GFIM-DEV):** v1.1.0.0 — v1.2.0 was deployed only via `pac pcf push`; full solution import of v1.3.0 is pending.
+> **Branch:** `main`
+> **Released:** v1.3.0 (git tag `v1.3.0`; GitHub Release published)
+> **Environment (GFIM-DEV):** v1.3.0 deployed
+> **PCF control:** `DoDBannerLibrary.DodBannerControl` v1.2.1
+> **License:** MIT License added (Copyright 2026 Devon Aleshire; personal; no patent grant)
 
 ### Web Resources
 - ✅ `dodbl_bannercore` — shared CSS (classification marks + consent modal layout)
 - ✅ `dodbl_dodconsentbanner` — DoD consent modal HTML/JS (vanilla JS, Power Pages use)
 - ✅ `dodbl_cuiconsentbanner` — CUI classification mark HTML (CSS-only, Power Pages use)
 - ✅ `dodbl_webtemplatesource` — Power Pages Web Template source (copy/paste Liquid page)
-- ✅ `dodbl_dodbanner` — MDA form OnLoad JS script; reads **6** env vars via Xrm.WebApi. Uses `Xrm.App.addGlobalNotification` for consent (supported UCI API, no window.top). Uses `window.top.document` DOM injection for classification bar only (known anti-pattern — see Decision 006). Supports `Top`/`Bottom`/`Both` bar placement; shifts MDA nav header down when bar is at top.
+- ✅ `dodbl_dodbanner` — MDA form OnLoad JS script; reads env vars via Xrm.WebApi. Uses `Xrm.App.addGlobalNotification` for consent (supported UCI API, no window.top). Uses `window.top.document` DOM injection for classification bar only (known anti-pattern — see Decision 006). Supports `Top`/`Bottom`/`Both` bar placement; shifts MDA nav header down when bar is at top.
 - ✅ `dodbl_docs` — in-solution documentation (post-import checklist, all web resources documented). Contains sidebar link back to Home.
-- ✅ `dodbl_release-notes` — version history (latest first, oldest last). v1.0.0–v1.2.0 released; v1.3.0 Planned section at top. Contains back-link to Home.
-- 🔀 `dodbl_banner-launch-page` — **(v1.3.0, feature branch)** MDA consent gate landing page. Full-page HTML; serves as the AC-8 system-use notification gate on app entry. Near-opaque overlay blocks all content until user clicks "I Acknowledge". Sets consent cookie, calls `parent.Xrm.App.addGlobalNotification` belt-and-suspenders, then fades overlay. Provides nav tiles to Documentation, Release Notes, Web Template Source, and Canvas App Demo. Implements split-before-decode `getCookie()` pattern (URIError fix). All `parent.Xrm` calls wrapped in try/catch.
+- ✅ `dodbl_release-notes` — version history (latest first, oldest last). v1.3.0 released. Contains back-link to Home.
+- ✅ `dodbl_banner-launch-page` — MDA consent gate landing page (shipped in v1.3.0). Full-page HTML; optional system-use notification surface on app entry. Sets `dodbl_Accepted` with `Secure; SameSite=Strict`, calls `parent.Xrm.App.addGlobalNotification` belt-and-suspenders, then fades overlay. Provides nav tiles to Documentation, Release Notes, Web Template Source, and Canvas App Demo. Implements split-before-decode `getCookie()` pattern (URIError fix). All `parent.Xrm` calls wrapped in try/catch.
 
 ### PCF Control
-- ✅ `DodBannerControl` (namespace `DoDBannerLibrary`) — PCF field control for Canvas Apps and Custom Pages (MDA)
+- ✅ `DodBannerControl` (namespace `DoDBannerLibrary`) — PCF field control for Canvas Apps and Custom Pages (MDA), version v1.2.1
   - `bannerEnabled` (TwoOptions, bound) — show/hide the banner
   - `bannerType` (SingleLine.Text, input) — classification bar type; `DoD` = legacy consent alias; empty = no bar
   - `showConsent` (TwoOptions, input) — show the DoD consent modal independently of `bannerType` (v1.2+)
@@ -52,11 +56,10 @@ The **DoD Banner Library** is a managed Power Platform solution that provides re
 ### Solution Components
 - ✅ 6 Environment Variables: `dodbl_BannerEnabled`, `dodbl_BannerType`, `dodbl_ConsentExpiryDays`, `dodbl_DoDConsentText`, `dodbl_ShowConsentBanner`, `dodbl_BannerPosition`
 - ✅ `dodbl_DoDBannerLibraryManagement` — MDA management app; sitemap: **Home** (dodbl_banner-launch-page, first) → Resources (docs, release notes, web template source) → Canvas App Demo
-- ✅ `dodbl_canvasappdemo_bb4ae` — Canvas App demo (PCF control, added to source on feature branch)
+- ✅ `dodbl_canvasappdemo_bb4ae` — Canvas App demo (PCF control)
 - ✅ `dodbl_DoDBannerLibrary.DodBannerControl` — PCF registered as custom control (type 66) in solution
-- ✅ Solution version: `1.3.0.0` (feature branch) / `1.2.0.0` (main)
-- 🔲 `dodbl_consent_record` — Dataverse consent audit table (v1.4.0, [#8](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/8))
-- 🔲 Security role: `DoD Banner — Consent Write` (v1.4.0, [#9](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/9))
+- ✅ Solution version: `1.3.0.0` (main)
+- 🔲 v1.4.0 follow-ups tracked live in GitHub Project: #21 (Canvas consent persistence), #22 (technical docs + repo artifacts), #23 (IL/compliance wording)
 
 > **Note:** `dodbl_banner_demo` entity was intentionally removed from the solution in v1.3.0. The demo is now the Canvas App (`dodbl_canvasappdemo_bb4ae`).
 
@@ -87,7 +90,7 @@ The env vars (`dodbl_BannerEnabled`, `dodbl_BannerType`, `dodbl_ConsentExpiryDay
 - **CSS/data-classification values are case-sensitive.** `data-classification` is matched by CSS attribute selectors — always use `CUI`, `U`, `CONFIDENTIAL`, `SECRET`, `TOP SECRET`. Not lowercase. The JS/environment-variable `dodbl_BannerType` path is case-insensitive.
 - **Do not include a website record in the solution.** Power Pages web files need a `Website` FK that is environment-specific.
 - **MDA consent uses `addGlobalNotification` — not DOM injection.** The classification bar uses inline `element.style.*` assignments (no `<style>` tag, no `<link>` tag). GCC High CSP blocks nonce-less `<style>` injection. `dodbl_bannercore` CSS is for Power Pages only; MDA sets all bar styles inline.
-- **Cookie name `Accepted` will be renamed to `dodbl_Accepted` in v1.3.0 ([#4](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/4)).** Currently all three delivery paths use `Accepted=Yes`. The rename must be deployed atomically across PCF (`index.ts`), MDA JS (`dodbl_dodbanner`), and home page (`dodbl_banner-launch-page`) in the same solution import — a partial rename causes users to be re-prompted once (orphaned cookie). Until issue #4 is resolved, keep all references consistent.
+- **Consent cookie is `dodbl_Accepted`.** All cookie writes must include `Secure; SameSite=Strict` and remain consistent across PCF (`index.ts`), MDA JS (`dodbl_dodbanner`), and home page (`dodbl_banner-launch-page`). Orphaned legacy `Accepted` cookies may cause one re-prompt after upgrade.
 - **Solution must be distributed as managed.** Never export unmanaged for shared deployment.
 
 ---
@@ -99,6 +102,7 @@ The env vars (`dodbl_BannerEnabled`, `dodbl_BannerType`, `dodbl_ConsentExpiryDay
 - **MDA iframes block external stylesheets.** The classification bar uses inline element styles (not `<style>` or `<link>`). GCC High CSP blocks nonce-less `<style>` injection.
 - **PCF `bannerEnabled` defaults to `null` in test harness.** The test harness resets `TwoOptions` to no value on reload. Always explicitly set it to `True` before testing. In Canvas Apps, bind to `true` or a toggle variable.
 - **Canvas App / Custom Page bundle baking.** When a Canvas App or Custom Page is published, the PCF bundle is snapshotted into the app package at that moment. `pac pcf push` updates the bundle in the environment, but the app will not pick it up until the Canvas App/Custom Page is republished in Power Apps Studio (Save → Publish → Publish this version). In some cases, if the page was already published with a prior bundle version, a full remove/re-add of the PCF control on the page is required — republish alone is insufficient. See Decision 008.
+- **Canvas consent persistence limitation.** PCF sandbox cookie writes do not surface to the Canvas host origin, so Canvas consent is session-scoped today; MDA path persists normally. Tracked in [#21](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/21) for v1.4.0.
 - **Power Pages web files cannot be pre-packaged** — `adx_webfile` requires `Website` FK. Deployers create manually post-import.
 - **jQuery was intentionally removed.** Do not re-add. Fade animation uses `requestAnimationFrame`.
 - **PCF classification bar styles `_container` directly** (not a child div). Uses individual `style.*` property assignments, not `cssText` (which breaks when font-family contains quoted strings in some browsers).
@@ -115,24 +119,15 @@ The env vars (`dodbl_BannerEnabled`, `dodbl_BannerType`, `dodbl_ConsentExpiryDay
 
 ## GitHub Project Management
 
-**Project:** https://github.com/users/DevonAleshireMSFT/projects/3  
-**Repo:** `DevonAleshireMSFT/dod-banner-library`  
+**Project:** https://github.com/users/DevonAleshireMSFT/projects/3
+**Repo:** `DevonAleshireMSFT/dod-banner-library`
 **gh CLI:** `gh issue`, `gh pr`, `gh project item-add 3 --owner DevonAleshireMSFT --url <url>`
 
-### Issue Backlog
+### Backlog
 
-| # | Title | Labels | Status |
-|---|-------|--------|---------|
-| [#3](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/3) | Fix: getCookie URIError on malformed cookie values | bug, security, pcf, mda, v1.3.0 | Open |
-| [#4](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/4) | Fix: Rename consent cookie `Accepted` → `dodbl_Accepted` | bug, security, v1.3.0 | Open |
-| [#5](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/5) | Fix: Add `Secure` flag to setCookie | bug, security, v1.3.0 | Open |
-| [#6](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/6) | Fix: Reset `_consentSetup` when showConsent cycles | bug, pcf, v1.3.0 | Open |
-| [#7](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/7) | Feature: MDA Consent Gate Landing Page (AC-8) | enhancement, mda, v1.3.0 | Open / In Progress |
-| [#8](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/8) | Feature: Create `dodbl_consent_record` Dataverse table | enhancement, v1.4.0 | Open |
-| [#9](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/9) | Feature: Create 'DoD Banner — Consent Write' security role | enhancement, v1.4.0 | Open |
-| [#10](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/10) | Task: PCF — write consent record on acknowledge | enhancement, pcf, v1.4.0 | Open |
-| [#11](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/11) | Task: MDA JS — write consent record on acknowledge | enhancement, mda, v1.4.0 | Open |
-| [#12](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/12) | Task: Power Pages — server-side consent record write | enhancement, v1.4.0 | Open |
+Backlog is tracked live in GitHub, not mirrored here. Use the GitHub Project for current status; static issue tables drift.
+
+Known follow-ups: #21 (Canvas consent persistence), #22 (technical docs + repo artifacts), #23 (IL/compliance wording), plus the v1.5 ALM story tracked in the project.
 
 ### Project Management Rules
 
@@ -140,8 +135,8 @@ The env vars (`dodbl_BannerEnabled`, `dodbl_BannerType`, `dodbl_ConsentExpiryDay
 
 - **Reference the issue in every commit** that implements it: `git commit -m "Fix: getCookie URIError (#3)"`
 - **Close the issue on merge** — use `gh issue close #N --comment "Resolved in <PR link>"` after the PR merges, or add `Closes #N` to the PR description.
-- **Update this table** — change the `Status` column to `Closed` (or `In Progress`) when status changes.
-- **Update the Key Rule** that corresponds to the fix — e.g. when #4 (cookie rename) is closed, update the cookie-name rule to state the new name definitively.
+- **Use GitHub Project as source of truth** — do not mirror per-issue rows in this file.
+- **Update the Key Rule** that corresponds to the fix when behavior changes.
 - **Add new issues to project** — after creating any new issue: `gh project item-add 3 --owner DevonAleshireMSFT --url <issue-url>`
 - **Bump solution version** in `DoDBannerLibrary/Other/Solution.xml` for every release that changes solution components.
 - **Update `dodbl_release-notes`** (reverse chronological) with each release.
@@ -150,9 +145,9 @@ The env vars (`dodbl_BannerEnabled`, `dodbl_BannerType`, `dodbl_ConsentExpiryDay
 
 ## Active Priorities
 
-1. **v1.3.0 — MDA consent gate home page** — merge `feature/mda-consent-gate-home-page`, pack managed solution, import to GFIM-DEV, verify — closes [#7](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/7)
-2. **v1.3.0 — Cookie security hardening** — fix getCookie URIError ([#3](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/3)), rename cookie ([#4](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/4)), add Secure flag ([#5](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/5)), reset _consentSetup ([#6](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/6))
-3. **v1.4.0 — Consent audit trail** — `dodbl_consent_record` table ([#8](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/8)), security role ([#9](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/9)), write on acknowledge in PCF ([#10](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/10)), MDA JS ([#11](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/11)), Power Pages ([#12](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/12))
+1. **v1.4.0 — Canvas consent persistence** — PCF sandbox cookie limitation; design host-persisted output property / Dataverse-backed path ([#21](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/21)).
+2. **v1.4.0 — Documentation and compliance wording** — technical docs + repo artifacts ([#22](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/22)); reword IL/compliance language as intended environment, not certification ([#23](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/23)).
+3. **v1.5.0 — ALM story** — track live in GitHub Project; do not mirror status here.
 
 ---
 
@@ -169,7 +164,7 @@ The env vars (`dodbl_BannerEnabled`, `dodbl_BannerType`, `dodbl_ConsentExpiryDay
 | Documentation web resource | `DoDBannerLibrary/WebResources/dodbl_docs` |
 | Release notes | `DoDBannerLibrary/WebResources/dodbl_release-notes` |
 | Power Pages web template source | `DoDBannerLibrary/WebResources/dodbl_webtemplatesource` |
-| Banner Demo entity forms | `DoDBannerLibrary/Entities/dodbl_banner_demo/FormXml/` |
+| Canvas App demo | `dodbl_canvasappdemo_bb4ae` solution component |
 | Domain terminology | `.ai/domain.md` |
 | Data model | `.ai/data-model.md` |
 | Security | `.ai/security.md` |

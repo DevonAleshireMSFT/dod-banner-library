@@ -1,52 +1,66 @@
 # DoD Banner Library — Security
 
-> Security roles, access patterns, and constraints for this solution.
+> Security posture, access patterns, and known limitations for AI grounding.
 
 ---
 
-## Classification
+## Compliance Language Guardrail
 
-This solution runs in **GCC High (DoD IL4/IL5)**. Treat all tenant-specific configuration (org URL, publisher GUIDs, environment IDs) as sensitive. Do not commit them to source control.
+The solution is intended for GCC High / DoD IL4/IL5 Power Platform environments. Do not describe the project as certified, accredited, authorized, FedRAMP/NIST/CMMC/AC-8 compliant, or otherwise standards-compliant without independent evidence.
+
+It is acceptable to describe implemented controls factually, such as cookie attributes, CSP-safe rendering choices, and client-side-only data handling.
 
 ---
 
-## Security Roles _(PLANNED — v1.2)_
+## Security Roles
+
+No custom security roles are deployed in v1.3.0.
+
+Planned v1.4 work:
 
 | Role | Purpose | Minimum Privileges |
 |---|---|---|
-| `DoD Banner — Consent Write` | Allows the system service principal to create `dodbl_consent_record` rows | Create on `dodbl_consent_record` |
-
-No custom security roles are deployed in v1.0 or v1.1. Standard Dataverse user roles apply.
+| `DoD Banner — Consent Write` | Allows consent acknowledgment records to be created | Create on planned `dodbl_consent_record` table |
 
 ---
 
 ## Access Patterns
 
-**MDA form script (`dodbl_dodbanner.js`):**
+**MDA home page (`dodbl_banner-launch-page`):**
+- Implements a system-use-notification consent pattern intended to support AC-8-style requirements; it is not evidence of AC-8 compliance.
+- Reads `dodbl_DoDConsentText` and banner env vars through `parent.Xrm.WebApi` when available.
+- Stores acknowledgment in `dodbl_Accepted=Yes` with `Secure; SameSite=Strict`.
+- `getCookie` splits cookie pairs before decoding and catches malformed values to avoid `URIError` failures.
+- Renders the classification bar with inline styles; GCC High CSP can block nonce-less `<style>` injection.
+
+**MDA form script (`dodbl_dodbanner`):**
 - Runs in the form context of the logged-in user.
-- Reads environment variables via `Xrm.WebApi.retrieveMultipleRecords("environmentvariablevalue", ...)` — requires the user to have `Read` on `environmentvariabledefinition` and `environmentvariablevalue`. This is granted to all licensed users by default.
-- Does not write any data to Dataverse.
-- Sets a browser cookie (`Accepted=Yes`) client-side only.
+- Reads banner/consent environment variables through `Xrm.WebApi`.
+- Uses `Xrm.App.addGlobalNotification` for optional shell-level consent notification.
+- Does not write to Dataverse in v1.3.0.
+- Uses `dodbl_Accepted=Yes` with `Secure; SameSite=Strict`; cookie parsing is split-before-decode with a `URIError` guard.
+- Uses `window.top.document` only for classification-bar DOM placement, a known supportability risk with no supported UCI classification-bar API alternative.
 
 **PCF (`DodBannerControl`):**
-- Runs inside the Canvas App or MDA form context.
-- Does not call Dataverse API. Reads only from its own bound/input PCF properties.
-- Sets a browser cookie client-side only.
+- Runs inside Canvas App, Custom Page, or MDA PCF host context.
+- Reads only bound/input PCF properties; it does not call Dataverse APIs.
+- Uses `dodbl_Accepted=Yes` with `Secure; SameSite=Strict`; cookie parsing is split-before-decode with a `URIError` guard.
+- Known limitation: Canvas PCF runs in a sandboxed iframe, so the consent cookie does not persist across browser sessions in Canvas. The MDA path persists. Canvas persistence is tracked in issue #21.
 
 **Power Pages:**
-- Banner assets served as static web files. No authenticated API calls.
-- Cookie set client-side only.
+- Banner assets are served as static web files. No authenticated API calls are made by this library.
+- Current checked-in Power Pages consent HTML still uses the legacy `Accepted=Yes` cookie path; do not use it as evidence for v1.3.0 cookie-hardening behavior until that path is updated.
 
 ---
 
 ## Code Security Rules
 
-- **No credentials in source.** Never embed connection strings, API keys, org URLs, or GUIDs in web resource source files or PCF source. Use environment variables for runtime configuration.
-- **No external requests.** GCC High blocks outbound calls to non-approved endpoints. All JS and CSS must be fully self-contained. CDN calls will silently fail or cause CORS errors.
-- **No `eval()` or dynamic script injection.** All consent modal JS uses static DOM APIs.
-- **No PII in cookies.** The `Accepted` cookie stores only `Yes`. Do not add user identity, email, or any PII to cookies.
-- **No logging of user data.** `dodbl_dodbanner.js` and the PCF do not call `console.log` with user-identifiable information in production builds.
-- **Managed solution distribution.** Deploying as managed prevents downstream customization of consent logic — which could be used to bypass the notification requirement.
+- **No credentials in source.** Never embed connection strings, API keys, tenant URLs, publisher GUIDs, environment IDs, or other tenant-specific configuration in source.
+- **No external requests.** Keep JS and CSS self-contained. Do not add CDN calls, external fonts, or third-party scripts.
+- **No `eval()` or dynamic script injection.** PCF production builds disable eval-based source maps.
+- **No PII in cookies.** Consent cookies store only `Yes`.
+- **No production logging of user data.** Do not log user-identifiable information.
+- **No compliance overclaims.** Describe what the product implements; do not claim standards compliance, authorization, or accreditation.
 
 ---
 
@@ -54,17 +68,17 @@ No custom security roles are deployed in v1.0 or v1.1. Standard Dataverse user r
 
 | Risk | Mitigation |
 |---|---|
-| XSS — consent text injection | `consentText` / `dodbl_DoDConsentText` value is set via `element.textContent`, not `innerHTML`. No HTML injection possible. |
-| XSS — cookie value | Cookie value is a static string `Yes`. Cookie is read via string comparison only. |
-| CSRF | No write operations from client-side code. |
-| Sensitive data exposure | No secrets in source. No PII in cookies. |
+| XSS — consent text injection | Consent text is rendered with `textContent`, not `innerHTML`. |
+| XSS — cookie value | Consent value is static `Yes`; malformed cookie values are caught during parsing in hardened paths. |
+| CSRF | v1.3.0 client code performs no Dataverse writes. |
+| Sensitive data exposure | No secrets or PII are stored in consent cookies. |
 
 ---
 
-## Known Security Gaps (tracked for v1.3.0)
+## Known Limitations
 
-| Gap | Risk | Planned Fix |
+| Limitation | Impact | Tracking |
 |---|---|---|
-| `Secure` flag missing on consent cookie | Cookie could theoretically be sent over HTTP in a misconfigured environment. GCC High is always HTTPS so risk is low, but the flag should be set. | Add `;Secure` to `setCookie` in `DodBannerControl` |
-| Cookie name `Accepted` is generic | Any other app on the same domain that also sets an `Accepted=Yes` cookie would suppress the DoD banner without user acknowledgement. | Rename to `dodbl_Accepted` across all three delivery paths simultaneously (PCF, MDA JS, Power Pages HTML) |
-| `getCookie` throws `URIError` on malformed cookie values | `decodeURIComponent(document.cookie)` is called on the full cookie string before splitting. A malformed `%XX` sequence in any cookie on the domain throws an unhandled exception, preventing the consent check entirely — the modal never shows. | Wrap in `try/catch` or decode each cookie segment individually |
+| Canvas PCF cookie persistence | Consent works for the active Canvas session but does not persist cross-session because the PCF runs in a sandboxed iframe. | #21 |
+| Power Pages legacy cookie helper | Current static HTML path still uses `Accepted=Yes` without the v1.3.0 hardened cookie attributes. | Needs follow-up before claiming parity |
+| `window.top.document` for MDA classification bar | Microsoft flags `window.top` access as a supportability anti-pattern; used only because no supported UCI API renders a persistent classification bar. | Decision 006 |

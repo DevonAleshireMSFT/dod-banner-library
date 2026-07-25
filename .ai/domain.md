@@ -8,7 +8,7 @@
 
 | Value (`bannerType`) | Display | Color | Description |
 |---|---|---|---|
-| `DoD` | Full-page consent modal | n/a (overlay) | DoD system-use notification. Must be acknowledged before use. Cookie-based, one-time per browser session / expiry period. |
+| `DoD` | Consent notification/modal | n/a | DoD system-use notification when enabled. Acknowledgement is supplementary tooling, not an access-control boundary. Cookie-based, one-time per browser session / expiry period where supported. |
 | `CUI` | Classification bar | Purple `#5a04b0` | Controlled Unclassified Information |
 | `U` | Classification bar | Green `#5cb85c` | Unclassified |
 | `CONFIDENTIAL` / `CO` | Classification bar | Blue `#286090` | Confidential |
@@ -35,9 +35,9 @@
 
 ## Consent / Cookie Concepts
 
-**Consent cookie** — A browser cookie named `Accepted` with value `Yes`. Presence of this cookie suppresses the DoD banner on subsequent page loads until the cookie expires. The cookie name must be identical across all three delivery paths (Power Pages, MDA JS, PCF).
+**Consent cookie** — MDA JS, the MDA launch page, and PCF use `dodbl_Accepted=Yes` with `Secure; SameSite=Strict`. Power Pages (`dodbl_dodconsentbanner`) may still use legacy `Accepted=Yes` until refreshed. Presence suppresses the consent surface until expiry where cookie persistence is supported.
 
-**Consent expiry** — The number of days before the `Accepted` cookie expires. Controlled by `consentExpiryDays` / `dodbl_ConsentExpiryDays` env var. Default: 1 day.
+**Consent expiry** — The number of days before the consent cookie expires. Controlled by `consentExpiryDays` / `dodbl_ConsentExpiryDays` env var. Default: 1 day.
 
 **AO-approved text** — The Authorizing Official (AO) may require specific system-use notification wording. The `consentText` input / `dodbl_DoDConsentText` env var provides an override for the default text.
 
@@ -45,7 +45,7 @@
 
 ## Platform Terminology
 
-**GCC High** — Microsoft Government Community Cloud High. Isolated sovereign cloud for DoD IL4/IL5 workloads. Uses `*.microsoftdynamics.us` and `*.powerapps.us` URLs. Zero external CDN calls allowed.
+**GCC High** — Microsoft Government Community Cloud High, the intended target environment for DoD IL4/IL5 deployments. Uses `*.microsoftdynamics.us` and `*.powerapps.us` URLs. Zero external CDN calls allowed.
 
 **MDA (Model-Driven App)** — Power Apps canvas-like app driven by the Dataverse data model. Forms open inside an iframe; external stylesheets loaded via `<link>` are unreliable inside the iframe context.
 
@@ -59,7 +59,7 @@
 
 **Web file** — A Power Pages record that serves a static file (CSS, JS, image) to the portal. Must be created manually post-import.
 
-**AppModuleSiteMap** — The navigation definition for a Model-Driven App. This project's map has "Resources" (docs, notes, web template source) and "Demo" (dodbl_banner_demo) groups.
+**AppModuleSiteMap** — The navigation definition for a Model-Driven App. This project's map has Home (`dodbl_banner-launch-page`), Resources (docs, notes, web template source), and Canvas App Demo (`dodbl_canvasappdemo_bb4ae`). The old `dodbl_banner_demo` entity was removed in v1.3.0.
 
 ---
 
@@ -67,9 +67,11 @@
 
 **`DoDBannerLibrary.DodBanner`** — IIFE namespace in `dodbl_dodbanner.js`. Entry point: `DoDBannerLibrary.DodBanner.onFormLoad(executionContext)`.
 
-**`DodBannerControl`** (PCF) — TypeScript class implementing `ComponentFramework.StandardControl<IInputs, IOutputs>`. Container is the bound `<div>` provided by the PCF runtime. `bannerType = "DoD"` hides the container and shows a full-page modal; any other value renders a color bar inside the container.
+**`DodBannerControl`** (PCF) — TypeScript class implementing `ComponentFramework.StandardControl<IInputs, IOutputs>`. Container is the bound `<div>` provided by the PCF runtime. `showConsent` controls the consent modal; `bannerType` controls the classification bar.
 
-**`injectCSS()`** — Function in `dodbl_dodbanner.js` that creates a `<style data-dodbl-core>` element with the full consent modal CSS embedded as a template literal. Idempotent (skips if tag already present). CSS uses `position: fixed` for MDA chrome layering.
+**PCF properties** — `bannerEnabled` toggles rendering; `bannerType` selects the classification bar; `showConsent` (TwoOptions, v1.2+) shows consent independently; `consentExpiryDays` and `consentText` configure the consent surface.
+
+**MDA consent rendering** — `dodbl_dodbanner.js` uses `Xrm.App.addGlobalNotification`, not the removed `injectModal()` / `injectCSS()` stack. MDA classification bars use inline element styles because GCC High CSP blocks nonce-less `<style>` injection.
 
 **`getClassificationColor(bannerType)`** — PCF helper. Returns hex color string based on startsWith match of the bannerType argument. Unknown types default to `#5e5e5e` (grey).
 

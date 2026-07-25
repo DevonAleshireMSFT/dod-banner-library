@@ -88,14 +88,15 @@ Then review and commit changes. Auto-generated folders (`Controls/`, `dvtablesea
 ## Release Process
 
 1. Bump version in `DoDBannerLibrary/Other/Solution.xml` (`<Version>X.X.X.X</Version>`)
-2. Update `dodbl_release-notes` web resource
-3. Update `dodbl_docs` web resource if setup steps changed
-4. Build PCF: `npm run build`
-5. Pack: `pac solution pack --zipfile DoDBannerLibrary.zip --folder DoDBannerLibrary --packagetype Both`
-6. Import managed to GFIM-DEV for validation: `pac solution import ...`
-7. Commit all source changes
-8. Tag: `git tag vX.X.X && git push origin vX.X.X`
-9. Create GitHub release with managed zip attached
+2. For any PCF code change, bump `pcf/DodBannerControl/DodBannerControl/ControlManifest.Input.xml` version — Canvas apps cache PCF by control version.
+3. Update `dodbl_release-notes` web resource
+4. Update `dodbl_docs` web resource if setup steps changed
+5. Build PCF: `npm run build`
+6. Pack: `pac solution pack --zipfile DoDBannerLibrary.zip --folder DoDBannerLibrary --packagetype Both`
+7. Import managed to GFIM-DEV for validation: `pac solution import ...`
+8. Commit all source changes
+9. Tag: `git tag vX.X.X && git push origin vX.X.X`
+10. Create GitHub Release with managed zip attached: `gh release create vX.Y.Z DoDBannerLibrary_managed.zip --title vX.Y.Z --notes-file <notes.md>` (done for v1.3.0)
 
 ---
 

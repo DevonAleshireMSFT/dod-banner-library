@@ -1,8 +1,21 @@
 # DoD Banner Library
 
-A managed Power Platform solution providing reusable, GCC High–safe banner assets for **Power Pages**, **Canvas Apps**, and **Model-Driven Apps** deployed in DoD environments (IL4/IL5).
+A managed Power Platform solution providing reusable banner assets for **Power Pages**, **Canvas Apps**, and **Model-Driven Apps** intended for GCC High / DoD IL4/IL5 deployment environments.
 
 Zero external dependencies. No CDN calls. No jQuery.
+
+---
+
+## Project Knowledge: `.ai/` vs `.squad/`
+
+| `.ai/` | `.squad/` |
+|---|---|
+| Answers: what the product is and why it is built this way | Answers: how the AI team is working and what it decided/did |
+| Audience: anyone modifying the code, human or AI | Audience: the AI team and PM |
+| Lifespan: durable product truth that outlives the team | Lifespan: session-oriented working memory and running log |
+| Decisions = product ADRs in `.ai/decisions/`; living facts in `context/domain/data-model/security/pipelines` | Decisions = team direction, scope, routing, and session outcomes in `.squad/decisions.md` |
+
+Rule: `.squad/decisions.md` never restates a product decision — it links to the `.ai/` ADR or living-doc fact. New contributors should read `.ai/context.md` first to understand the product; `.squad/` is the AI team's operating state.
 
 ---
 
