@@ -76,3 +76,7 @@ Agents read the AI Context Framework in `.ai/` for durable domain knowledge; the
 | Any deployment work | `.ai/pipelines.md` |
 
 Durable product decisions belong in `.ai/decisions/` ADRs and living docs; team direction, routing, and session outcomes belong in `.squad/decisions.md`. `.squad` links to `.ai/` product truth and must not restate it.
+
+### Public-repository hygiene (working agreement)
+
+This repository is public. Agents must keep internal-only or confidential material out of committed or public artifacts (issues, PRs, commit messages, docs, and comments), and generalize internal requirements into public-safe wording that still conveys the requirement. Internal-only briefs and decks stay in internal systems; see `.ai/security.md` ("Public-repository disclosure hygiene") for the authoritative guardrail.

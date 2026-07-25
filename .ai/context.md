@@ -84,6 +84,7 @@ The env vars (`dodbl_BannerEnabled`, `dodbl_BannerType`, `dodbl_ConsentExpiryDay
 > Follow without exception.
 
 - **No external CDN calls.** GCC High blocks them. All JS and CSS must be fully self-contained. Never add jQuery, lodash, or any CDN-hosted library.
+- **Public repo hygiene.** Do not commit internal-only or confidential content; generalize requirements and see `.ai/security.md` for disclosure guidance.
 - **Publisher prefix is `dodbl_`.** Every new Dataverse component, web resource, table, column, environment variable, and PCF namespace must use this prefix.
 - **Do not change consent banner element IDs/classes.** `#cookieConsent`, `.cookieConsentOK`, `.consentBackground` are referenced by exact name in `dodbl_dodconsentbanner` (Power Pages) and `DodBannerControl` (PCF). Renaming breaks everything. Note: `#closeCookieConsent` was intentionally removed from the PCF modal in v1.2 — do not restore it. It still exists in `dodbl_dodconsentbanner` (Power Pages path).
 - **Release notes are reverse chronological.** `dodbl_release-notes` always lists the newest version (or Planned) at the top and oldest at the bottom. When adding a new version block, insert it above the previous latest, and move the Planned block above the new entry.

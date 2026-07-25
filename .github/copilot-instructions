@@ -31,6 +31,9 @@ reference them from `.squad/decisions.md` instead of restating them there.
   in `.ai/context.md` without explicit confirmation from the user.
 - When generating schema, tables, or columns, use the prefix defined in
   the `schema-prefix` field of `.ai/context.md` YAML frontmatter.
+- This is a public repository. Generated issues, docs, comments, commits,
+  and other content must exclude internal-only or confidential material and
+  generalize internal requirements into high-level, public-safe wording.
 
 ## Where to Find More Context
 

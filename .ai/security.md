@@ -10,6 +10,10 @@ The solution is intended for GCC High / DoD IL4/IL5 Power Platform environments.
 
 It is acceptable to describe implemented controls factually, such as cookie attributes, CSP-safe rendering choices, and client-side-only data handling.
 
+### Public-repository disclosure hygiene
+
+This repository is public. Do not commit or reference internal-only material, including internal program or initiative names, intake/GTM/submission processes, meeting names, org or tenant identifiers, specific non-public environment names, employer-confidential positioning, secrets, or credentials. Generalize internal requirements to high-level, public-safe statements that preserve the requirement without disclosing non-public context. Internal-only briefs and decks are maintained separately in internal systems, never in this repository. This supports the same no-overclaim posture: describe public, implemented facts only.
+
 ---
 
 ## Security Roles
