@@ -156,8 +156,7 @@
   <div class="app-header">
     <div class="app-header-icon">🛡️</div>
     <div>
-      <h1>DoD Banner Library</h1>
-      <p>Management App &mdash; GCC High / IL4/IL5</p>
+      <h1>DoD Banner Library Management App</h1>
     </div>
     <span class="app-header-badge">v1.3.0</span>
   </div>
