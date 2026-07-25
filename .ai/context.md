@@ -27,7 +27,7 @@ The **DoD Banner Library** is a managed Power Platform solution that provides re
 
 > **Branch:** `main`
 > **Released:** v1.3.0 (git tag `v1.3.0`; GitHub Release published)
-> **Environment (GFIM-DEV):** v1.3.0 deployed
+> **Environment (Dev):** v1.3.0 deployed
 > **PCF control:** `DoDBannerLibrary.DodBannerControl` v1.2.1
 > **License:** MIT License added (Copyright 2026 Devon Aleshire; personal; no patent grant)
 

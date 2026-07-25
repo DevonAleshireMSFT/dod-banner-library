@@ -16,6 +16,7 @@
 - Roadmap tracking against `README.md` (v1.2: Dataverse consent audit table, security role)
 - Cross-cutting architecture decisions (how PCF, web resources, and Power Pages templates fit together)
 - Code review and final sign-off before release
+- **Release-time reconciliation of the `.ai/` AI Context Framework** — owns keeping `.ai/` living docs (context/domain/data-model/pipelines) and `.ai/decisions/` ADR links accurate against shipped product truth each release, and enforcing the `.ai`↔`.squad` boundary (`.squad/decisions.md` links to `.ai/`, never restates product decisions). Security/disclosure sections (`.ai/security.md`) are co-reviewed with Zoe.
 
 ## How I Work
 

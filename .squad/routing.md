@@ -16,6 +16,7 @@ How to decide who handles what.
 | Session logging | Scribe | Automatic — never needs routing |
 | RAI review | Rai | Content safety, bias checks, credential detection, ethical review |
 | Fact-checking / devil's advocate | Fact Checker | Verify claims, challenge plans, pre-mortem risky changes |
+| `.ai/` context drift, ADR placement, `.ai`↔`.squad` boundary | Mal | Reconcile `.ai/` docs/ADRs to shipped state each release; boundary questions; security/disclosure sections co-reviewed with Zoe |
 
 ## Issue Routing
 
