@@ -15,3 +15,5 @@ Flagged that the PCF manifest uses `control-type="standard"`, not `virtual`.
 
 📌 Team update (2026-07-24T23:20:00-07:00): Scribe merged Mal's governance boundary decision: .ai/ is product truth, .squad/ is team/routing/session memory, and agents should link rather than restate .ai/ product decisions while using tiered .ai/ loading. — decided by Mal
 
+
+📌 Team update (2026-07-24T23:36:08-07:00): Public-repository hygiene is now a working agreement in team context and points to .ai/security.md as authoritative. — decided by Mal/Zoe

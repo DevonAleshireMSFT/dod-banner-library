@@ -121,8 +121,17 @@
 **What:** `.ai/security.md` now treats GCC High / IL4/IL5 as the intended deployment environment and describes implemented controls factually, without claiming certification, accreditation, ATO, AC-8 compliance, or other standards compliance.
 **Why:** The `.ai/` context will ground agents; if it overstates compliance posture, agents may repeat unsupported claims in docs, PRs, or release material.
 
+### 2026-07-24: Public-repo hygiene working agreement added to team.md
+**By:** Mal
+**What:** Added a concise public-repository hygiene working agreement to `.squad/team.md`.
+**Why:** Public repo; keep internal-to-Microsoft material out of committed/public artifacts; points to .ai/security.md as authoritative.
+
+### 2026-07-24: Public-repo do-not-publish guardrail documented
+**By:** Zoe
+**What:** Added concise public-repository disclosure hygiene guidance to `.ai/security.md`, `.ai/context.md`, `.github/copilot-instructions`, and `README.md`.
+**Why:** Public repo; keep internal-to-Microsoft material out and generalize internal requirements to high-level public-safe wording.
+
 ## Governance
 - All meaningful changes require team consensus
 - Document architectural decisions here
 - Keep history focused on work, decisions focused on direction
-
