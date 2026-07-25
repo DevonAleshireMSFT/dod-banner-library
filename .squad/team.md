@@ -12,6 +12,7 @@
 
 | Name | Role | Charter | Status |
 |------|------|---------|--------|
+| Serenity | Coordinator | (squad.agent.md) | 🎛️ Orchestrator |
 | Mal | Lead | .squad/agents/mal/charter.md | 🏗️ Active |
 | Zoe | Security/Compliance | .squad/agents/zoe/charter.md | 🔒 Active |
 | Kaylee | PCF/Frontend Dev | .squad/agents/kaylee/charter.md | ⚛️ Active |
