@@ -46,11 +46,6 @@ DoDBannerLibrary.DodBanner = (function () {
     "whether authorized or unauthorized, constitutes consent to these terms. " +
     "There is no right of privacy in this system.";
 
-  function addFreshReadFilter(filter) {
-    var freshnessCutoff = new Date(Date.now() + (5 * 60 * 1000)).toISOString();
-    return "(" + filter + ") and modifiedon le " + freshnessCutoff;
-  }
-
   function getBannerEnabledValue(value) {
     return String(value == null ? "yes" : value).trim().toLowerCase() || "yes";
   }
@@ -241,7 +236,7 @@ DoDBannerLibrary.DodBanner = (function () {
 
     return Xrm.WebApi.retrieveMultipleRecords(
       "environmentvariabledefinition",
-      "?$select=environmentvariabledefinitionid,schemaname,defaultvalue&$filter=" + addFreshReadFilter(schemaFilter)
+      "?$select=environmentvariabledefinitionid,schemaname,defaultvalue&$filter=" + schemaFilter
     ).then(function (defResult) {
       var defMap = {};
       defResult.entities.forEach(function (def) {
@@ -260,7 +255,7 @@ DoDBannerLibrary.DodBanner = (function () {
 
       return Xrm.WebApi.retrieveMultipleRecords(
         "environmentvariablevalue",
-        "?$select=value,_environmentvariabledefinitionid_value&$filter=" + addFreshReadFilter(valFilter)
+        "?$select=value,_environmentvariabledefinitionid_value&$filter=" + valFilter
       ).then(function (valResult) {
         // Per-environment values override the definition defaults
         valResult.entities.forEach(function (val) {

@@ -332,11 +332,6 @@ function applyConsentText(consentText) {
 // ── Classification bar ───────────────────────────────────────────────────────
 // Mirrors dodbl_dodbanner.injectClassificationBar/getEnvVars so the launch page
 // and form OnLoad web resource dedupe and render the same shell-level bar.
-function addFreshReadFilter(filter) {
-  var freshnessCutoff = new Date(Date.now() + (5 * 60 * 1000)).toISOString();
-  return "(" + filter + ") and modifiedon le " + freshnessCutoff;
-}
-
 function getBannerEnabledValue(value) {
   return String(value == null ? "yes" : value).trim().toLowerCase() || "yes";
 }
@@ -488,7 +483,7 @@ function getBannerEnvVars() {
 
     return parent.Xrm.WebApi.retrieveMultipleRecords(
       "environmentvariabledefinition",
-      "?$select=environmentvariabledefinitionid,schemaname,defaultvalue&$filter=" + addFreshReadFilter(schemaFilter)
+      "?$select=environmentvariabledefinitionid,schemaname,defaultvalue&$filter=" + schemaFilter
     ).then(function (defResult) {
       var defMap = {};
       defResult.entities.forEach(function (def) {
@@ -507,7 +502,7 @@ function getBannerEnvVars() {
 
       return parent.Xrm.WebApi.retrieveMultipleRecords(
         "environmentvariablevalue",
-        "?$select=value,_environmentvariabledefinitionid_value&$filter=" + addFreshReadFilter(valFilter)
+        "?$select=value,_environmentvariabledefinitionid_value&$filter=" + valFilter
       ).then(function (valResult) {
         // Per-environment values override the definition defaults
         valResult.entities.forEach(function (val) {
