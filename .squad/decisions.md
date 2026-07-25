@@ -53,6 +53,26 @@
 **What:** `dodbl_banner-launch-page` and `dodbl_dodbanner` now add a changing, valid `modifiedon le {now+5m}` predicate to environment-variable WebApi reads and normalize `dodbl_BannerEnabled` with trim/null/default handling.
 **Why:** GFIM-DEV UAT showed an off→on asymmetry: disabling removed the Home-page classification bar, but re-enabling did not restore it on reload. The defensible root cause is a stale cached `environmentvariablevalue` read returning the old `No` value after re-enable; the fresh predicate changes the OData URL without using unsupported custom query parameters, and empty/null values still default to enabled.
 
+### 2026-07-24: Revert env-var modifiedon freshness filters
+**By:** Kaylee
+**What:** Reverted the `addFreshReadFilter()` mechanism from both `dodbl_banner-launch-page` and `dodbl_dodbanner`, restoring plain `schemaFilter` / `valFilter` environment-variable WebApi queries. Retained the safer `dodbl_BannerEnabled` parsing where null, empty, unknown, or default values resolve enabled, while explicit `no`, `false`, and `0` disable the bar.
+**Why:** GFIM-DEV showed the `modifiedon le <future ISO>` cache-bust predicate can make environment-variable reads fail, and the launch page intentionally catches env-var failures silently, so the classification bar disappeared with otherwise-valid defaults. The original off→on delay is better understood as Power Platform environment-variable value propagation/publish timing or the specific re-enable path used, not something the client should paper over with unsupported OData predicates.
+
+### 2026-07-24: Null-guard env-var value override (fixes Home-page bar not rendering)
+**By:** Kaylee
+**What:** In getBannerEnvVars (both dodbl_banner-launch-page and dodbl_dodbanner), only override a definition's defaultvalue with the environmentvariablevalue when that value is non-null and non-empty.
+**Why:** A cleared env-var value leaves a null value row in Dataverse; the old code clobbered the "CUI" default with null, so bannerType became "" and no bar rendered. Also fixes the disable→re-enable regression.
+
+### 2026-07-24: Clarify case-sensitivity in docs (env-var values are case-insensitive)
+**By:** Zoe
+**What:** Scoped the "case-sensitive" guidance to the data-classification HTML/CSS path; documented that environment-variable banner values (dodbl_BannerType/Enabled/Position) are case-insensitive.
+**Why:** Devon verified on GFIM-DEV that lowercase "secret" and "internal" rendered correct bars; the old wording misleadingly implied env-var values were case-sensitive.
+
+### 2026-07-24: UAT v1.3.0 signed off by Devon
+**By:** Wash
+**What:** All UAT-v1.3.0 cases (incl. Home-page bar UAT-023–029) marked PASSED; Devon approved on GFIM-DEV.
+**Why:** Manual verification confirmed banner types, positions, acknowledgement, enable/disable, and Home-page classification bar all work after the null-guard fix (6032490).
+
 ## Governance
 
 - All meaningful changes require team consensus

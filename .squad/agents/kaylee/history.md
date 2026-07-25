@@ -17,3 +17,5 @@ Refined the MDA consent UI to a single custom home page overlay, updated page co
 
 
 📌 Team update (2026-07-24T18:24:15-07:00): Classification bar env-var reads now use a fresh modifiedon filter and hardened enabled parsing in Home-page and MDA shell assets; GFIM-DEV off→on stale-read fix committed as 6fdced4 — decided by Kaylee.
+
+📌 Team update (2026-07-24T19:53:00-07:00): Fixed Home-page and MDA classification bar rendering by preserving BannerType defaults when env-var value rows are null/empty; commit 6032490. Also recorded the env-var freshness filter revert context.

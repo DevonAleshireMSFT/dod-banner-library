@@ -13,3 +13,5 @@ Confirmed AO-approved consent text must come from `dodbl_DoDConsentText`; noted 
 
 **2026-07-24:** Documented AC-8 posture for adopters in README and in-app docs (dodbl_docs): AC-8 is inherited at tenant/workstation logon pending adopter AO/ISSM confirmation, in-app consent is optional supplementary hardening, and the classification bar is the library's primary compliance contribution. Commit: 09734b5.
 
+
+📌 Team update (2026-07-24T19:53:00-07:00): Clarified compliance docs so banner env-var values are case-insensitive while data-classification HTML/CSS matching remains case-sensitive; commit 25450a1.
