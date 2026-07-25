@@ -131,6 +131,12 @@
 **What:** Added concise public-repository disclosure hygiene guidance to `.ai/security.md`, `.ai/context.md`, `.github/copilot-instructions`, and `README.md`.
 **Why:** Public repo; keep internal-to-Microsoft material out and generalize internal requirements to high-level public-safe wording.
 
+
+### 2026-07-24: `.ai/` reconciliation formalized as Lead responsibility (no new role)
+**By:** Mal
+**What:** Team decided against a dedicated `.ai` curator ("Ghost"); `.ai/` release-time reconciliation is now an explicit Lead responsibility — charter + routing.md updated by coordinator, and a reconciliation step added to `.ai/pipelines.md` release checklist. Security/disclosure sections co-reviewed with Zoe.
+**Why:** `.ai/` upkeep is bursty (clusters at releases), not continuous — a process trigger, not new headcount, closes the gap.
+
 ## Governance
 - All meaningful changes require team consensus
 - Document architectural decisions here
