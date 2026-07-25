@@ -73,9 +73,44 @@
 **What:** All UAT-v1.3.0 cases (incl. Home-page bar UAT-023–029) marked PASSED; Devon approved on GFIM-DEV.
 **Why:** Manual verification confirmed banner types, positions, acknowledgement, enable/disable, and Home-page classification bar all work after the null-guard fix (6032490).
 
+### 2026-07-24: Header title simplified without subtitle replacement
+**By:** Kaylee
+**What:** `dodbl_banner-launch-page` uses a single header title, "DoD Banner Library Management App", and removes the duplicated GCC High / IL4/IL5 subtitle rather than replacing it.
+**Why:** The environment/compliance context already appears in the Solution Status card, and the existing flex header remains visually balanced with the icon and version badge without CSS changes.
+
+### 2026-07-24: PCF control version bump for canvas-app cache refresh
+**By:** Kaylee
+**What:** Bumped `DoDBannerLibrary.DodBannerControl` from v1.2.0 to v1.2.1 and synced the rebuilt PCF manifest/bundle into the solution Controls artifact folder.
+**Why:** Canvas apps cache PCF controls by control version. The v1.3.0 cookie-hardening bundle was present on disk, but the manifest still advertised v1.2.0, so re-importing the solution did not force canvas apps to refresh and they continued using the old `Accepted` cookie behavior. Incrementing the PCF control version makes the platform pick up the rebuilt bundle containing `dodbl_Accepted` and `Secure; SameSite=Strict`.
+
+### 2026-07-24: v1.3.0 cookie & robustness hardening (#3,#4,#5,#6)
+**By:** Kaylee
+**What:** Renamed consent cookie Accepted->dodbl_Accepted (all 3 files); added Secure; SameSite=Strict to all cookie writes; hardened getCookie to split-before-decode (index.ts, dodbl_dodbanner); reset _consentSetup on showConsent off->on cycle (PCF).
+**Why:** Close v1.3.0 release-blocking security/robustness gaps (collision/bypass, plaintext-cookie CWE-614, URIError DoS of the gate, consent-gate not re-showing).
+
+### 2026-07-24: v1.3.0 acceptance criteria and readiness verdict
+**By:** Mal
+**What:** Defined consolidated, testable v1.3.0 acceptance criteria in `docs/releases/v1.3.0-acceptance-criteria.md` and assessed each criterion against merged code and signed UAT.
+**Why:** The release needs one source of truth for readiness. The Home-page consent gate, #14 refinements, classification bar, versioning, sitemap order, and UAT sign-off are met, but #3, #4, #5, and #6 remain release-scope gaps in PCF/form cookie hardening, cookie naming, Secure attributes, and `_consentSetup` reset behavior. Recommendation: close #7 and #14; keep #3/#4/#5/#6 open and fix before tagging v1.3.0 unless explicitly deferring them to a patch.
+
+### 2026-07-24: Canvas consent persistence limitation for v1.3.0
+**By:** Zoe (Compliance/Security + documentation)
+**What:** v1.3.0 is release-ready for the Model-Driven App production path. The MDA launch-page consent gate persists the renamed `dodbl_Accepted` cookie with `Secure; SameSite=Strict` on the same-origin path, and issues #3, #4, and #5 are treated as met for that path. Issue #6 code is implemented, but Canvas verification is deferred to v1.4.0 and persistent Canvas consent is tracked in issue #21.
+**Why:** Canvas app testing showed `DodBannerControl` runs inside a sandboxed code-component sub-iframe. `document.cookie` writes from the PCF component do not surface to the host origin (`apps.high.powerapps.us`), while console testing confirmed the host origin itself can persist `SameSite=Strict` cookies. The consent modal still functions per session in Canvas; cross-session persistence needs a host-persisted output property / Dataverse-backed approach aligned with the v1.4.0 consent epic.
+
+### 2026-07-24T21:05:00-07:00: v1.3.0 cookie hardening review approved
+**By:** Zoe (Compliance/Security + documentation)
+**What:** Approved Kaylee's v1.3.0 cookie-hardening diffs for PCF, `dodbl_dodbanner`, and `dodbl_banner-launch-page`: cookie rename is consistent as `dodbl_Accepted`; consent writes include `Secure; SameSite=Strict`; split-before-decode prevents malformed unrelated cookies from breaking the gate; PCF `_consentSetup` re-arms on showConsent OFF->ON; no classification-bar regression risk found.
+**Why:** Same-site Dataverse/browser consent reads do not need cross-site cookie attachment, so `SameSite=Strict` is appropriate, and the reviewed changes close the targeted consent-gate robustness/security gaps.
+**Note:** Preserving `=` inside arbitrary cookie values remains a non-blocking robustness improvement for future generic cookie helpers.
+
+### 2026-07-24T22:45:00-07:00: v1.3.0 documentation reconciliation
+**By:** Zoe (Compliance/Security + documentation)
+**What:** Reconciled release notes, `dodbl_docs`, and README with shipped PR #20 cookie-hardening behavior: consent cookie references now use `dodbl_Accepted`; cookie flags are documented as `Secure; SameSite=Strict`; release notes include malformed-cookie `getCookie` hardening, PCF `showConsent` off-to-on re-arm behavior, PCF bundle version `1.2.1`, and the Canvas consent-persistence limitation tracked in #21.
+**Why:** Documentation needed to match the shipped v1.3.0 behavior without overstating certification or compliance claims.
+
 ## Governance
 
 - All meaningful changes require team consensus
 - Document architectural decisions here
 - Keep history focused on work, decisions focused on direction
-

@@ -15,3 +15,5 @@ Confirmed AO-approved consent text must come from `dodbl_DoDConsentText`; noted 
 
 
 📌 Team update (2026-07-24T19:53:00-07:00): Clarified compliance docs so banner env-var values are case-insensitive while data-classification HTML/CSS matching remains case-sensitive; commit 25450a1.
+
+📌 Team update (2026-07-24T22:50:00-07:00): v1.3.0 is release-ready on the Model-Driven App path after documentation reconciliation for `dodbl_Accepted`, `Secure; SameSite=Strict`, malformed-cookie `getCookie` hardening, PCF re-arm behavior, and PCF v1.2.1. Canvas consent persistence is documented as a sandbox limitation and tracked for v1.4.0 in #21; technical docs/repo artifacts are tracked in #22 — decided by Zoe and Serenity.

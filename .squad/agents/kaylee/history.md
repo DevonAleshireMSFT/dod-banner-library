@@ -19,3 +19,5 @@ Refined the MDA consent UI to a single custom home page overlay, updated page co
 📌 Team update (2026-07-24T18:24:15-07:00): Classification bar env-var reads now use a fresh modifiedon filter and hardened enabled parsing in Home-page and MDA shell assets; GFIM-DEV off→on stale-read fix committed as 6fdced4 — decided by Kaylee.
 
 📌 Team update (2026-07-24T19:53:00-07:00): Fixed Home-page and MDA classification bar rendering by preserving BannerType defaults when env-var value rows are null/empty; commit 6032490. Also recorded the env-var freshness filter revert context.
+
+📌 Team update (2026-07-24T22:50:00-07:00): v1.3.0 closeout shipped PR #20 and tag v1.3.0 with Kaylee's cookie-hardening fixes, launch-page header simplification, PCF control version 1.2.1 rebuild/sync for Canvas cache refresh, and status-card version update. Canvas cross-session consent persistence remains deferred to v1.4.0 issue #21 because the PCF sandbox cannot persist host-origin cookies reliably — decided by Kaylee, Zoe, and Serenity.
