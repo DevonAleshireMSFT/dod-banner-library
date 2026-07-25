@@ -220,7 +220,7 @@ try { _doc = (window.top && window.top.document) ? window.top.document : documen
 catch (_e) { _doc = document; }
 
 // ── Cookie helpers ───────────────────────────────────────────────────────────
-var COOKIE_NAME  = "Accepted";
+var COOKIE_NAME  = "dodbl_Accepted";
 var EXPIRY_DAYS  = 30;
 var CONSENT_TEXT_SCHEMA = "dodbl_DoDConsentText";
 var CONSENT_WARNING_PREFIX = "WARNING:";
@@ -241,7 +241,7 @@ function setCookie(name, value, days) {
   try {
     var exp = new Date();
     exp.setTime(exp.getTime() + days * 24 * 60 * 60 * 1000);
-    _doc.cookie = name + "=" + value + ";expires=" + exp.toUTCString() + ";path=/;SameSite=Lax;Secure";
+    _doc.cookie = name + "=" + value + ";expires=" + exp.toUTCString() + ";path=/; Secure; SameSite=Strict";
   } catch (_e) { /* cross-origin guard */ }
 }
 

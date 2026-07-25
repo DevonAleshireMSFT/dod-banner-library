@@ -7,8 +7,9 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
     private _clickListeners: { el: Element; fn: EventListener }[] = [];
     private _rendered = false;
     private _consentSetup = false;
+    private _lastShowConsent = false;
 
-    private static readonly COOKIE_NAME = "Accepted";
+    private static readonly COOKIE_NAME = "dodbl_Accepted";
     private static readonly DEFAULT_EXPIRY_DAYS = 30;
     private static readonly DEFAULT_CONSENT_TEXT =
         "WARNING: This is a U.S. Government computer system, which may be accessed " +
@@ -32,14 +33,17 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
         document.cookie =
             name + "=" + value +
             ";expires=" + expiry.toUTCString() +
-            ";path=/;SameSite=Lax";
+            ";path=/; Secure; SameSite=Strict";
     }
 
     private getCookie(name: string): string {
-        const prefix = name + "=";
-        for (const part of decodeURIComponent(document.cookie).split(";")) {
-            const c = part.trimStart();
-            if (c.indexOf(prefix) === 0) return c.substring(prefix.length);
+        for (const part of document.cookie.split(";")) {
+            try {
+                const kv = part.trim().split("=");
+                if (decodeURIComponent(kv[0]) === name) return decodeURIComponent(kv[1] || "");
+            } catch (_e) {
+                // skip malformed cookie pair
+            }
         }
         return "";
     }
@@ -267,6 +271,10 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
         const rawType     = ((context.parameters.bannerType.raw) || "").trim();
         const showConsent = context.parameters.showConsent.raw === true ||
                             rawType.toUpperCase() === "DOD";  // legacy compat
+        if (showConsent && !this._lastShowConsent) {
+            this._consentSetup = false;
+        }
+        this._lastShowConsent = showConsent;
         const expiry      = context.parameters.consentExpiryDays.raw;
         const expiryDays  = (expiry !== null && expiry !== undefined && !isNaN(expiry) && expiry >= 0)
             ? expiry : DodBannerControl.DEFAULT_EXPIRY_DAYS;

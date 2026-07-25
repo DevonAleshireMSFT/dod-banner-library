@@ -63,15 +63,18 @@ DoDBannerLibrary.DodBanner = (function () {
     _doc.cookie =
       name + "=" + value +
       ";expires=" + expiry.toUTCString() +
-      ";path=/;SameSite=Lax";
+      ";path=/; Secure; SameSite=Strict";
   }
 
   function getCookie(name) {
-    var prefix = name + "=";
-    var parts = decodeURIComponent(_doc.cookie).split(";");
+    var parts = _doc.cookie.split(";");
     for (var i = 0; i < parts.length; i++) {
-      var c = parts[i].trimStart();
-      if (c.indexOf(prefix) === 0) return c.substring(prefix.length);
+      try {
+        var kv = parts[i].trim().split("=");
+        if (decodeURIComponent(kv[0]) === name) return decodeURIComponent(kv[1] || "");
+      } catch (_e) {
+        // skip malformed cookie pair
+      }
     }
     return "";
   }
@@ -82,7 +85,7 @@ DoDBannerLibrary.DodBanner = (function () {
   // requires no window.top DOM injection.
 
   function showConsentNotification(consentText, expiryDays) {
-    if (getCookie("Accepted") !== "") return;
+    if (getCookie("dodbl_Accepted") !== "") return;
 
     var text = (consentText && consentText.trim()) ? consentText : CONSENT_TEXT_DEFAULT;
     var notificationId = null;
@@ -95,7 +98,7 @@ DoDBannerLibrary.DodBanner = (function () {
       action: {
         actionLabel: "I Acknowledge",
         eventHandler: function () {
-          setCookie("Accepted", "Yes", expiryDays);
+          setCookie("dodbl_Accepted", "Yes", expiryDays);
           if (notificationId) {
             Xrm.App.clearGlobalNotification(notificationId);
           }
