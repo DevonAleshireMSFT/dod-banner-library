@@ -21,12 +21,12 @@ The proper Canvas fix is to emit consent state through a bound PCF output proper
 
 1. **Platform sandbox behavior — not a code defect.** The failing write occurs from the sandboxed PCF sub-iframe, not from the visible Canvas host origin.
 2. **Host-origin testing isolated the cause.** Direct console tests on `apps.high.powerapps.us` proved that the host can persist the cookie attributes used for issue #5, so the `Secure; SameSite=Strict` flags are not responsible.
-3. **Distinct from ADR 008.** ADR 008 documents Canvas bundle baking and caching of PCF control code at publish time. This decision documents runtime cookie-write isolation inside the Canvas PCF sandbox.
+3. **Distinct from ADR 0008.** ADR 0008 documents Canvas bundle baking and caching of PCF control code at publish time. This decision documents runtime cookie-write isolation inside the Canvas PCF sandbox.
 
 ## Consequences
 
 - Do not rely on cookie persistence for Canvas consent in v1.3.0.
 - The Model-Driven App path remains the supported persistent-consent path today.
 - v1.4.0 Canvas persistence must use a bound output property and/or Dataverse-backed storage, tracked in issue #21.
-- This is related to ADR 008 because both are Canvas sandbox behaviors, but they affect different layers: bundle packaging versus runtime cookie isolation.
+- This is related to ADR 0008 because both are Canvas sandbox behaviors, but they affect different layers: bundle packaging versus runtime cookie isolation.
 - Full session rationale remains in `.squad/decisions.md`; this ADR is the durable product record.

@@ -95,7 +95,7 @@ Then review and commit changes. Auto-generated folders (`Controls/`, `dvtablesea
 6. Pack: `pac solution pack --zipfile DoDBannerLibrary.zip --folder DoDBannerLibrary --packagetype Both`
 7. Import managed to the Dev environment for validation: `pac solution import ...`
 8. Commit all source changes
-9. Before tagging, reconcile `.ai/` living docs (`context`, `domain`, `data-model`, `security`, `pipelines`) and `.ai/decisions/` ADR links to shipped state; confirm `.squad/decisions.md` links to `.ai/` instead of restating product decisions. Co-review `.ai/security.md` / disclosure hygiene with Zoe.
+9. Before tagging, reconcile `.ai/` living docs (`context`, `domain`, `data-model`, `security`, `pipelines`) and `.ai/adr/` ADR links to shipped state; confirm `.squad/decisions.md` links to `.ai/` instead of restating product decisions. Co-review `.ai/security.md` / disclosure hygiene with Zoe.
 10. Tag: `git tag vX.X.X && git push origin vX.X.X`
 11. Create GitHub Release with managed zip attached: `gh release create vX.Y.Z DoDBannerLibrary_managed.zip --title vX.Y.Z --notes-file <notes.md>` (done for v1.3.0)
 

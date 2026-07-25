@@ -20,7 +20,7 @@ and the rules that must always be followed.
 
 Knowledge split: `.ai/` is the durable product-grounding layer; `.squad/`
 is team/session orchestration state. Record durable product decisions as
-`.ai/decisions/` ADRs or updates to the relevant `.ai/` living doc, then
+`.ai/adr/` ADRs or updates to the relevant `.ai/` living doc, then
 reference them from `.squad/decisions.md` instead of restating them there.
 
 ## Rules That Always Apply
@@ -46,7 +46,7 @@ corresponding file before generating a response:
 | Table and column definitions | `.ai/data-model.md` |
 | Security roles and access constraints | `.ai/security.md` |
 | Pipeline and deployment standards | `.ai/pipelines.md` |
-| Why a past decision was made | `.ai/decisions/` |
+| Why a past decision was made | `.ai/adr/` |
 
 ## What You Must Never Do
 

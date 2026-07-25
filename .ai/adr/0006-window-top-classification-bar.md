@@ -7,7 +7,7 @@
 
 MDA UCI form web resource scripts execute inside a 0×0 hidden `<iframe>`. Any DOM element injected into `document` (the form iframe document) is invisible to the user. The visible application is rendered in `window.top`.
 
-The consent banner was migrated to `Xrm.App.addGlobalNotification` (Decision 005), which is a supported UCI API and requires no DOM manipulation. However, no equivalent supported API exists for injecting a persistent, visible classification mark (a full-width colored bar) into the UCI shell page.
+The consent banner was migrated to `Xrm.App.addGlobalNotification` (ADR 0005), which is a supported UCI API and requires no DOM manipulation. However, no equivalent supported API exists for injecting a persistent, visible classification mark (a full-width colored bar) into the UCI shell page.
 
 Microsoft explicitly flags `window.top` as an anti-pattern:  
 > [avoid-window-top](https://learn.microsoft.com/en-us/power-apps/developer/model-driven-apps/best-practices/business-logic/avoid-window-top) — Impact: High, Category: Supportability

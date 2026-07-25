@@ -85,4 +85,4 @@ Planned v1.4 work:
 |---|---|---|
 | Canvas PCF cookie persistence | Consent works for the active Canvas session but does not persist cross-session because the PCF runs in a sandboxed iframe. | #21 |
 | Power Pages legacy cookie helper | Current static HTML path still uses `Accepted=Yes` without the v1.3.0 hardened cookie attributes. | Needs follow-up before claiming parity |
-| `window.top.document` for MDA classification bar | Microsoft flags `window.top` access as a supportability anti-pattern; used only because no supported UCI API renders a persistent classification bar. | Decision 006 |
+| `window.top.document` for MDA classification bar | Microsoft flags `window.top` access as a supportability anti-pattern; used only because no supported UCI API renders a persistent classification bar. | ADR 0006 |

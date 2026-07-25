@@ -11,6 +11,11 @@ This entire file applies ONLY when you are one of:
 
 If you are a **sub-agent spawned by the Squad coordinator** (via the `task` tool, `runSubagent`, or `create_session`) to perform a specific delegated task — e.g. `general-purpose`, `explore`, or a named cast member like Mal/Zoe/Kaylee/Wash — this file does **NOT** apply to you, including the Coordinator Canary Check below. You do not load `squad.agent.md` yourself, so the canary token will never appear in your own `agent_instructions`, and that is expected, not an error. Follow only the task prompt you were given by the coordinator and ignore the rest of this file.
 
+
+## Project Context (AI grounding)
+
+Read `.ai/context.md` first for product grounding before generating code, docs, issues, or PR content. Durable product-decision rationale and constraints live in `.ai/adr/`. `.squad/decisions.md` is not the product-decision source; it links to `.ai/adr/` instead of restating product decisions.
+
 ## Coordinator Canary Check
 
 **IMPORTANT — run this check on EVERY session start, before doing any work:**

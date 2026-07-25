@@ -13,7 +13,7 @@ Zero external dependencies. No CDN calls. No jQuery.
 | Answers: what the product is and why it is built this way | Answers: how the AI team is working and what it decided/did |
 | Audience: anyone modifying the code, human or AI | Audience: the AI team and PM |
 | Lifespan: durable product truth that outlives the team | Lifespan: session-oriented working memory and running log |
-| Decisions = product ADRs in `.ai/decisions/`; living facts in `context/domain/data-model/security/pipelines` | Decisions = team direction, scope, routing, and session outcomes in `.squad/decisions.md` |
+| Decisions = product ADRs in `.ai/adr/`; living facts in `context/domain/data-model/security/pipelines` | Decisions = team direction, scope, routing, and session outcomes in `.squad/decisions.md` |
 
 Rule: `.squad/decisions.md` never restates a product decision — it links to the `.ai/` ADR or living-doc fact. New contributors should read `.ai/context.md` first to understand the product; `.squad/` is the AI team's operating state.
 
