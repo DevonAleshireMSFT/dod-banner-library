@@ -40,6 +40,7 @@
     .change-item { display: flex; gap: 12px; align-items: flex-start; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 10px 14px; box-shadow: var(--shadow); font-size: 13px; }
     .change-pill { flex-shrink: 0; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 700; margin-top: 1px; }
     .pill-new    { background: #dce9f8; color: #004578; }
+    .pill-note   { background: var(--warning-border); color: #8a6d00; }
     .pill-remove { background: var(--error-border); color: #6b0c0e; }
     .change-text { color: var(--text-secondary); flex: 1; }
     .change-text strong { color: var(--text); }
@@ -56,13 +57,13 @@
   </div>
 </div>
 
-<a class="back-link" href="dodbl_docs">&larr; Documentation</a>
+<a class="back-link" href="dodbl_banner-launch-page">&larr; Home</a>
 
 <div class="main">
 
   <div class="version-block">
     <div class="version-header">
-      <span class="version-tag" style="color:var(--text-disabled)">v1.3.0</span>
+      <span class="version-tag" style="color:var(--text-disabled)">v1.4.0</span>
       <span class="version-date" style="color:var(--text-disabled)">Planned</span>
     </div>
     <div class="change-group">
@@ -70,16 +71,37 @@
       <ul class="change-list">
         <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Dataverse consent audit table</strong> &mdash; <code>dodbl_consent_record</code> with columns: <code>dodbl_systemuser</code> (Lookup), <code>dodbl_acknowledgedon</code>, <code>dodbl_expirydate</code>, <code>dodbl_consenttype</code>, <code>dodbl_consenttext</code>, <code>dodbl_isactive</code>. Table-level auditing enabled.</span></li>
         <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Security role</strong> &mdash; <code>DoD Banner &mdash; Consent Write</code> for granting consent record create access to Authenticated Users in Power Pages.</span></li>
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>PCF cookie hardening</strong> &mdash; Rename consent cookie from <code>Accepted</code> to <code>dodbl_Accepted</code> to prevent domain-level collision; add <code>Secure</code> flag for GCC High HTTPS environments.</span></li>
       </ul>
     </div>
   </div>
 
   <div class="version-block">
     <div class="version-header">
-      <span class="version-tag">v1.2.0</span>
+      <span class="version-tag">v1.3.0</span>
       <span class="version-date">2026-07-24</span>
       <span class="version-badge">Latest</span>
+    </div>
+    <div class="change-group">
+      <div class="change-group-title">New</div>
+      <ul class="change-list">
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>dodbl_banner-launch-page</strong> &mdash; Model-Driven App custom home page that presents the DoD consent gate before showing the management app navigation tiles.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Single consent entry point</strong> &mdash; the home-page overlay is now the MDA consent experience; the duplicate shell-level <code>Xrm.App.addGlobalNotification</code> banner was removed to keep the architecture simple and unambiguous.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Configurable consent text</strong> &mdash; the launch page resolves text from a query-string override first, then <code>dodbl_DoDConsentText</code> via <code>Xrm.WebApi</code>, then the built-in DoD warning fallback.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Consent UI polish</strong> &mdash; the page title is now &ldquo;U.S. Government System - Authorized Users Only&rdquo;, the subtitle is &ldquo;DoD Banner Library&rdquo;, and the <strong style="color:#a4262c">WARNING:</strong> label is emphasized in red.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Consent cookie hardening</strong> &mdash; the home-page consent cookie uses <code>SameSite=Lax; Secure</code>, and the acknowledge path now consistently dismisses the overlay and reveals the home content.</span></li>
+      </ul>
+    </div>
+    <div class="change-group">
+      <div class="change-group-title">Known limitation</div>
+      <ul class="change-list">
+        <li class="change-item"><span class="change-pill pill-note">NOTE</span><span class="change-text"><strong>Sitemap gate != enforcement</strong> &mdash; the v1.3.0 MDA gate is a UX-level home-page entry pattern, not a hard security boundary. Deep links, global search, pinned items, and recent items can bypass the home page; enforcement is tracked separately in issue #13 and deferred beyond v1.3.0.</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="version-block">
+    <div class="version-header">
+      <span class="version-tag">v1.2.0</span>
+      <span class="version-date">2026-07-24</span>
     </div>
     <div class="change-group">
       <div class="change-group-title">New</div>
@@ -104,7 +126,6 @@
       </ul>
     </div>
   </div>
-
   <div class="version-block">
     <div class="version-header">
       <span class="version-tag">v1.1.0</span>
@@ -121,36 +142,6 @@
         <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>DodBannerControl PCF for Canvas Apps</strong> &mdash; PCF field control providing consent modal and classification bar for Canvas Apps. Requires Power Apps Premium or Managed Environment. Properties: <code>bannerEnabled</code>, <code>bannerType</code>, <code>consentExpiryDays</code>, <code>consentText</code>.</span></li>
         <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>dodbl_webtemplatesource</strong> &mdash; Power Pages Web Template source page with step-by-step Liquid setup instructions.</span></li>
         <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>DoD Banner Library Management app</strong> &mdash; Model-driven app providing in-environment access to documentation, release notes, and web template source from the app switcher.</span></li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="version-block">
-    <div class="version-header">
-      <span class="version-tag">v1.2.0</span>
-      <span class="version-date">2026-07-24</span>
-      <span class="version-badge">Latest</span>
-    </div>
-    <div class="change-group">
-      <div class="change-group-title">New</div>
-      <ul class="change-list">
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>showConsent PCF property</strong> &mdash; New <code>showConsent</code> (TwoOptions) input property on <code>DodBannerControl</code>. Decouples the DoD system-use notification consent modal from <code>bannerType</code>. Set <code>showConsent = true</code> to show the consent modal without a classification bar. Legacy <code>bannerType = "DoD"</code> continues to work.</span></li>
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>CSS injection for Canvas Apps</strong> &mdash; PCF now injects all modal styles directly into <code>document.head</code> (<code>&lt;style data-dodbl-pcf-styles&gt;</code>) at runtime. Canvas Apps and Custom Pages do not load <code>dodbl_bannercore.css</code>, so the bundle is now fully self-contained. Idempotent &mdash; safe across multiple <code>updateView</code> calls.</span></li>
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>DoD placeholder indicator</strong> &mdash; When <code>showConsent = true</code> and no classification bar is configured, the PCF control renders a navy dashed &ldquo;&#x26A0; DoD Consent&rdquo; placeholder so the control is visible in the Canvas App editor. At runtime the full modal and dark overlay appear.</span></li>
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Dark overlay</strong> &mdash; Semi-transparent full-viewport overlay (<code>rgba(0,0,0,0.45)</code>) blocks interaction with the app until the user acknowledges. Renders beneath the modal at <code>z-index: 9997</code>.</span></li>
-      </ul>
-    </div>
-    <div class="change-group">
-      <div class="change-group-title">Removed</div>
-      <ul class="change-list">
-        <li class="change-item"><span class="change-pill pill-remove">REMOVED</span><span class="change-text"><strong>Close button (&#x00D7;) removed from PCF modal</strong> &mdash; The <code>#closeCookieConsent</code> dismiss-without-acknowledging button has been removed. Users must click <strong>I Acknowledge</strong> to dismiss the DoD system-use notification. This satisfies the DoD requirement for affirmative acknowledgement.</span></li>
-      </ul>
-    </div>
-    <div class="change-group">
-      <div class="change-group-title">Fixed</div>
-      <ul class="change-list">
-        <li class="change-item"><span class="change-pill pill-new">FIX</span><span class="change-text"><strong>Modal display flash</strong> &mdash; Modal no longer briefly flashes visible before the 800&thinsp;ms delay. The element starts as <code>display:none</code> and is revealed immediately before <code>fadeIn</code> begins.</span></li>
-        <li class="change-item"><span class="change-pill pill-new">FIX</span><span class="change-text"><strong>Modal contrast and spacing</strong> &mdash; Increased padding (<code>24px 28px</code>), added border (<code>2px solid #555</code>), and deepened box-shadow for legibility on all background colors.</span></li>
       </ul>
     </div>
   </div>

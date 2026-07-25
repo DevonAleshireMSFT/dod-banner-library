@@ -15,6 +15,8 @@ Zero external dependencies. No CDN calls. No jQuery.
 | `dodbl_bannercore` | CSS | Shared stylesheet — responsive consent modal layout and classification mark color rules |
 | `dodbl_dodconsentbanner` | HTML | DoD consent modal — vanilla JS cookie-based consent tracking with fade animation |
 | `dodbl_cuiconsentbanner` | HTML | CUI classification mark fragment — CSS-only, no JavaScript required |
+| `dodbl_dodbanner` | JS | Model-Driven App form `OnLoad` script — reads `dodbl_` environment variables and injects the classification bar |
+| `dodbl_banner-launch-page` | HTML | Model-Driven App custom home page — single consent entry point with navigation tiles into the management app |
 | `dodbl_webtemplatesource` | HTML | Power Pages Liquid Web Template source — copy/paste setup page |
 | `dodbl_docs` | HTML | In-environment documentation page |
 | `dodbl_release-notes` | HTML | Version history and changelog |
@@ -28,7 +30,7 @@ Zero external dependencies. No CDN calls. No jQuery.
 | `dodbl_BannerType` | Environment Variable | Classification bar to render — `CUI`, `UNCLASSIFIED`, `SECRET`, etc. Empty = no bar. (String) |
 | `dodbl_ConsentExpiryDays` | Environment Variable | Cookie lifetime in days (Number, default: `30`) |
 | `dodbl_DoDConsentText` | Environment Variable | AO-approved consent text override (String, optional) |
-| `dodbl_ShowConsentBanner` | Environment Variable | Set to `yes`/`true` to show the DoD system-use notification (Boolean) |
+| `dodbl_ShowConsentBanner` | Environment Variable | Legacy form-script consent notification toggle (Boolean); the v1.3 management app consent gate uses `dodbl_banner-launch-page` |
 | `dodbl_BannerPosition` | Environment Variable | Classification bar placement — `Bottom` (default), `Top`, or `Both` (String) |
 
 ---
@@ -59,7 +61,7 @@ Open the **DoD Banner Library Management** app from the app switcher. Navigate t
 
 The in-solution documentation page (`dodbl_docs`) contains the full post-import checklist. The key steps are:
 
-1. Verify all six web resources and the management app are present
+1. Verify all eight web resources and the management app are present
 2. **Power Pages** — create `banner-core.css` and `dod-consent-banner.js` web files on your site
 3. **Power Pages** — create the `dod-consent-banner` Web Template using the source in `dodbl_webtemplatesource`
 
@@ -116,7 +118,7 @@ Add the `data-classification` attribute to any container element. No JavaScript 
 | `SECRET` (starts with `S`) | Red | `#d9534f` |
 | `TOP SECRET` (starts with `T`) | Orange | `#f0ad4e` |
 
-> **Values are case-sensitive.** `cui` will not match CUI purple — use `CUI`.
+> **The `data-classification` HTML attribute is case-sensitive** (it's matched by CSS attribute selectors) — use the canonical uppercase forms (`CUI`, `U`, `CONFIDENTIAL`, `SECRET`, `TOP SECRET`). Note: this applies only to the static HTML/CSS usage above — the environment-variable–driven banner below is case-insensitive.
 
 ---
 
@@ -129,35 +131,68 @@ These variables are available for Canvas App and Model-Driven App integrations (
 | `dodbl_BannerEnabled` | Boolean | `true` | Set to `false` to disable banners environment-wide |
 | `dodbl_BannerType` | String | *(empty)* | Classification bar to render: `CUI`, `UNCLASSIFIED`, `CONFIDENTIAL`, `SECRET`, `TOP SECRET`. Empty = no bar |
 | `dodbl_ConsentExpiryDays` | Number | `30` | Days before the consent cookie expires |
-| `dodbl_DoDConsentText` | String | *(empty)* | AO-approved consent text; overrides the built-in default when set |
-| `dodbl_ShowConsentBanner` | Boolean | `false` | Set to `yes`/`true` to show the DoD system-use notification via `Xrm.App.addGlobalNotification` |
+| `dodbl_DoDConsentText` | String | *(empty)* | AO-approved consent text; used by the MDA home-page consent gate after query-string overrides and before the built-in default |
+| `dodbl_ShowConsentBanner` | Boolean | `false` | Legacy form-script consent notification toggle; the v1.3 management app consent gate uses the custom home page instead of a global notification |
 | `dodbl_BannerPosition` | String | `Bottom` | Classification bar placement: `Bottom`, `Top`, or `Both`. `Top` shifts the MDA nav header down 28 px |
+
+Environment-variable values for the JS-driven banner are case-insensitive: `dodbl_BannerType` is normalized and prefix-matched (`secret`, `SECRET`, and `Secret` all render the red `SECRET` bar, and bar text is always uppercase); `dodbl_BannerEnabled` and `dodbl_BannerPosition` are also compared case-insensitively.
 
 ---
 
 ## Security Notes
 
 - **GCC High / IL4/IL5 safe** — no external CDN calls, no third-party scripts
-- Consent is tracked **client-side only** via browser cookie in v1.0 — no server-side audit log
+- Consent is tracked **client-side only** via browser cookie in v1.3, including the new Model-Driven App home-page consent gate — no server-side audit log yet
+- The Model-Driven App home-page consent gate is a UX-level entry pattern, not hard security enforcement; deep links, global search, pinned items, and recent items can bypass it (tracked in issue #13)
 - The jQuery dependency present in prior versions was **removed in v1.0**
 - Review all scripts before deploying to a production environment
 - Replace placeholder consent text with your organization's AO-approved language
 
 ---
 
+## Compliance & AC-8 Posture
+
+This library helps present system-use notification text and classification markings, but it does **not** define or guarantee an adopter's accreditation boundary.
+
+For AC-8 (System Use Notification), the expected posture for GCC High / DoD tenants is that AC-8 is normally inherited at the tenant, workstation, or network logon boundary — for example, the Entra ID / Microsoft 365 sign-in banner or Windows logon banner. Once a user is authenticated into the government tenant, that authenticated tenant access is the real boundary. **Each adopting organization must confirm this inheritance assumption with its own Authorizing Official (AO), ISSM, or security personnel.**
+
+In-app consent in this library is optional, supplementary hardening. The agreed consent configuration model is `dodbl_ConsentMode`:
+
+| Value | Meaning |
+|---|---|
+| `Off` | No in-app consent prompt; this is the default posture |
+| `HomePage` | Show the `dodbl_banner-launch-page` consent experience |
+| `GlobalNotification` | Show the Model-Driven App shell notification through `dodbl_dodbanner` / `Xrm.App.addGlobalNotification` |
+
+These modes are informational/UX controls, not technical access-control boundaries. Client-side consent can be bypassed through deep links, browser developer tools, disabled JavaScript, or direct API/OData access. Organizations that require enforced acknowledgement beyond authenticated tenant access should use platform-level controls such as Entra Conditional Access Terms-of-Use, security-role gating, or a gated entry app. GitHub issue #13 tracks this as optional advanced-enforcement guidance, not as a guarantee provided by this library.
+
+The library's primary compliance-significant contribution is the data classification marking bar (`CUI`, `U`, `CONFIDENTIAL`, `SECRET`, `TOP SECRET`), which supports visible marking/handling expectations such as CUI handling. Do not assume a precise control mapping without review; consult your ISSM or security personnel for the controls and data-handling requirements that apply to your environment.
+
+Adopters are responsible for:
+
+1. Confirming with their AO / ISSM how AC-8 is satisfied or inherited within their authorization boundary.
+2. Supplying AO-approved system-use-notification language in `dodbl_DoDConsentText` if in-app consent is enabled.
+3. Determining the classification, CUI, and data-handling requirements for their own environment.
+
+---
+
 ## Roadmap
 
-**v1.1 (Released 2026-07-23)**
+**v1.3 (Released 2026-07-24)**
 
-- PCF Virtual Component (`DodBannerControl`) for Canvas Apps
-- JavaScript web resource (`dodbl_dodbanner`) for Model-Driven App form `OnLoad` — consent via `Xrm.App.addGlobalNotification`, classification bar via `window.top` DOM injection
-- `dodbl_ShowConsentBanner` — decouples consent notification from classification bar
-- `dodbl_BannerPosition` — `Top`, `Bottom`, or `Both` classification bar placement
+- Model-Driven App consent gate custom home page (`dodbl_banner-launch-page`) with blocking overlay before the management app home content is shown
+- Custom home page is the single MDA consent entry point; the duplicate shell-level global notification banner was removed
+- `dodbl_DoDConsentText` now drives the home-page consent copy after query-string overrides and before the built-in warning fallback
+- Consent cookie uses `SameSite=Lax; Secure`, and the acknowledge path consistently reveals the home content
+- Known limitation: the sitemap/home-page gate is UX-level only, not hard enforcement; issue #13 tracks deep-link/search/pinned/recent bypasses
 
-**v1.2 (Planned)**
+**v1.4 (Planned)**
 
 - Dataverse consent audit table (`dodbl_consent_record`)
 - Security role `DoD Banner — Consent Write`
+- PCF acknowledge action writes consent records (#10)
+- Model-Driven App JS acknowledge action writes consent records (#11)
+- Power Pages server-side consent record write (#12)
 
 ---
 

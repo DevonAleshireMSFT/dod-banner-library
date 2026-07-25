@@ -46,6 +46,15 @@ DoDBannerLibrary.DodBanner = (function () {
     "whether authorized or unauthorized, constitutes consent to these terms. " +
     "There is no right of privacy in this system.";
 
+  function getBannerEnabledValue(value) {
+    return String(value == null ? "yes" : value).trim().toLowerCase() || "yes";
+  }
+
+  function isBannerEnabled(value) {
+    var enabled = getBannerEnabledValue(value);
+    return !(enabled === "no" || enabled === "false" || enabled === "0");
+  }
+
   // ── Cookie helpers ───────────────────────────────────────────────────────────
 
   function setCookie(name, value, days) {
@@ -251,7 +260,9 @@ DoDBannerLibrary.DodBanner = (function () {
         // Per-environment values override the definition defaults
         valResult.entities.forEach(function (val) {
           var defId = val["_environmentvariabledefinitionid_value"];
-          if (defMap[defId]) defMap[defId].resolvedValue = val.value;
+          if (defMap[defId] && val.value != null && String(val.value).trim() !== "") {
+            defMap[defId].resolvedValue = val.value;
+          }
         });
 
         var vars = {};
@@ -268,8 +279,7 @@ DoDBannerLibrary.DodBanner = (function () {
   function onFormLoad(executionContext) {
     getEnvVars()
       .then(function (vars) {
-        var enabled = String(vars["dodbl_BannerEnabled"] || "yes").toLowerCase();
-        if (enabled === "no" || enabled === "false") return;
+        if (!isBannerEnabled(vars["dodbl_BannerEnabled"])) return;
 
         var bannerType  = ((vars["dodbl_BannerType"] || BANNER_TYPE_DEFAULT) + "").trim();
         var expiryDays  = parseInt(vars["dodbl_ConsentExpiryDays"] || EXPIRY_DAYS_DEFAULT, 10);

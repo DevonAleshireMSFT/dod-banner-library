@@ -1,0 +1,14 @@
+# Mal — History
+
+**Project:** DoD Banner Library — a managed Power Platform solution providing GCC High–safe consent and classification banner assets for Power Pages, Canvas Apps, and Model-Driven Apps in DoD environments (IL4/IL5). Zero external dependencies, no CDN calls, no jQuery.
+
+**Stack:** Dataverse solution (managed/unmanaged export), HTML/CSS/vanilla JS web resources, TypeScript PCF virtual component, Power Pages Liquid web templates, Dataverse environment variables.
+
+**Current state (as of team setup):** v1.1 released (2026-07-23) — added PCF Virtual Component, JS web resource for MDA `OnLoad`, `dodbl_ShowConsentBanner`, `dodbl_BannerPosition`. v1.2 planned: Dataverse consent audit table + security role.
+
+**Requested by:** Devon Aleshire.
+
+**2026-07-24:** Team stood up (Squad init). No decisions recorded yet — starting fresh.
+
+**2026-07-24:** Authored the Power Platform Squad skill and started v1.3.0 documentation updates across release notes, `dodbl_docs`, and README.
+Flagged that the PCF manifest uses `control-type="standard"`, not `virtual`.

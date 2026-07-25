@@ -89,14 +89,17 @@
   <div class="app-header-icon">&#x1F6E1;&#xFE0F;</div>
   <div>
     <h1>DoD Banner Library</h1>
-    <p>Documentation &amp; Setup Guide &mdash; v1.1</p>
+    <p>Documentation &amp; Setup Guide &mdash; v1.3.0</p>
   </div>
 </div>
 
 <div class="app-body">
   <nav class="sidebar" id="sidebar">
+    <div class="sidebar-section-label">Navigation</div>
+    <a href="dodbl_banner-launch-page">&#x2190; Home</a>
     <div class="sidebar-section-label">Getting Started</div>
     <a href="#overview">Overview</a>
+    <a href="#compliance-ac8">Compliance &amp; AC-8</a>
     <a href="#post-import">Post-Import Checklist</a>
     <div class="sidebar-section-label">Banners</div>
     <a href="#dod-consent">DoD Consent Banner</a>
@@ -118,7 +121,7 @@
         <p>The <strong>DoD Banner Library</strong> is a managed Power Platform solution providing reusable, GCC High-safe banner assets for <strong>Power Pages</strong>, <strong>Canvas Apps</strong>, and <strong>Model-Driven Apps</strong>. A single solution import delivers all assets with no external dependencies.</p>
         <p>Two banner types are included:</p>
         <ul>
-          <li><strong>DoD Consent Banner</strong> &mdash; a blocking modal overlay requiring user acknowledgment on first visit. Consent tracked via browser cookie. Vanilla JavaScript, zero CDN calls.</li>
+          <li><strong>DoD Consent Banner</strong> &mdash; a blocking modal overlay requiring user acknowledgment on first visit. In the Management model-driven app, this is delivered by the <code>dodbl_banner-launch-page</code> custom home page. Consent is tracked via browser cookie. Vanilla JavaScript, zero CDN calls.</li>
           <li><strong>CUI Classification Mark</strong> &mdash; a color-coded top or bottom classification bar on any container element via a <code>data-classification</code> attribute. No JavaScript required.</li>
         </ul>
         <p>The solution also includes the <strong>DoD Banner Library Management</strong> model-driven app, providing in-environment access to this documentation, release notes, and the Power Pages web template source directly from the app switcher.</p>
@@ -126,16 +129,33 @@
       </div>
     </div>
 
+    <div class="card doc-section" id="compliance-ac8">
+      <div class="card-header"><span class="card-header-icon">&#x1F6E1;&#xFE0F;</span><div><div class="card-title">Compliance &amp; AC-8 Posture</div><div class="card-subtitle">Adopter verification responsibilities for system-use notification and data marking</div></div></div>
+      <div class="card-body prose">
+        <p>This library helps present system-use notification text and classification markings, but it does <strong>not</strong> define or guarantee an adopter&rsquo;s accreditation boundary.</p>
+        <div class="callout callout-warning"><span class="callout-icon">&#x26A0;&#xFE0F;</span><div><strong>Adopter verification required.</strong> For AC-8 (System Use Notification), the expected GCC High / DoD posture is that AC-8 is normally inherited at the tenant, workstation, or network logon boundary &mdash; for example, the Entra ID / Microsoft 365 sign-in banner or Windows logon banner. Once a user is authenticated into the government tenant, that authenticated tenant access is the real boundary. Each adopting organization must confirm this inheritance assumption with its own Authorizing Official (AO), ISSM, or security personnel.</div></div>
+        <p><strong>In-app consent is optional supplementary hardening.</strong> The agreed consent configuration model is <code>dodbl_ConsentMode</code>: <code>Off</code> (default), <code>HomePage</code> (<code>dodbl_banner-launch-page</code>), or <code>GlobalNotification</code> (<code>dodbl_dodbanner</code> / <code>Xrm.App.addGlobalNotification</code>).</p>
+        <p>These modes are informational/UX controls, not technical access-control boundaries. Client-side consent can be bypassed through deep links, browser developer tools, disabled JavaScript, or direct API/OData access. Organizations that require enforced acknowledgement beyond authenticated tenant access should use platform-level controls such as Entra Conditional Access Terms-of-Use, security-role gating, or a gated entry app. GitHub issue #13 tracks this as optional advanced-enforcement guidance, not as a guarantee provided by this library.</p>
+        <p><strong>The classification marking bar is the primary compliance-significant contribution.</strong> The <code>CUI</code>, <code>U</code>, <code>CONFIDENTIAL</code>, <code>SECRET</code>, and <code>TOP SECRET</code> markings support visible marking/handling expectations such as CUI handling. Do not assume a precise control mapping without review; consult your ISSM or security personnel for the controls and data-handling requirements that apply to your environment.</p>
+        <p><strong>Adopters are responsible for:</strong></p>
+        <ul>
+          <li>Confirming with their AO / ISSM how AC-8 is satisfied or inherited within their authorization boundary.</li>
+          <li>Supplying AO-approved system-use-notification language in <code>dodbl_DoDConsentText</code> if in-app consent is enabled.</li>
+          <li>Determining the classification, CUI, and data-handling requirements for their own environment.</li>
+        </ul>
+      </div>
+    </div>
+
     <div class="card doc-section" id="post-import">
       <div class="card-header"><span class="card-header-icon">&#x2705;</span><div><div class="card-title">Post-Import Checklist</div><div class="card-subtitle">Complete these steps after importing the solution</div></div></div>
       <div class="card-body">
         <div class="steps">
-          <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Verify web resources</div><div class="step-desc">Confirm all seven web resources are present: <code>dodbl_bannercore</code>, <code>dodbl_dodconsentbanner</code>, <code>dodbl_cuiconsentbanner</code>, <code>dodbl_dodbanner</code>, <code>dodbl_webtemplatesource</code>, <code>dodbl_docs</code>, and <code>dodbl_release-notes</code>. Also confirm the <strong>DoD Banner Library Management</strong> app (<code>dodbl_DoDBannerLibraryManagement</code>) is visible in the app switcher. If any components are missing, re-import the managed solution.</div></div></div>
+          <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Verify web resources</div><div class="step-desc">Confirm all eight web resources are present: <code>dodbl_bannercore</code>, <code>dodbl_dodconsentbanner</code>, <code>dodbl_cuiconsentbanner</code>, <code>dodbl_dodbanner</code>, <code>dodbl_banner-launch-page</code>, <code>dodbl_webtemplatesource</code>, <code>dodbl_docs</code>, and <code>dodbl_release-notes</code>. Also confirm the <strong>DoD Banner Library Management</strong> app (<code>dodbl_DoDBannerLibraryManagement</code>) is visible in the app switcher. If any components are missing, re-import the managed solution.</div></div></div>
           <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Power Pages &mdash; create web files</div><div class="step-desc">For each portal, create two Web File records in the Portal Management app. Copy CSS from <code>dodbl_bannercore</code> and JS from <code>dodbl_dodconsentbanner</code>. Set partial URLs to <code>/banner-core.css</code> and <code>/dod-consent-banner.js</code>, parent page to Home, publishing state to Published. See the <a href="#dod-consent">DoD Consent Banner</a> section for full steps.</div></div></div>
           <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Power Pages &mdash; create the Web Template and add to site header</div><div class="step-desc">Open <code>dodbl_webtemplatesource</code> in a browser, copy the Liquid source, and paste it into a new Web Template named <code>dod-consent-banner</code> in Portal Management. Then add <code>{% include 'dod-consent-banner' %}</code> to your site&rsquo;s header Web Template. Full instructions are inside <code>dodbl_webtemplatesource</code>.</div></div></div>
           <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Canvas Apps &mdash; add DodBannerControl PCF <span class="badge badge-info">New in v1.1</span></div><div class="step-desc">Requires Power Apps Premium or Managed Environment. <strong>(1)</strong> In Power Platform admin center, enable <strong>Allow publishing of canvas apps with code components</strong> for the environment. <strong>(2)</strong> In the DoD Banner Library solution, confirm <code>DoDBannerLibrary.DodBannerControl</code> appears under <strong>Code components</strong>. <strong>(3)</strong> In your Canvas App, open <strong>Insert &rarr; Code components</strong> and add <code>DodBannerControl</code> to a screen. <strong>(4)</strong> Set the <strong>bannerEnabled</strong> property to <code>true</code> (or bind to a toggle variable). Optionally set <strong>bannerType</strong> (e.g. <code>CUI</code>, <code>SECRET</code> &mdash; omit or leave blank for consent-only), <strong>showConsent</strong> to <code>true</code> to show the DoD consent modal independently of <code>bannerType</code>, <strong>consentExpiryDays</strong> (default <code>30</code>), and <strong>consentText</strong> to override the default DoD warning text. Legacy: setting <strong>bannerType</strong> to <code>DoD</code> still triggers the consent modal for backwards compatibility.</div></div></div>
-          <div class="step"><div class="step-num">5</div><div class="step-content"><div class="step-title">Model-Driven Apps &mdash; add form script <span class="badge badge-info">New in v1.1</span></div><div class="step-desc">Add <code>dodbl_dodbanner</code> as a form library on the target entity form. Register an OnLoad handler: function <code>DoDBannerLibrary.DodBanner.onFormLoad</code>, pass execution context: <strong>Yes</strong>. The script reads six <code>dodbl_</code> environment variables. <strong>Classification bar:</strong> set <code>dodbl_BannerType</code> (e.g. <code>CUI</code>, <code>SECRET</code>) and optionally <code>dodbl_BannerPosition</code> (<code>Bottom</code> default, <code>Top</code>, or <code>Both</code>). <strong>Consent notification:</strong> set <code>dodbl_ShowConsentBanner</code> to <code>yes</code> &mdash; the consent renders as a native UCI yellow warning bar via <code>Xrm.App.addGlobalNotification</code> with an &ldquo;I Acknowledge&rdquo; action. Both features are independent of each other. No PCF or Premium license required.</div></div></div>
-          <div class="step"><div class="step-num" style="background:#5e5e5e">6</div><div class="step-content"><div class="step-title">Power Pages &mdash; grant consent record table permission <span class="badge badge-future">Coming in v1.1</span></div><div class="step-desc">A Dataverse consent audit table (<code>dodbl_consent_record</code>) is planned for v1.1. After it is added, grant the Authenticated Users web role <strong>Create</strong> access on that table.</div></div></div>
+          <div class="step"><div class="step-num">5</div><div class="step-content"><div class="step-title">Model-Driven Apps &mdash; use the home-page consent gate and optional form script <span class="badge badge-info">Updated in v1.3</span></div><div class="step-desc">The <strong>DoD Banner Library Management</strong> app uses <code>dodbl_banner-launch-page</code> as its custom home page and single consent entry point. The page presents the DoD consent overlay before showing app navigation, honors <code>dodbl_DoDConsentText</code>, and writes the consent cookie with <code>SameSite=Lax; Secure</code>. For classification bars on other MDA forms, add <code>dodbl_dodbanner</code> as a form library, register <code>DoDBannerLibrary.DodBanner.onFormLoad</code> with execution context enabled, and configure <code>dodbl_BannerType</code> plus optional <code>dodbl_BannerPosition</code>. No PCF or Premium license required.</div></div></div>
+          <div class="step"><div class="step-num" style="background:#5e5e5e">6</div><div class="step-content"><div class="step-title">Power Pages &mdash; grant consent record table permission <span class="badge badge-future">Coming in v1.4</span></div><div class="step-desc">A Dataverse consent audit table (<code>dodbl_consent_record</code>) is planned for v1.4. After it is added, grant the Authenticated Users web role <strong>Create</strong> access on that table.</div></div></div>
         </div>
       </div>
     </div>
@@ -143,12 +163,12 @@
     <div class="card doc-section" id="dod-consent">
       <div class="card-header"><span class="card-header-icon">&#x26A0;&#xFE0F;</span><div><div class="card-title">DoD Consent Banner</div><div class="card-subtitle">System-use notification modal with cookie-based consent tracking</div></div></div>
       <div class="card-body prose">
-        <p>A blocking modal overlay that appears on the user's first visit and requires explicit acknowledgment. Consent is stored as a browser cookie (<code>Accepted=Yes</code>) with a 1-day expiry. No server calls are made in v1.0 &mdash; consent is tracked client-side only.</p>
+        <p>A blocking consent experience appears on first visit and requires explicit acknowledgment. Consent is stored as a browser cookie (<code>Accepted=Yes</code>). In the Management model-driven app, v1.3 presents consent on the custom home page <code>dodbl_banner-launch-page</code>; the duplicate shell-level global notification banner is intentionally not used. In Model-Driven Apps and Canvas Apps, the default lifetime is 30 days and can be overridden via <code>dodbl_ConsentExpiryDays</code> / <code>consentExpiryDays</code>; the Power Pages HTML web resource currently hardcodes a 1-day cookie. No server calls are made in v1.3 &mdash; consent is still tracked client-side only.</p>
         <p><strong>How it works</strong></p>
         <ul>
           <li>On <code>DOMContentLoaded</code>, the script checks for the <code>Accepted</code> cookie.</li>
           <li>If absent, the modal fades in after a 1-second delay and the background overlay is displayed.</li>
-          <li>Clicking <strong>I Acknowledge</strong> or the &#x2715; close button sets the cookie and fades out the modal.</li>
+          <li>On the Power Pages HTML web resource, clicking <strong>I Acknowledge</strong> (or the legacy &#x2715; element if you keep it in the markup) sets the cookie and fades out the modal. The v1.3 Model-Driven App home-page gate exposes only the <strong>I Acknowledge</strong> action and then reveals the home-page content.</li>
         </ul>
         <p><strong>Required page markup</strong></p>
         <p>This HTML must be present in the page DOM &mdash; add it to your header Web Template. Do not change the <code>id</code> or <code>class</code> values; the JavaScript references them by exact name.</p>
@@ -159,7 +179,7 @@
   &lt;<span class="tag">a</span> <span class="attr">class</span>=<span class="str">"cookieConsentOK"</span>&gt;I Acknowledge&lt;/<span class="tag">a</span>&gt;
 &lt;/<span class="tag">div</span>&gt;
 &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"consentBackground"</span>&gt;&lt;/<span class="tag">div</span>&gt;</div>
-        <div class="callout callout-warning"><span class="callout-icon">&#x26A0;&#xFE0F;</span><div>Replace the placeholder text inside <code>&lt;p&gt;</code> with your organization's AO-approved system-use notification language before deploying to production.</div></div>
+        <div class="callout callout-warning"><span class="callout-icon">&#x26A0;&#xFE0F;</span><div>Replace the placeholder text inside <code>&lt;p&gt;</code> with your organization's AO-approved system-use notification language before deploying to production. For the Model-Driven App home page, set <code>dodbl_DoDConsentText</code> to the AO-approved text; the page resolves query-string overrides first, then the environment variable value/default through <code>Xrm.WebApi</code>, then the built-in fallback.</div></div>
         <p><strong>Power Pages setup</strong></p>
         <div class="steps" style="margin-top:8px">
           <div class="step"><div class="step-num">1</div><div class="step-content"><div class="step-title">Create the banner-core.css web file</div><div class="step-desc">Portal Management &rarr; Content &rarr; Web Files &rarr; New. Name: <code>banner-core.css</code>. Partial URL: <code>/banner-core.css</code>. Parent Page: Home. Publishing State: Published. Save, then attach the CSS content from <code>dodbl_bannercore</code> as a Note attachment.</div></div></div>
@@ -181,14 +201,15 @@
         <p>The modal is suppressed once the <code>Accepted</code> cookie is set. To force it to reappear for testing, clear that cookie. There are three ways to do this:</p>
         <ul>
           <li><strong>Browser DevTools</strong> &mdash; <kbd>F12</kbd> &rarr; <strong>Application</strong> &rarr; <strong>Cookies</strong> &rarr; select the domain &rarr; delete the <code>Accepted</code> row, then refresh the page.</li>
-          <li><strong>Console command</strong> &mdash; paste into the browser console and refresh:<br><code>document.cookie = "Accepted=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax";</code></li>
+          <li><strong>Console command</strong> &mdash; paste into the browser console and refresh:<br><code>document.cookie = "Accepted=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax; Secure";</code></li>
           <li><strong>Reset button (planned)</strong> &mdash; a dedicated &ldquo;Reset Consent&rdquo; button can be wired up per delivery path:<ul style="margin-top:4px">
             <li><strong>Canvas App</strong> &mdash; add a Button control whose <code>OnSelect</code> binds to a future <code>resetConsent</code> PCF input property (TwoOptions). When toggled, the PCF expires the cookie and resets its internal guard, causing the modal to re-fire on the next <code>updateView</code> cycle.</li>
-            <li><strong>Model-Driven App</strong> &mdash; add a ribbon / command bar button that calls a small JS function: <code>document.cookie = "Accepted=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax";</code> then reloads the page via <code>Xrm.Page.ui.reflow()</code> or <code>location.reload()</code>.</li>
+            <li><strong>Model-Driven App</strong> &mdash; add a ribbon / command bar button that calls a small JS function: <code>document.cookie = "Accepted=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=Lax; Secure";</code> then reloads the page via <code>Xrm.Page.ui.reflow()</code> or <code>location.reload()</code>.</li>
             <li><strong>Power Pages</strong> &mdash; add a Liquid-rendered button that triggers the same inline script.</li>
           </ul></li>
         </ul>
         <div class="callout callout-warning"><span class="callout-icon">&#x26A0;&#xFE0F;</span><div>The Reset button is <strong>not yet implemented</strong>. Use the DevTools or console method above during development and testing.</div></div>
+        <div class="callout callout-warning"><span class="callout-icon">&#x26A0;&#xFE0F;</span><div><strong>Known v1.3 MDA limitation:</strong> the home-page consent gate is a UX-level entry pattern, not a hard security enforcement boundary. Deep links, global search, pinned items, and recent items can bypass the sitemap home page. This is the &ldquo;sitemap gate != enforcement&rdquo; limitation tracked in issue #13 and deferred beyond v1.3.0.</div></div>
       </div>
     </div>
 
@@ -216,7 +237,7 @@
     </div>
 
     <div class="card doc-section" id="web-resources">
-      <div class="card-header"><span class="card-header-icon">&#x1F4E6;</span><div><div class="card-title">Web Resource Reference</div><div class="card-subtitle">All five web resources included in this solution</div></div></div>
+      <div class="card-header"><span class="card-header-icon">&#x1F4E6;</span><div><div class="card-title">Web Resource Reference</div><div class="card-subtitle">All eight web resources included in this solution</div></div></div>
       <div class="card-body" style="padding:0">
         <table class="ref-table">
           <thead><tr><th>Schema Name</th><th>Type</th><th>Description</th></tr></thead>
@@ -224,7 +245,8 @@
             <tr><td><div class="schema-name">dodbl_bannercore</div><div style="font-weight:600;font-size:12px;margin-top:2px">banner-core</div></td><td><span class="badge badge-info">CSS</span></td><td>Shared stylesheet. Responsive DoD consent modal layout and classification mark color rules for all five levels. Must be loaded before any banner markup.</td></tr>
             <tr><td><div class="schema-name">dodbl_dodconsentbanner</div><div style="font-weight:600;font-size:12px;margin-top:2px">dod-consent-banner</div></td><td><span class="badge badge-info">HTML</span></td><td>Consent modal logic. Vanilla JavaScript for cookie-based consent tracking and fade animation. For Power Pages: extract the <code>&lt;script&gt;</code> block contents into a separate <code>.js</code> web file.</td></tr>
             <tr><td><div class="schema-name">dodbl_cuiconsentbanner</div><div style="font-weight:600;font-size:12px;margin-top:2px">cui-consent-banner</div></td><td><span class="badge badge-info">HTML</span></td><td>CUI classification mark fragment. Single <code>&lt;link&gt;</code> reference to <code>dodbl_bannercore</code>. CSS-only &mdash; no JavaScript required.</td></tr>
-            <tr><td><div class="schema-name">dodbl_dodbanner</div><div style="font-weight:600;font-size:12px;margin-top:2px">dodbanner.js</div></td><td><span class="badge badge-info">JS</span></td><td>Model-Driven App form OnLoad script. Reads six <code>dodbl_</code> environment variables via <code>Xrm.WebApi</code>. Consent notification uses <code>Xrm.App.addGlobalNotification</code> (native UCI warning bar). Classification bar is injected via <code>window.top.document</code>. Handler: <code>DoDBannerLibrary.DodBanner.onFormLoad</code>.</td></tr>
+            <tr><td><div class="schema-name">dodbl_dodbanner</div><div style="font-weight:600;font-size:12px;margin-top:2px">dodbanner.js</div></td><td><span class="badge badge-info">JS</span></td><td>Model-Driven App form OnLoad script. Reads <code>dodbl_</code> environment variables via <code>Xrm.WebApi</code> and injects the classification bar via <code>window.top.document</code>. Handler: <code>DoDBannerLibrary.DodBanner.onFormLoad</code>. In v1.3, Management app consent is handled by the custom home page instead of a duplicate global notification.</td></tr>
+            <tr><td><div class="schema-name">dodbl_banner-launch-page</div><div style="font-weight:600;font-size:12px;margin-top:2px">banner-launch-page</div></td><td><span class="badge badge-info">HTML</span></td><td>Model-Driven App management home page and single consent entry point. Displays the blocking overlay, honors query-string consent text and <code>dodbl_DoDConsentText</code>, uses a secure consent cookie, and links to the other solution resources.</td></tr>
             <tr><td><div class="schema-name">dodbl_webtemplatesource</div><div style="font-weight:600;font-size:12px;margin-top:2px">web-template-source</div></td><td><span class="badge badge-info">HTML</span></td><td>Power Pages Web Template source. Open in a browser to copy the Liquid source for the <code>dod-consent-banner</code> Web Template. Supports optional <code>BannerEnabled</code> and <code>DoDConsentText</code> site settings.</td></tr>
             <tr><td><div class="schema-name">dodbl_docs</div><div style="font-weight:600;font-size:12px;margin-top:2px">docs</div></td><td><span class="badge badge-optional">HTML</span></td><td>This documentation page. Link from the Model-Driven App sitemap for in-environment access.</td></tr>
             <tr><td><div class="schema-name">dodbl_release-notes</div><div style="font-weight:600;font-size:12px;margin-top:2px">release-notes</div></td><td><span class="badge badge-optional">HTML</span></td><td>Version history and changelog for all solution releases.</td></tr>
