@@ -332,6 +332,38 @@ function applyConsentText(consentText) {
 // ── Classification bar ───────────────────────────────────────────────────────
 // Mirrors dodbl_dodbanner.injectClassificationBar/getEnvVars so the launch page
 // and form OnLoad web resource dedupe and render the same shell-level bar.
+function addFreshReadFilter(filter) {
+  var freshnessCutoff = new Date(Date.now() + (5 * 60 * 1000)).toISOString();
+  return "(" + filter + ") and modifiedon le " + freshnessCutoff;
+}
+
+function getBannerEnabledValue(value) {
+  return String(value == null ? "yes" : value).trim().toLowerCase() || "yes";
+}
+
+function isBannerEnabled(value) {
+  var enabled = getBannerEnabledValue(value);
+  return !(enabled === "no" || enabled === "false" || enabled === "0");
+}
+
+function isBannerDebugEnabled() {
+  try {
+    var storage = (window.top && window.top.localStorage) ? window.top.localStorage : window.localStorage;
+    return storage && storage.getItem("dodbl_debugBanner") === "true";
+  } catch (_e) {
+    return false;
+  }
+}
+
+function logBannerDebug(vars, enabled) {
+  if (!isBannerDebugEnabled() || !window.console || !console.log) return;
+  console.log("[DoDBannerLibrary] classification bar env", {
+    vars: vars,
+    enabled: enabled,
+    willRender: isBannerEnabled(vars["dodbl_BannerEnabled"])
+  });
+}
+
 function getClassificationColor(bannerType) {
   var t = (bannerType || "").toUpperCase();
   if (t.indexOf("CU") === 0) return "#5a04b0";  // CUI → purple
@@ -456,7 +488,7 @@ function getBannerEnvVars() {
 
     return parent.Xrm.WebApi.retrieveMultipleRecords(
       "environmentvariabledefinition",
-      "?$select=environmentvariabledefinitionid,schemaname,defaultvalue&$filter=" + schemaFilter
+      "?$select=environmentvariabledefinitionid,schemaname,defaultvalue&$filter=" + addFreshReadFilter(schemaFilter)
     ).then(function (defResult) {
       var defMap = {};
       defResult.entities.forEach(function (def) {
@@ -475,7 +507,7 @@ function getBannerEnvVars() {
 
       return parent.Xrm.WebApi.retrieveMultipleRecords(
         "environmentvariablevalue",
-        "?$select=value,_environmentvariabledefinitionid_value&$filter=" + valFilter
+        "?$select=value,_environmentvariabledefinitionid_value&$filter=" + addFreshReadFilter(valFilter)
       ).then(function (valResult) {
         // Per-environment values override the definition defaults
         valResult.entities.forEach(function (val) {
@@ -498,8 +530,9 @@ function getBannerEnvVars() {
 function renderClassificationBar() {
   getBannerEnvVars()
     .then(function (vars) {
-      var enabled = String(vars["dodbl_BannerEnabled"] || "yes").toLowerCase();
-      if (enabled === "no" || enabled === "false") return;
+      var enabled = getBannerEnabledValue(vars["dodbl_BannerEnabled"]);
+      logBannerDebug(vars, enabled);
+      if (!isBannerEnabled(vars["dodbl_BannerEnabled"])) return;
 
       var bannerType = ((vars["dodbl_BannerType"] || BANNER_TYPE_DEFAULT) + "").trim();
       var barPosition = ((vars["dodbl_BannerPosition"] || "Bottom") + "").trim();
