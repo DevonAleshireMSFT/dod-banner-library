@@ -1,3 +1,14 @@
+---
+adr: 0004
+title: No Website Record In Solution
+status: accepted
+date: 2026-07-25
+deciders: DoD Banner Library Team
+reviewers: DoD Banner Library Team
+applies-to: dod-banner-library
+supersedes: null
+superseded-by: null
+---
 # Decision: No Website Record in Solution (Power Pages Web Files Manual)
 
 **Date:** 2026-07  

@@ -19,3 +19,4 @@ Flagged that the PCF manifest uses `control-type="standard"`, not `virtual`.
 📌 Team update (2026-07-24T23:36:08-07:00): Public-repository hygiene is now a working agreement in team context and points to .ai/security.md as authoritative. — decided by Mal/Zoe
 
 💬 PM kudos (2026-07-24T23:48:08-07:00): DevonAleshireMSFT said, "I always know I can count on the team to come together for a quality decision."
+📌 2026-07-25T16:03:36-07:00: Owns .ai reconciliation; performed slim .ai migration from .ai_old/ to adr/context-version convention (commit ea87b4a).

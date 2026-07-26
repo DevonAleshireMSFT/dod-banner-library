@@ -141,3 +141,8 @@
 - All meaningful changes require team consensus
 - Document architectural decisions here
 - Keep history focused on work, decisions focused on direction
+
+### 2026-07-25: Migrated .ai/ to slim convention (.ai/decisions/ → .ai/adr/)
+**By:** Mal
+**What:** Regenerated slim `.ai/` from `.ai_old/`: context + domain/data-model/security/pipelines + adr/0001-0009 (4-digit), added `.ai/` grounding pointer to copilot-instructions.md, updated all `.ai/decisions/` → `.ai/adr/` pointers in team.md/README/copilot-instructions.
+**Why:** User migrated `.ai/`→`.ai_old/` and asked to regenerate via the slim setup prompt, preserving all durable knowledge reconciled to v1.3.0.

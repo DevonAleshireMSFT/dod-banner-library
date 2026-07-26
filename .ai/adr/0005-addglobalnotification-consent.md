@@ -1,3 +1,14 @@
+---
+adr: 0005
+title: addGlobalNotification Consent
+status: accepted
+date: 2026-07-25
+deciders: DoD Banner Library Team
+reviewers: DoD Banner Library Team
+applies-to: dod-banner-library
+supersedes: null
+superseded-by: null
+---
 # Decision: Use Xrm.App.addGlobalNotification for MDA Consent Banner
 
 > **Update (v1.3.0):** the `Accepted` cookie referenced below was renamed to `dodbl_Accepted` and hardened with `Secure; SameSite=Strict` (#3–#6). See `.ai/security.md` and `.ai/context.md` Key Rules for current cookie design; rationale logged in `.squad/decisions.md`.
@@ -46,5 +57,5 @@ Xrm.App.addGlobalNotification({
 - `injectCSS()`, `injectModal()`, `showBanner()`, `fadeIn()`, `fadeOut()` are removed from `dodbl_dodbanner.js`. Do not restore them.
 - The consent notification renders as a yellow UCI warning bar with "I Acknowledge" action, not a full-page blocking modal. The built-in "See Less / See More" truncation handles long consent texts.
 - `dodbl_ShowConsentBanner` must be set to `yes` / `true` / `1` in env vars for the notification to appear. It defaults to off.
-- `window.top` is still used for the classification bar (no supported UCI API equivalent — see Decision 006).
+- `window.top` is still used for the classification bar (no supported UCI API equivalent — see ADR 0006).
 - Cookie name `"Accepted"` is unchanged. Existing user consent cookies remain valid.

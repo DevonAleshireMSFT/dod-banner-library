@@ -3,8 +3,8 @@ project: DoD Banner Library
 schema-prefix: dodbl_
 platform: Power Platform / Dataverse
 cloud: GCC High (intended DoD IL4/IL5 deployment environments)
-context-version: 1.4.1
-last-updated: 2026-07-24
+context-version: 2.0.0
+last-updated: 2026-07-25
 owner: Tech Lead
 review-cadence: every-sprint
 ---
@@ -13,7 +13,13 @@ review-cadence: every-sprint
 
 > This is the primary bootstrap document. An AI assistant should read this file first before asking any questions or generating any code.
 
-This `.ai/` framework grounds the Squad agents — see `.squad/team.md` → Domain Grounding for the role→file map and loading rules.
+This `.ai/` framework grounds the Squad agents — see `.squad/team.md` → Domain Grounding for the role→file map and loading rules.`r`n`r`n## AI Knowledge Boundary
+
+- `.ai/` = durable product knowledge and Product ADRs.
+- `.squad/` = AI-team working state.
+- Squad links to `.ai/adr/` and does not restate product decisions.
+
+> Structural migration note: `.ai/decisions/` (3-digit ADR filenames) moved to `.ai/adr/` (4-digit ADR filenames) in the v2.0.0 slim AI Context Framework migration.
 
 ---
 
@@ -36,7 +42,7 @@ The **DoD Banner Library** is a managed Power Platform solution that provides re
 - ✅ `dodbl_dodconsentbanner` — DoD consent modal HTML/JS (vanilla JS, Power Pages use)
 - ✅ `dodbl_cuiconsentbanner` — CUI classification mark HTML (CSS-only, Power Pages use)
 - ✅ `dodbl_webtemplatesource` — Power Pages Web Template source (copy/paste Liquid page)
-- ✅ `dodbl_dodbanner` — MDA form OnLoad JS script; reads env vars via Xrm.WebApi. Uses `Xrm.App.addGlobalNotification` for consent (supported UCI API, no window.top). Uses `window.top.document` DOM injection for classification bar only (known anti-pattern — see Decision 006). Supports `Top`/`Bottom`/`Both` bar placement; shifts MDA nav header down when bar is at top.
+- ✅ `dodbl_dodbanner` — MDA form OnLoad JS script; reads env vars via Xrm.WebApi. Uses `Xrm.App.addGlobalNotification` for consent (supported UCI API, no window.top). Uses `window.top.document` DOM injection for classification bar only (known anti-pattern — see ADR 0006). Supports `Top`/`Bottom`/`Both` bar placement; shifts MDA nav header down when bar is at top.
 - ✅ `dodbl_docs` — in-solution documentation (post-import checklist, all web resources documented). Contains sidebar link back to Home.
 - ✅ `dodbl_release-notes` — version history (latest first, oldest last). v1.3.0 released. Contains back-link to Home.
 - ✅ `dodbl_banner-launch-page` — MDA consent gate landing page (shipped in v1.3.0). Full-page HTML; optional system-use notification surface on app entry. Sets `dodbl_Accepted` with `Secure; SameSite=Strict`, calls `parent.Xrm.App.addGlobalNotification` belt-and-suspenders, then fades overlay. Provides nav tiles to Documentation, Release Notes, Web Template Source, and Canvas App Demo. Implements split-before-decode `getCookie()` pattern (URIError fix). All `parent.Xrm` calls wrapped in try/catch.
@@ -99,10 +105,10 @@ The env vars (`dodbl_BannerEnabled`, `dodbl_BannerType`, `dodbl_ConsentExpiryDay
 ## Known Gotchas
 
 - **MDA consent uses `addGlobalNotification`, not a DOM modal.** `dodbl_dodbanner.js` calls `Xrm.App.addGlobalNotification` (type 2, level 3 — Warning) for the consent banner. The old `injectModal()` / `injectCSS()` stack was removed. Do not restore it — the modal approach required window.top DOM injection and GCC High CSP blocked the `<style>` tag.
-- **MDA classification bar uses `window.top.document` (known anti-pattern).** No supported UCI API exists for injecting a persistent visible DOM element into the outer shell page. The window.top path is explicitly flagged by MS Solution Checker (Impact: High, Category: Supportability) and accepted as a known risk. See Decision 006.
+- **MDA classification bar uses `window.top.document` (known anti-pattern).** No supported UCI API exists for injecting a persistent visible DOM element into the outer shell page. The window.top path is explicitly flagged by MS Solution Checker (Impact: High, Category: Supportability) and accepted as a known risk. See ADR 0006.
 - **MDA iframes block external stylesheets.** The classification bar uses inline element styles (not `<style>` or `<link>`). GCC High CSP blocks nonce-less `<style>` injection.
 - **PCF `bannerEnabled` defaults to `null` in test harness.** The test harness resets `TwoOptions` to no value on reload. Always explicitly set it to `True` before testing. In Canvas Apps, bind to `true` or a toggle variable.
-- **Canvas App / Custom Page bundle baking.** When a Canvas App or Custom Page is published, the PCF bundle is snapshotted into the app package at that moment. `pac pcf push` updates the bundle in the environment, but the app will not pick it up until the Canvas App/Custom Page is republished in Power Apps Studio (Save → Publish → Publish this version). In some cases, if the page was already published with a prior bundle version, a full remove/re-add of the PCF control on the page is required — republish alone is insufficient. See Decision 008.
+- **Canvas App / Custom Page bundle baking.** When a Canvas App or Custom Page is published, the PCF bundle is snapshotted into the app package at that moment. `pac pcf push` updates the bundle in the environment, but the app will not pick it up until the Canvas App/Custom Page is republished in Power Apps Studio (Save → Publish → Publish this version). In some cases, if the page was already published with a prior bundle version, a full remove/re-add of the PCF control on the page is required — republish alone is insufficient. See ADR 0008.
 - **Canvas consent persistence limitation.** PCF sandbox cookie writes do not surface to the Canvas host origin, so Canvas consent is session-scoped today; MDA path persists normally. Tracked in [#21](https://github.com/DevonAleshireMSFT/dod-banner-library/issues/21) for v1.4.0.
 - **Power Pages web files cannot be pre-packaged** — `adx_webfile` requires `Website` FK. Deployers create manually post-import.
 - **jQuery was intentionally removed.** Do not re-add. Fade animation uses `requestAnimationFrame`.
@@ -170,12 +176,9 @@ Known follow-ups: #21 (Canvas consent persistence), #22 (technical docs + repo a
 | Data model | `.ai/data-model.md` |
 | Security | `.ai/security.md` |
 | Pipelines / deployment | `.ai/pipelines.md` |
-| Past decisions | `.ai/decisions/` |
+| Product ADRs | `.ai/adr/` |
 | Release notes | [DoDBannerLibrary/WebResources/dodbl_release-notes](../DoDBannerLibrary/WebResources/dodbl_release-notes) |
 | Source banner files | [dod-consent-banner.html](../dod-consent-banner.html), [cui-consent-banner.html](../cui-consent-banner.html), [banner-core.css](../banner-core.css) |
 | Security and access | [security.md](security.md) |
 | Pipelines and ALM | [pipelines.md](pipelines.md) |
-| Technical debt | [debt.md](debt.md) |
-| Developer onboarding | [onboarding.md](onboarding.md) |
-| Architecture decisions | [decisions/](decisions/) |
-| AI session prompt | [bootstrap-prompt.md](bootstrap-prompt.md) |
+| Architecture decisions | [adr/](adr/) |

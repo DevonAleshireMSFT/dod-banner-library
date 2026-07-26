@@ -1,3 +1,14 @@
+---
+adr: 0007
+title: PCF Production Build
+status: accepted
+date: 2026-07-25
+deciders: DoD Banner Library Team
+reviewers: DoD Banner Library Team
+applies-to: dod-banner-library
+supersedes: null
+superseded-by: null
+---
 # Decision: Set buildMode=production in PCF pcfconfig.json
 
 **Date:** 2026-07-23  

@@ -1,3 +1,14 @@
+---
+adr: 0008
+title: Canvas PCF Bundle Baking
+status: accepted
+date: 2026-07-25
+deciders: DoD Banner Library Team
+reviewers: DoD Banner Library Team
+applies-to: dod-banner-library
+supersedes: null
+superseded-by: null
+---
 # Decision: Canvas App / Custom Page PCF Bundle Baking Behavior
 
 **Date:** 2026-07-24  

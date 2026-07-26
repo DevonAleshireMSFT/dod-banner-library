@@ -11,6 +11,40 @@ This entire file applies ONLY when you are one of:
 
 If you are a **sub-agent spawned by the Squad coordinator** (via the `task` tool, `runSubagent`, or `create_session`) to perform a specific delegated task — e.g. `general-purpose`, `explore`, or a named cast member like Mal/Zoe/Kaylee/Wash — this file does **NOT** apply to you, including the Coordinator Canary Check below. You do not load `squad.agent.md` yourself, so the canary token will never appear in your own `agent_instructions`, and that is expected, not an error. Follow only the task prompt you were given by the coordinator and ignore the rest of this file.
 
+
+## Project Context (AI grounding)
+
+Read `.ai/context.md` first for product grounding before generating code, docs, issues, or PR content. Durable product-decision rationale and constraints live in `.ai/adr/`. `.squad/decisions.md` is not the product-decision source; it links to `.ai/adr/` instead of restating product decisions.
+
+## AI Context — Topic Routing
+
+Load the relevant `.ai/` file for these topics before answering:
+
+| Topic | File |
+|-------|------|
+| Product purpose, durable rules, known gotchas | `.ai/context.md` |
+| Schema, tables, columns, relationships | `.ai/data-model.md` |
+| Roles, permissions, sensitive-data constraints | `.ai/security.md` |
+| Domain terminology / glossary | `.ai/domain.md` |
+| Build, deploy, environments, pipelines | `.ai/pipelines.md` |
+| Why a decision was made + the constraints it introduced | `.ai/adr/` (see index below) |
+
+### Product ADR index (`.ai/adr/`)
+
+| ADR | Decision |
+|-----|----------|
+| `0001-remove-jquery.md` | Remove jQuery |
+| `0002-mda-inline-css.md` | MDA inline CSS approach |
+| `0003-pcf-field-template.md` | PCF field template |
+| `0004-no-website-record-in-solution.md` | No website record in the solution |
+| `0005-addglobalnotification-consent.md` | addGlobalNotification consent |
+| `0006-window-top-classification-bar.md` | window.top classification bar |
+| `0007-pcf-production-build.md` | PCF production build |
+| `0008-canvas-pcf-bundle-baking.md` | Canvas PCF bundle baking |
+| `0009-canvas-pcf-cookie-sandbox-limitation.md` | Canvas PCF cookie / sandbox limitation |
+
+When a suggestion would conflict with an ADR, cite the ADR and honor its constraint instead of overriding it. Product decisions are recorded here — `.squad/decisions.md` links to these ADRs, it does not restate them.
+
 ## Coordinator Canary Check
 
 **IMPORTANT — run this check on EVERY session start, before doing any work:**

@@ -1,3 +1,14 @@
+---
+adr: 0003
+title: PCF Field Template
+status: accepted
+date: 2026-07-25
+deciders: DoD Banner Library Team
+reviewers: DoD Banner Library Team
+applies-to: dod-banner-library
+supersedes: null
+superseded-by: null
+---
 # Decision: PCF as Field Control (Not Dataset) with Direct Container Styling
 
 **Date:** 2026-07  

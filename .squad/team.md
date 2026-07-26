@@ -69,13 +69,13 @@ Agents read the AI Context Framework in `.ai/` for durable domain knowledge; the
 
 | Role / agent | Primary `.ai/` file(s) |
 |---|---|
-| Lead (Mal) | `.ai/context.md` (Current State, Key Rules) + relevant `.ai/decisions/` |
-| PCF/Frontend (Kaylee) | `.ai/context.md` (PCF Control, Known Gotchas) + `.ai/decisions/003-pcf-field-template.md`, `.ai/decisions/007-pcf-production-build.md`, `.ai/decisions/008-canvas-pcf-bundle-baking.md` |
+| Lead (Mal) | `.ai/context.md` (Current State, Key Rules) + relevant `.ai/adr/` |
+| PCF/Frontend (Kaylee) | `.ai/context.md` (PCF Control, Known Gotchas) + `.ai/adr/0003-pcf-field-template.md`, `.ai/adr/0007-pcf-production-build.md`, `.ai/adr/0008-canvas-pcf-bundle-baking.md` |
 | Security/Compliance (Zoe) | `.ai/security.md` + `.ai/context.md` Key Rules |
 | Tester/QA (Wash) | `.ai/context.md` (Architecture Summary, Known Gotchas) + `.ai/pipelines.md` |
 | Any deployment work | `.ai/pipelines.md` |
 
-Durable product decisions belong in `.ai/decisions/` ADRs and living docs; team direction, routing, and session outcomes belong in `.squad/decisions.md`. `.squad` links to `.ai/` product truth and must not restate it.
+Durable product decisions belong in `.ai/adr/` ADRs and living docs; team direction, routing, and session outcomes belong in `.squad/decisions.md`. `.squad` links to `.ai/` product truth and must not restate it.
 
 ### Public-repository hygiene (working agreement)
 
