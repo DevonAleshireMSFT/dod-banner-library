@@ -1,3 +1,14 @@
+---
+adr: 0009
+title: Canvas PCF Cookie Sandbox Limitation
+status: accepted
+date: 2026-07-25
+deciders: DoD Banner Library Team
+reviewers: DoD Banner Library Team
+applies-to: dod-banner-library
+supersedes: null
+superseded-by: null
+---
 # Decision: Canvas PCF cookie sandbox limitation
 
 **Date:** 2026-07-24  

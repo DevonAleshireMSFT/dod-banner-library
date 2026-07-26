@@ -1,3 +1,14 @@
+---
+adr: 0006
+title: Window Top Classification Bar
+status: accepted
+date: 2026-07-25
+deciders: DoD Banner Library Team
+reviewers: DoD Banner Library Team
+applies-to: dod-banner-library
+supersedes: null
+superseded-by: null
+---
 # Decision: Use window.top for MDA Classification Bar Injection
 
 **Date:** 2026-07-23  

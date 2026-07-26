@@ -1,3 +1,14 @@
+---
+adr: 0002
+title: MDA Inline CSS
+status: accepted
+date: 2026-07-25
+deciders: DoD Banner Library Team
+reviewers: DoD Banner Library Team
+applies-to: dod-banner-library
+supersedes: null
+superseded-by: null
+---
 # Decision: MDA JS Uses Inline CSS Injection (Not `<link>` Tag)
 
 **Date:** 2026-07  
