@@ -47,7 +47,7 @@ No live custom tables ship in v1.3.0. `dodbl_banner_demo` was removed; the demo 
 
 ---
 
-### `dodbl_consent_record` _(PLANNED — v1.4.0, #8)_
+### `dodbl_consentrecord` _(PLANNED — v1.4.0, #8)_
 
 Dataverse audit table for consent acknowledgments. Not yet created. This is the authoritative schema for v1.4.0 planning.
 
@@ -55,7 +55,7 @@ Dataverse audit table for consent acknowledgments. Not yet created. This is the 
 
 | Display Name | Schema Name | Type | Required | Notes |
 |---|---|---|---|---|
-| Consent Record | `dodbl_consent_recordid` | Primary Key (GUID) | System required | System-generated row ID. |
+| Consent Record | `dodbl_consentrecordid` | Primary Key (GUID) | System required | System-generated row ID. |
 | Name | `dodbl_name` | Auto Number primary name | Required | Audit identifier, e.g. `CONSENT-{SEQNUM:8}`. Dataverse requires a primary name column; Auto Number keeps audit rows human-readable without user input. |
 | User | `dodbl_userid` | Lookup → SystemUser | Required | Who acknowledged consent. Use `dodbl_userid` to follow lookup naming convention. Audit enabled. |
 | Banner Type | `dodbl_bannertype` | Choice | Required | Snapshot of the banner/classification value at acknowledgement time. Options should align to `dodbl_BannerType`: `None`, `DoD`, `CUI`, `U`, `CONFIDENTIAL`, `SECRET`, `TOP SECRET`. Use publisher option-value prefix `70387`. Audit enabled. |
@@ -64,7 +64,7 @@ Dataverse audit table for consent acknowledgments. Not yet created. This is the 
 | Consent Text | `dodbl_consenttext` | Multiple lines of text | Required | Snapshot of the exact AO-approved text shown to the user. Audit enabled. |
 | Is Active | `dodbl_isactive` | Yes/No | Required | Defaults to Yes; set No on expiry or revocation. Audit enabled. |
 
-> **Deployment prerequisite / gotcha:** Dataverse auditing is a two-level setting. Table-level auditing ("Audit changes to its data" on the table plus per-column "Enable auditing") only records data when environment-level auditing is also enabled in Power Platform admin center → Environment → Settings → Audit and logs → Audit settings → **Start Auditing** ON, with **Log record access** / read logs enabled if required. If environment auditing is OFF, table auditing captures nothing. After configuring auditing, publish all customizations and verify `dodbl_consent_record` appears as a component in the `DoDBannerLibrary` solution.
+> **Deployment prerequisite / gotcha:** Dataverse auditing is a two-level setting. Table-level auditing ("Audit changes to its data" on the table plus per-column "Enable auditing") only records data when environment-level auditing is also enabled in Power Platform admin center → Environment → Settings → Audit and logs → Audit settings → **Start Auditing** ON, with **Log record access** / read logs enabled if required. If environment auditing is OFF, table auditing captures nothing. After configuring auditing, publish all customizations and verify `dodbl_consentrecord` appears as a component in the `DoDBannerLibrary` solution.
 
 **Required saved view:** `Active Consent Records` — filter `dodbl_isactive = true` OR `dodbl_expirydate` is in the future; sort by `dodbl_acknowledgedon` descending.
 

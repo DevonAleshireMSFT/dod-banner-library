@@ -234,7 +234,7 @@ Adopters are responsible for:
 
 **v1.4 (Planned)**
 
-- Dataverse consent audit table (`dodbl_consent_record`)
+- Dataverse consent audit table (`dodbl_consentrecord`)
 - Security role `DoD Banner — Consent Write`
 - PCF acknowledge action writes consent records (#10)
 - Model-Driven App JS acknowledge action writes consent records (#11)

@@ -24,7 +24,7 @@ Planned v1.4 work:
 
 | Role | Purpose | Minimum Privileges |
 |---|---|---|
-| `DoD Banner — Consent Write` | Allows consent acknowledgment records to be created | Create on planned `dodbl_consent_record` table |
+| `DoD Banner — Consent Write` | Allows consent acknowledgment records to be created | Create on planned `dodbl_consentrecord` table |
 
 ---
 
