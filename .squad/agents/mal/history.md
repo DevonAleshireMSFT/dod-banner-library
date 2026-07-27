@@ -27,4 +27,5 @@ Flagged that the PCF manifest uses `control-type="standard"`, not `virtual`.
 
 
 📌 Team update (2026-07-27T21:44:54-07:00): Release notes now use consent record column logical names dodbl_userid and dodbl_bannertype, verified against exported metadata. — decided by Mal
+📌 Team update (2026-07-27T10:57:47-07:00): Consent audit model approved: records are append-only, runtime validity is derived from expiry/revocation, and the expiry-owner item blocking #10-#12 is closed. — decided by Mal
 

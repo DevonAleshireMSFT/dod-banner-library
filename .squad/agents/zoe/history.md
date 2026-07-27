@@ -29,3 +29,6 @@ Confirmed AO-approved consent text must come from `dodbl_DoDConsentText`; noted 
 
 📌 Team update (2026-07-27T08:59:56-07:00): Merged Zoe's consent-write security role decision for issue #9; DoD Banner - Consent Write grants Organization Create and User Read on dodbl_consent_record, with expiry-processing ownership still open for #10-#12. — decided by Zoe
 
+
+📌 Team update (2026-07-27T10:57:47-07:00): Consent validity is now derived from latest record expiry plus revocation; no scheduled job/plugin owns active state, and the expiry-owner item for #10-#12 is closed. — decided by Mal
+

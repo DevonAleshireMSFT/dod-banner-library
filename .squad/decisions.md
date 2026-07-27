@@ -11,11 +11,19 @@
 **By:** Mal
 **What:** The consent table logical name is `dodbl_consentrecord` and the primary key logical name is `dodbl_consentrecordid`; the previously documented variants with an extra underscore between `consent` and `record` were incorrect.
 **Why:** Exported metadata at `DoDBannerLibrary/Entities/dodbl_ConsentRecord/Entity.xml` verifies schema name `dodbl_ConsentRecord`, entity set `dodbl_consentrecords`, and primary key logical name `dodbl_consentrecordid`.
+### 2026-07-27: Consent records are append-only with derived validity
+**By:** Mal
+**What:** `dodbl_consent_record` is an append-only audit table: every acknowledgement creates a new row, and normal renewals never update existing rows. The consent write role enforces Create + Read only, with no Write/Update privilege. Runtime validity is derived in code from the user's most-recent record, `dodbl_expirydate > now`, and `dodbl_revoked = false`; no scheduled job or plugin maintains active state. `dodbl_revoked` is a stored audited Yes/No for early/manual revocation. `dodbl_isactive` is deleted and recreated as a non-audited Power Fx Formula Yes/No column: `If(dodbl_expirydate > UTCNow() && Not(dodbl_revoked), true, false)`, for reporting only.
+**Why:** This keeps the audit trail clean, honors the create-only security posture from #9, and avoids external dependencies or maintenance jobs. Dataverse cannot convert an existing Simple Yes/No column to Formula in place, and classic Calculated columns do not support `UTCNow()`, so `dodbl_isactive` must be recreated as Formula. Saved views must filter on stored `dodbl_expirydate` rather than the `UTCNow()` formula output because of FetchXML/view filtering limitations.
+**Supersedes:** The `dodbl_isactive` stored/simple Yes/No active-flag portion of `2026-07-25: Reconciled consent record audit schema`; `dodbl_isactive` is now a reporting-only Power Fx Formula column and runtime validity is derived from stored fields.
+
 
 ### 2026-07-25: Reconciled consent record audit schema
 **By:** Mal
 **What:** Use `dodbl_consent_record` as a User/Team-owned Dataverse audit table with Auto Number primary name (`dodbl_name`), required user lookup (`dodbl_userid`), required banner type choice (`dodbl_bannertype`), acknowledged/expiry timestamps, required consent text snapshot, and active flag.
 **Why:** Dataverse needs a primary name column, so Auto Number is the safe audit-record choice. The choice column should mirror the real `dodbl_BannerType` vocabulary (`None`, `DoD`, `CUI`, `U`, `CONFIDENTIAL`, `SECRET`, `TOP SECRET`) instead of the issue's narrower DoD/CUI/Custom list, because the audit row must capture what the library actually showed.
+
+**Supersession note:** The active-flag portion is superseded by `2026-07-27: Consent records are append-only with derived validity`; `dodbl_isactive` is a Power Fx Formula column for reporting only, and runtime validity is derived from `dodbl_expirydate` plus `dodbl_revoked`.
 
 ### 2026-07-24 (revised): Optional consent modes; classification bar is the core
 **By:** Devon Aleshire (with Mal — Lead, Zoe — Compliance)
@@ -176,4 +184,3 @@
 **By:** Mal
 **What:** Regenerated slim `.ai/` from `.ai_old/`: context + domain/data-model/security/pipelines + adr/0001-0009 (4-digit), added `.ai/` grounding pointer to copilot-instructions.md, updated all `.ai/decisions/` → `.ai/adr/` pointers in team.md/README/copilot-instructions.
 **Why:** User migrated `.ai/`→`.ai_old/` and asked to regenerate via the slim setup prompt, preserving all durable knowledge reconciled to v1.3.0.
-
