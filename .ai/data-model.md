@@ -65,11 +65,16 @@ Dataverse audit table for consent acknowledgments. Not yet created. This is the 
 | Acknowledged On | `dodbl_acknowledgedon` | Date and Time (UTC / time-zone independent) | Required | When the user acknowledged. Audit enabled. |
 | Expiry Date | `dodbl_expirydate` | Date and Time (UTC / time-zone independent) | Required | When the acknowledgement expires, computed from `dodbl_ConsentExpiryDays`. Audit enabled. |
 | Consent Text | `dodbl_consenttext` | Multiple lines of text | Required | Snapshot of the exact AO-approved text shown to the user. Audit enabled. |
-| Is Active | `dodbl_isactive` | Yes/No | Required | Defaults to Yes; set No on expiry or revocation. Audit enabled. |
+| Revoked | `dodbl_revoked` | Yes/No | Required | Default No. Use only for early/manual revocation. Audit enabled. |
+| Is Active | `dodbl_isactive` | Formula (Yes/No) | System computed | Formula: `If(dodbl_expirydate > UTCNow() && Not(dodbl_revoked), true, false)`. Reporting/convenience only; runtime code derives validity from `dodbl_expirydate > now` and `dodbl_revoked = false`. Do not audit computed formula output. |
+
+**Consent audit model:** append-only. Every acknowledgement creates a new `dodbl_consent_record`; existing rows are never updated for normal renewal. Validity is derived at runtime from the user's most-recent record, `dodbl_expirydate`, and `dodbl_revoked`; no scheduled job or plugin maintains status. The `DoD Banner - Consent Write` role enforces Create + Read only, with no Write/Update privilege.
+
+**Formula column deployment note:** Dataverse cannot convert the existing Simple Yes/No `dodbl_isactive` column to Formula in place, and classic Calculated columns do not support `UTCNow()`. Delete and recreate `dodbl_isactive` as the Formula column above. The `Active Consent Records` saved view must filter on stored `dodbl_expirydate` on or after today, not on `dodbl_isactive`, because formula columns using `UTCNow()` have FetchXML/view filtering limitations.
 
 > **Deployment prerequisite / gotcha:** Dataverse auditing is a two-level setting. Table-level auditing ("Audit changes to its data" on the table plus per-column "Enable auditing") only records data when environment-level auditing is also enabled in Power Platform admin center → Environment → Settings → Audit and logs → Audit settings → **Start Auditing** ON, with **Log record access** / read logs enabled if required. If environment auditing is OFF, table auditing captures nothing. After configuring auditing, publish all customizations and verify `dodbl_consentrecord` appears as a component in the `DoDBannerLibrary` solution.
 
-**Required saved view:** `Active Consent Records` — filter `dodbl_isactive = true` OR `dodbl_expirydate` is in the future; sort by `dodbl_acknowledgedon` descending.
+**Required saved view:** `Active Consent Records` — filter `dodbl_expirydate` on or after today; sort by `dodbl_acknowledgedon` descending.
 
 ---
 
