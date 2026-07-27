@@ -162,6 +162,10 @@
 **By:** Mal
 **What:** In-app web resource content must refer to the consent record lookup column as `dodbl_userid` and banner snapshot column as `dodbl_bannertype`; the prior standalone system-user and consent-type aliases are not consent table column logical names.
 **Why:** Exported consent record metadata and `.ai/data-model.md` identify `dodbl_userid` and `dodbl_bannertype` as the authoritative logical names. Keeping release content aligned prevents admins from creating or documenting the wrong columns.
+### 2026-07-27: Consent write role deployment requirement
+**By:** Zoe
+**What:** Document `DoD Banner - Consent Write` as the consent audit role with only `Create` at Organization scope and `Read` at User scope on `dodbl_consent_record`; assign it to all user-facing security roles that can use the consent banner.
+**Why:** Consent acknowledgement writes fail without the role, while User-scope Read preserves audit privacy by avoiding broad visibility into other users' consent records.
 
 ## Governance
 - All meaningful changes require team consensus
@@ -172,3 +176,4 @@
 **By:** Mal
 **What:** Regenerated slim `.ai/` from `.ai_old/`: context + domain/data-model/security/pipelines + adr/0001-0009 (4-digit), added `.ai/` grounding pointer to copilot-instructions.md, updated all `.ai/decisions/` → `.ai/adr/` pointers in team.md/README/copilot-instructions.
 **Why:** User migrated `.ai/`→`.ai_old/` and asked to regenerate via the slim setup prompt, preserving all durable knowledge reconciled to v1.3.0.
+

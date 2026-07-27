@@ -26,3 +26,6 @@ Confirmed AO-approved consent text must come from `dodbl_DoDConsentText`; noted 
 💬 PM kudos (2026-07-24T23:48:08-07:00): DevonAleshireMSFT said, "I always know I can count on the team to come together for a quality decision."
 📌 2026-07-25T16:03:36-07:00: Co-reviewed migrated .ai/security.md for compliance; verdict 🟢 Green, no changes.
 📌 Team update (2026-07-25T23:54:22-07:00): AC-8 audit table designed as `dodbl_consent_record`; expiry-processing ownership for `dodbl_isactive` remains open for #10-#12. — decided by Mal
+
+📌 Team update (2026-07-27T08:59:56-07:00): Merged Zoe's consent-write security role decision for issue #9; DoD Banner - Consent Write grants Organization Create and User Read on dodbl_consent_record, with expiry-processing ownership still open for #10-#12. — decided by Zoe
+
