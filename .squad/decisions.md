@@ -2,6 +2,11 @@
 
 ## Active Decisions
 
+### 2026-07-25: Reconciled consent record audit schema
+**By:** Mal
+**What:** Use `dodbl_consent_record` as a User/Team-owned Dataverse audit table with Auto Number primary name (`dodbl_name`), required user lookup (`dodbl_userid`), required banner type choice (`dodbl_bannertype`), acknowledged/expiry timestamps, required consent text snapshot, and active flag.
+**Why:** Dataverse needs a primary name column, so Auto Number is the safe audit-record choice. The choice column should mirror the real `dodbl_BannerType` vocabulary (`None`, `DoD`, `CUI`, `U`, `CONFIDENTIAL`, `SECRET`, `TOP SECRET`) instead of the issue's narrower DoD/CUI/Custom list, because the audit row must capture what the library actually showed.
+
 ### 2026-07-24 (revised): Optional consent modes; classification bar is the core
 **By:** Devon Aleshire (with Mal — Lead, Zoe — Compliance)
 **What:** Consent is optional, configurable tooling — NOT an enforced access control. Introduce a single `dodbl_ConsentMode` selector (`Off` | `HomePage` | `GlobalNotification`, default `Off`) so an admin enables the home-page overlay (`dodbl_banner-launch-page`) OR the shell global notification (`dodbl_dodbanner` / `Xrm.App.addGlobalNotification`) OR neither. The two consent surfaces can NEVER fire simultaneously — enforced by code path, not config. `dodbl_ShowConsentBanner` becomes a legacy fallback only. The data **classification marking bar** (CUI/U/CONFIDENTIAL/SECRET/TOP SECRET) is the solution's primary feature and focus. Consent-cookie consistency debt is fixed **atomically** across all three consent surfaces (`pcf/DodBannerControl` index.ts, `dodbl_dodbanner`, `dodbl_banner-launch-page`): #3 malformed-cookie `URIError`, #4 rename `Accepted` → `dodbl_Accepted`, #5 `Secure` flag, #6 PCF `_consentSetup` reset. PCF docs corrected: control-type is `standard`, not virtual.

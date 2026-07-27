@@ -49,15 +49,24 @@ No live custom tables ship in v1.3.0. `dodbl_banner_demo` was removed; the demo 
 
 ### `dodbl_consent_record` _(PLANNED — v1.4.0, #8)_
 
-Dataverse audit table for consent acknowledgments. Not yet created.
+Dataverse audit table for consent acknowledgments. Not yet created. This is the authoritative schema for v1.4.0 planning.
 
-| Column | Schema Name | Type | Notes |
-|---|---|---|---|
-| Name | `dodbl_name` | Auto Number | Audit record identifier |
-| User | `dodbl_user` | Lookup → SystemUser | Who acknowledged consent |
-| Banner Type | `dodbl_bannertype` | Choice | Which banner was shown |
-| Acknowledged On | `dodbl_acknowledgedon` | DateTime | When acknowledged |
-| Expiry Date | `dodbl_expirydate` | DateTime | When consent expires |
+**Table settings:** User/Team owned; table-level auditing enabled; add to the `DoDBannerLibrary` solution.
+
+| Display Name | Schema Name | Type | Required | Notes |
+|---|---|---|---|---|
+| Consent Record | `dodbl_consent_recordid` | Primary Key (GUID) | System required | System-generated row ID. |
+| Name | `dodbl_name` | Auto Number primary name | Required | Audit identifier, e.g. `CONSENT-{SEQNUM:8}`. Dataverse requires a primary name column; Auto Number keeps audit rows human-readable without user input. |
+| User | `dodbl_userid` | Lookup → SystemUser | Required | Who acknowledged consent. Use `dodbl_userid` to follow lookup naming convention. Audit enabled. |
+| Banner Type | `dodbl_bannertype` | Choice | Required | Snapshot of the banner/classification value at acknowledgement time. Options should align to `dodbl_BannerType`: `None`, `DoD`, `CUI`, `U`, `CONFIDENTIAL`, `SECRET`, `TOP SECRET`. Use publisher option-value prefix `70387`. Audit enabled. |
+| Acknowledged On | `dodbl_acknowledgedon` | Date and Time (UTC / time-zone independent) | Required | When the user acknowledged. Audit enabled. |
+| Expiry Date | `dodbl_expirydate` | Date and Time (UTC / time-zone independent) | Required | When the acknowledgement expires, computed from `dodbl_ConsentExpiryDays`. Audit enabled. |
+| Consent Text | `dodbl_consenttext` | Multiple lines of text | Required | Snapshot of the exact AO-approved text shown to the user. Audit enabled. |
+| Is Active | `dodbl_isactive` | Yes/No | Required | Defaults to Yes; set No on expiry or revocation. Audit enabled. |
+
+> **Deployment prerequisite / gotcha:** Dataverse auditing is a two-level setting. Table-level auditing ("Audit changes to its data" on the table plus per-column "Enable auditing") only records data when environment-level auditing is also enabled in Power Platform admin center → Environment → Settings → Audit and logs → Audit settings → **Start Auditing** ON, with **Log record access** / read logs enabled if required. If environment auditing is OFF, table auditing captures nothing. After configuring auditing, publish all customizations and verify `dodbl_consent_record` appears as a component in the `DoDBannerLibrary` solution.
+
+**Required saved view:** `Active Consent Records` — filter `dodbl_isactive = true` OR `dodbl_expirydate` is in the future; sort by `dodbl_acknowledgedon` descending.
 
 ---
 
