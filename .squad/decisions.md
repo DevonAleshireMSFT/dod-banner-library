@@ -142,6 +142,13 @@
 **What:** Team decided against a dedicated `.ai` curator ("Ghost"); `.ai/` release-time reconciliation is now an explicit Lead responsibility — charter + routing.md updated by coordinator, and a reconciliation step added to `.ai/pipelines.md` release checklist. Security/disclosure sections co-reviewed with Zoe.
 **Why:** `.ai/` upkeep is bursty (clusters at releases), not continuous — a process trigger, not new headcount, closes the gap.
 
+
+
+### 2026-07-27: Technical integration guide for issue #22
+**By:** Kaylee
+**What:** Created `docs/technical-integration-guide.md` as a source-grounded reference for technical reviewers and makers integrating the DoD Banner Library into their own Power Platform apps.
+**Why:** Issue #22 needs one public-safe guide that explains shipped solution components, app-load hosting through the launch page, PCF hosting options, consent behavior, planned v1.4 audit work, and source discrepancies reviewers must reconcile before audit writes are treated as implemented.
+
 ## Governance
 - All meaningful changes require team consensus
 - Document architectural decisions here
