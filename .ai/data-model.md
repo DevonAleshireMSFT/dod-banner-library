@@ -24,6 +24,7 @@
 | `dodbl_DoDBannerLibraryManagement` | Model-Driven App | Management app — docs, demo, release notes |
 | `dodbl_DoDBannerLibraryManagement` | App Module Site Map | Navigation for management app |
 | `dodbl_DoDBannerLibrary.DodBannerControl` | PCF Custom Control (type 66) | Canvas App classification bar + DoD modal |
+| `DoD Banner - Consent Write` | Security Role | Consent audit role: Create = Organization scope and Read = User scope on `dodbl_consentrecord` only |
 | `dodbl_banner_demo` | Removed custom table | Removed in v1.3.0; demo is now Canvas App `dodbl_canvasappdemo_bb4ae` |
 
 ---
@@ -52,6 +53,8 @@ No live custom tables ship in v1.3.0. `dodbl_banner_demo` was removed; the demo 
 Dataverse audit table for consent acknowledgments. Not yet created. This is the authoritative schema for v1.4.0 planning.
 
 **Table settings:** User/Team owned; table-level auditing enabled; add to the `DoDBannerLibrary` solution.
+
+**Security role:** assign `DoD Banner - Consent Write` to user-facing roles that need to create consent acknowledgements; see `.ai/security.md`.
 
 | Display Name | Schema Name | Type | Required | Notes |
 |---|---|---|---|---|

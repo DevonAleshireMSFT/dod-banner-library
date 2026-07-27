@@ -82,6 +82,7 @@
     <RootComponents>
       <RootComponent type="1" schemaName="dodbl_consentrecord" behavior="0" />
       <RootComponent type="1" schemaName="systemuser" behavior="1" />
+      <RootComponent type="20" id="{a5af8b1e-d389-f111-ab0f-001dd80bd6fe}" behavior="0" />
       <RootComponent type="300" schemaName="dodbl_canvasappdemo_bb4ae" behavior="0" />
       <RootComponent type="61" schemaName="dodbl_bannercore" behavior="0" />
       <RootComponent type="61" schemaName="dodbl_banner-launch-page" behavior="0" />
