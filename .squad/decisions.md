@@ -7,6 +7,10 @@
 **By:** Squad (Coordinator), merged by Scribe
 **What:** Keep the formerly bundled export concerns cleanly separated across three PRs: PR #30 owns the doc/web-resource name fixes (dodbl_docs, dodbl_release-notes), PR #28 owns the DoD Banner - Consent Write role, and PR #31 owns only the consent-schema changes (dodbl_revoked, dodbl_isactive formula SourceType 3, formula definitions, saved query, and management app surfacing).
 **Why:** The unmanaged solution export bundled doc fixes, role artifacts, and consent-schema work together and clobbered already-correct documentation. Separating the branches preserves each review scope and keeps the schema PR explicit because changing the formula SourceType requires delete-and-reimport handling in existing environments.
+### 2026-07-27: Correct consent table logical name
+**By:** Mal
+**What:** The consent table logical name is `dodbl_consentrecord` and the primary key logical name is `dodbl_consentrecordid`; the previously documented variants with an extra underscore between `consent` and `record` were incorrect.
+**Why:** Exported metadata at `DoDBannerLibrary/Entities/dodbl_ConsentRecord/Entity.xml` verifies schema name `dodbl_ConsentRecord`, entity set `dodbl_consentrecords`, and primary key logical name `dodbl_consentrecordid`.
 
 ### 2026-07-25: Reconciled consent record audit schema
 **By:** Mal

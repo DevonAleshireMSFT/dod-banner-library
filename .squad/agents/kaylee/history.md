@@ -28,4 +28,5 @@ Refined the MDA consent UI to a single custom home page overlay, updated page co
 💬 PM kudos (2026-07-24T23:48:08-07:00): DevonAleshireMSFT said, "I always know I can count on the team to come together for a quality decision."
 
 📌 Team update (2026-07-27T11:37:38-07:00): Authored docs/technical-integration-guide.md for issue #22 as the source-grounded technical reviewer and maker usage reference; flagged four source/schema discrepancies for reconciliation. — decided by Kaylee
+📌 Team update (2026-07-27T11:37:38-07:00): Discrepancy #1 from the #22 guide is resolved on chore/fix-consent-table-schema-names; consent table references now use dodbl_consentrecord and Web API set dodbl_consentrecords. — decided by Mal
 

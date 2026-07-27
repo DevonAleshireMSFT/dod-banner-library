@@ -23,4 +23,5 @@ Flagged that the PCF manifest uses `control-type="standard"`, not `virtual`.
 📌 Team update (2026-07-25T23:54:22-07:00): `dodbl_consent_record` schema defined for v1.4.0 issue #8; Devon chose the Power Apps maker path for manual table creation. — decided by Mal
 
 📌 Team update (2026-07-27T11:37:38-07:00): Kaylee verified a data-model schema-name bug: .ai/data-model.md says dodbl_consent_record, while exported metadata uses dodbl_consentrecord with PK dodbl_consentrecordid; Lead reconciliation needed. — decided by Kaylee
+📌 Team update (2026-07-27T11:37:38-07:00): Consent table logical-name bug fixed on chore/fix-consent-table-schema-names; dodbl_consentrecord / dodbl_consentrecordid are verified against Entity.xml. — decided by Mal
 
