@@ -158,6 +158,10 @@
 **By:** Kaylee
 **What:** Created `docs/technical-integration-guide.md` as a source-grounded reference for technical reviewers and makers integrating the DoD Banner Library into their own Power Platform apps.
 **Why:** Issue #22 needs one public-safe guide that explains shipped solution components, app-load hosting through the launch page, PCF hosting options, consent behavior, planned v1.4 audit work, and source discrepancies reviewers must reconcile before audit writes are treated as implemented.
+### 2026-07-27: Correct consent record column logical names
+**By:** Mal
+**What:** In-app web resource content must refer to the consent record lookup column as `dodbl_userid` and banner snapshot column as `dodbl_bannertype`; the prior standalone system-user and consent-type aliases are not consent table column logical names.
+**Why:** Exported consent record metadata and `.ai/data-model.md` identify `dodbl_userid` and `dodbl_bannertype` as the authoritative logical names. Keeping release content aligned prevents admins from creating or documenting the wrong columns.
 
 ## Governance
 - All meaningful changes require team consensus

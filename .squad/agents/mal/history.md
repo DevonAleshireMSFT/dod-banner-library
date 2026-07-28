@@ -25,3 +25,6 @@ Flagged that the PCF manifest uses `control-type="standard"`, not `virtual`.
 📌 Team update (2026-07-27T11:37:38-07:00): Kaylee verified a data-model schema-name bug: .ai/data-model.md says dodbl_consent_record, while exported metadata uses dodbl_consentrecord with PK dodbl_consentrecordid; Lead reconciliation needed. — decided by Kaylee
 📌 Team update (2026-07-27T11:37:38-07:00): Consent table logical-name bug fixed on chore/fix-consent-table-schema-names; dodbl_consentrecord / dodbl_consentrecordid are verified against Entity.xml. — decided by Mal
 
+
+📌 Team update (2026-07-27T21:44:54-07:00): Release notes now use consent record column logical names dodbl_userid and dodbl_bannertype, verified against exported metadata. — decided by Mal
+
