@@ -2,6 +2,12 @@
 
 ## Active Decisions
 
+
+### 2026-07-28T12:13:41-07:00: Separate consent-schema (revoked+formula) onto its own branch/PR #31, distinct from role PR #28 and doc-fix PR #30.
+**By:** Squad (Coordinator), merged by Scribe
+**What:** Keep the formerly bundled export concerns cleanly separated across three PRs: PR #30 owns the doc/web-resource name fixes (dodbl_docs, dodbl_release-notes), PR #28 owns the DoD Banner - Consent Write role, and PR #31 owns only the consent-schema changes (dodbl_revoked, dodbl_isactive formula SourceType 3, formula definitions, saved query, and management app surfacing).
+**Why:** The unmanaged solution export bundled doc fixes, role artifacts, and consent-schema work together and clobbered already-correct documentation. Separating the branches preserves each review scope and keeps the schema PR explicit because changing the formula SourceType requires delete-and-reimport handling in existing environments.
+
 ### 2026-07-25: Reconciled consent record audit schema
 **By:** Mal
 **What:** Use `dodbl_consent_record` as a User/Team-owned Dataverse audit table with Auto Number primary name (`dodbl_name`), required user lookup (`dodbl_userid`), required banner type choice (`dodbl_bannertype`), acknowledged/expiry timestamps, required consent text snapshot, and active flag.
