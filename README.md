@@ -41,7 +41,8 @@ Zero external dependencies. No CDN calls. No jQuery.
 
 Rule: `.squad/decisions.md` never restates a product decision — it links to the `.ai/` ADR or living-doc fact. New contributors should read `.ai/context.md` first to understand the product; `.squad/` is the AI team's operating state.
 
-Public-repo note: do not add internal-only or confidential content to this repository. Keep requirements and contributor guidance generalized, public-safe, and linked to `.ai/security.md` when disclosure handling matters.
+> [!IMPORTANT]
+> **⚠️ Public-repo note: do not add internal-only or confidential content to this repository.** Keep requirements and contributor guidance generalized, public-safe, and linked to `.ai/security.md` when disclosure handling matters.
 
 ---
 
