@@ -20,6 +20,14 @@ Zero external dependencies. No CDN calls. No jQuery.
 
 ![DoD consent modal rendered in a Canvas App](docs/images/example-canvas-app-consent.png)
 
+**Custom page consent modal** — the standalone DoD consent modal (`dodbl_banner-launch-page`) shown as the single entry point before the management app home content.
+
+![DoD consent modal on the custom launch page](docs/images/example-custom-page-consent.png)
+
+**All classification bars in a Canvas App** — every classification level (`CUI`, `UNCLASSIFIED`, `CONFIDENTIAL`, `SECRET`, `TOP SECRET`), a custom banner label, and the DoD consent control rendered together in a Canvas App.
+
+![All classification bars and consent control in a Canvas App](docs/images/example-canvasapp-banners.png)
+
 ---
 
 ## Project Knowledge: `.ai/` vs `.squad/`
