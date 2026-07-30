@@ -6,6 +6,22 @@ Zero external dependencies. No CDN calls. No jQuery.
 
 ---
 
+## Screenshots
+
+**SECRET classification bar + DoD consent modal** — the Model-Driven App management experience with the red `SECRET` bar (top and bottom) and the U.S. Government system-use consent modal.
+
+![SECRET classification bar with the DoD consent modal in the Model-Driven App](docs/images/example-secret-banner.png)
+
+**CUI classification bar + management app home page** — the purple `CUI` bar with the custom home page (`dodbl_banner-launch-page`), quick-navigation tiles, and solution status.
+
+![CUI classification bar on the DoD Banner Library management home page](docs/images/example-cui-banner.png)
+
+**Canvas App consent** — the `DodBannerControl` PCF consent modal rendered inside a Canvas App.
+
+![DoD consent modal rendered in a Canvas App](docs/images/example-canvas-app-consent.png)
+
+---
+
 ## Project Knowledge: `.ai/` vs `.squad/`
 
 | `.ai/` | `.squad/` |
