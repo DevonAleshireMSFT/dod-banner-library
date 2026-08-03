@@ -20,11 +20,17 @@ This repository is public. Do not commit or reference internal-only material, in
 
 No custom security roles are deployed in v1.3.0.
 
-Planned v1.4 work:
+v1.4 consent audit role:
 
 | Role | Purpose | Minimum Privileges |
 |---|---|---|
-| `DoD Banner — Consent Write` | Allows consent acknowledgment records to be created | Create on planned `dodbl_consentrecord` table |
+| `DoD Banner - Consent Write` | Allows licensed users to create their own consent acknowledgement records without broad audit-table access | `Create` = Organization scope and `Read` = User scope on `dodbl_consentrecord` only |
+
+`DoD Banner - Consent Write` intentionally grants only the two consent-table privileges above. User-scope Read matters: it lets a user read only records they own, preserving audit privacy instead of exposing other users' consent history. The other baseline privileges Dataverse adds to a new role are platform defaults and should not be treated as intentional product grants.
+
+**Deployment requirement:** assign `DoD Banner - Consent Write` to every user-facing security role whose users can see the consent banner. Without this role, consent acknowledgement writes to `dodbl_consentrecord` fail with a privilege error.
+
+**Deployment checkpoint / gotcha:** creating the record sets the `dodbl_userid` lookup to the current user. That lookup write relies on `AppendTo` on the User (`systemuser`) table, normally supplied by the Basic User role; verify this during deployment/UAT rather than widening the consent role.
 
 ---
 

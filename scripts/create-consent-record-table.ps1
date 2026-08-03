@@ -181,17 +181,25 @@ Add-Column @{
 
 Add-Column @{
     '@odata.type' = 'Microsoft.Dynamics.CRM.BooleanAttributeMetadata'
-    SchemaName = 'dodbl_isactive'
-    DisplayName = New-Label 'Is Active'
-    Description = New-Label 'Whether the acknowledgement is active and unexpired.'
+    SchemaName = 'dodbl_revoked'
+    DisplayName = New-Label 'Revoked'
+    Description = New-Label 'Whether this acknowledgement was manually revoked before expiry.'
     RequiredLevel = New-RequiredLevel 'ApplicationRequired'
-    DefaultValue = $true
+    DefaultValue = $false
     IsAuditEnabled = @{ Value = $true }
     OptionSet = @{
         TrueOption = @{ Value = 1; Label = New-Label 'Yes' }
         FalseOption = @{ Value = 0; Label = New-Label 'No' }
     }
 }
+
+# dodbl_isactive must be created manually in the maker portal as a Formula
+# column returning Yes/No. The metadata Web API path in this script is not a
+# practical way to create the Power Fx formula column, and Dataverse cannot
+# convert an existing Simple Yes/No column to Formula in place.
+# Formula:
+#   If(dodbl_expirydate > UTCNow() && Not(dodbl_revoked), true, false)
+# Do not enable auditing on dodbl_isactive; it is computed reporting output.
 
 Write-Host 'Creating SystemUser lookup relationship...'
 Invoke-Dataverse -Method Post -Path 'CreateOneToMany' -Body @{
@@ -234,10 +242,10 @@ $fetchXml = @'
     <attribute name="dodbl_bannertype" />
     <attribute name="dodbl_acknowledgedon" />
     <attribute name="dodbl_expirydate" />
-    <attribute name="dodbl_isactive" />
+    <attribute name="dodbl_revoked" />
     <order attribute="dodbl_acknowledgedon" descending="true" />
     <filter type="or">
-      <condition attribute="dodbl_isactive" operator="eq" value="1" />
+      <condition attribute="dodbl_expirydate" operator="today" />
       <condition attribute="dodbl_expirydate" operator="next-x-years" value="100" />
     </filter>
   </entity>
@@ -252,7 +260,7 @@ $layoutXml = @'
     <cell name="dodbl_bannertype" width="150" />
     <cell name="dodbl_acknowledgedon" width="150" />
     <cell name="dodbl_expirydate" width="150" />
-    <cell name="dodbl_isactive" width="100" />
+    <cell name="dodbl_revoked" width="100" />
   </row>
 </grid>
 '@
