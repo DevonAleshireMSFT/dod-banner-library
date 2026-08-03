@@ -11,19 +11,11 @@
 **By:** Mal
 **What:** The consent table logical name is `dodbl_consentrecord` and the primary key logical name is `dodbl_consentrecordid`; the previously documented variants with an extra underscore between `consent` and `record` were incorrect.
 **Why:** Exported metadata at `DoDBannerLibrary/Entities/dodbl_ConsentRecord/Entity.xml` verifies schema name `dodbl_ConsentRecord`, entity set `dodbl_consentrecords`, and primary key logical name `dodbl_consentrecordid`.
-### 2026-07-27: Consent records are append-only with derived validity
-**By:** Mal
-**What:** `dodbl_consent_record` is an append-only audit table: every acknowledgement creates a new row, and normal renewals never update existing rows. The consent write role enforces Create + Read only, with no Write/Update privilege. Runtime validity is derived in code from the user's most-recent record, `dodbl_expirydate > now`, and `dodbl_revoked = false`; no scheduled job or plugin maintains active state. `dodbl_revoked` is a stored audited Yes/No for early/manual revocation. `dodbl_isactive` is deleted and recreated as a non-audited Power Fx Formula Yes/No column: `If(dodbl_expirydate > UTCNow() && Not(dodbl_revoked), true, false)`, for reporting only.
-**Why:** This keeps the audit trail clean, honors the create-only security posture from #9, and avoids external dependencies or maintenance jobs. Dataverse cannot convert an existing Simple Yes/No column to Formula in place, and classic Calculated columns do not support `UTCNow()`, so `dodbl_isactive` must be recreated as Formula. Saved views must filter on stored `dodbl_expirydate` rather than the `UTCNow()` formula output because of FetchXML/view filtering limitations.
-**Supersedes:** The `dodbl_isactive` stored/simple Yes/No active-flag portion of `2026-07-25: Reconciled consent record audit schema`; `dodbl_isactive` is now a reporting-only Power Fx Formula column and runtime validity is derived from stored fields.
-
 
 ### 2026-07-25: Reconciled consent record audit schema
 **By:** Mal
 **What:** Use `dodbl_consent_record` as a User/Team-owned Dataverse audit table with Auto Number primary name (`dodbl_name`), required user lookup (`dodbl_userid`), required banner type choice (`dodbl_bannertype`), acknowledged/expiry timestamps, required consent text snapshot, and active flag.
 **Why:** Dataverse needs a primary name column, so Auto Number is the safe audit-record choice. The choice column should mirror the real `dodbl_BannerType` vocabulary (`None`, `DoD`, `CUI`, `U`, `CONFIDENTIAL`, `SECRET`, `TOP SECRET`) instead of the issue's narrower DoD/CUI/Custom list, because the audit row must capture what the library actually showed.
-
-**Supersession note:** The active-flag portion is superseded by `2026-07-27: Consent records are append-only with derived validity`; `dodbl_isactive` is a Power Fx Formula column for reporting only, and runtime validity is derived from `dodbl_expirydate` plus `dodbl_revoked`.
 
 ### 2026-07-24 (revised): Optional consent modes; classification bar is the core
 **By:** Devon Aleshire (with Mal — Lead, Zoe — Compliance)
@@ -170,10 +162,6 @@
 **By:** Mal
 **What:** In-app web resource content must refer to the consent record lookup column as `dodbl_userid` and banner snapshot column as `dodbl_bannertype`; the prior standalone system-user and consent-type aliases are not consent table column logical names.
 **Why:** Exported consent record metadata and `.ai/data-model.md` identify `dodbl_userid` and `dodbl_bannertype` as the authoritative logical names. Keeping release content aligned prevents admins from creating or documenting the wrong columns.
-### 2026-07-27: Consent write role deployment requirement
-**By:** Zoe
-**What:** Document `DoD Banner - Consent Write` as the consent audit role with only `Create` at Organization scope and `Read` at User scope on `dodbl_consent_record`; assign it to all user-facing security roles that can use the consent banner.
-**Why:** Consent acknowledgement writes fail without the role, while User-scope Read preserves audit privacy by avoiding broad visibility into other users' consent records.
 
 ## Governance
 - All meaningful changes require team consensus
