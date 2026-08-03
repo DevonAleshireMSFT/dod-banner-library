@@ -43,11 +43,11 @@ This repo is a **managed Power Platform solution** for GCC High / IL4-IL5 deploy
 - Remember the Dataverse split: the **definition** carries schema/type/default; the **value** is environment-specific. If behavior must vary per tenant, wire the runtime to the current value instead of hardcoding text or flags in a web resource.
 - Security roles compose privilege-by-privilege and scope-by-scope. `Create`, `Read`, `Write`, and `Delete` are independent; granting `Create` does not imply `Read`, and user/business-unit/org scope materially changes behavior.
 - For custom tables with lookups, also think about `Append` / `Append To`; CRUD alone is not enough when records reference other records.
-- Issue #9 is the right mental model for minimum-permission design here: a consent log writer only needs the narrow privileges required for `dodbl_consent_record`, not a broad customizer role.
-- Table-level auditing is the compliance lever for durable evidence. It captures record create/update/delete events and audited column changes; it only works when auditing is enabled at the org, table, and column levels. Issue #8 already calls for enabling auditing on the future `dodbl_consent_record` table.
+- Issue #9 is the right mental model for minimum-permission design here: a consent log writer only needs the narrow privileges required for `dodbl_consentrecord`, not a broad customizer role.
+- Table-level auditing is the compliance lever for durable evidence. It captures record create/update/delete events and audited column changes; it only works when auditing is enabled at the org, table, and column levels. Issue #8 already calls for enabling auditing on the future `dodbl_consentrecord` table.
 - Client-side Dataverse writes should use the supported Web API surface:
-  - MDA/web resource: `Xrm.WebApi.createRecord("dodbl_consent_record", payload)`
-  - PCF: `context.webAPI.createRecord("dodbl_consent_record", payload)`
+  - MDA/web resource: `Xrm.WebApi.createRecord("dodbl_consentrecord", payload)`
+  - PCF: `context.webAPI.createRecord("dodbl_consentrecord", payload)`
   Keep writes non-blocking when the UI action is informational, but do not confuse a successful client-side write with a real access gate.
 
 ### PCF (Power Apps Component Framework)

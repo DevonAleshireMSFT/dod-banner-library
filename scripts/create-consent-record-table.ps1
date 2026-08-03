@@ -1,6 +1,6 @@
 <#
 .SYNOPSIS
-Creates the planned dodbl_consent_record Dataverse table metadata.
+Creates the planned dodbl_consentrecord Dataverse table metadata.
 
 .DESCRIPTION
 Uses the Dataverse Web API metadata endpoints to create the table, columns,
@@ -82,7 +82,7 @@ function Invoke-Dataverse {
 
 function Add-Column {
     param([Parameter(Mandatory = $true)][hashtable] $Metadata)
-    Invoke-Dataverse -Method Post -Path "EntityDefinitions(LogicalName='dodbl_consent_record')/Attributes" -Body $Metadata | Out-Null
+    Invoke-Dataverse -Method Post -Path "EntityDefinitions(LogicalName='dodbl_consentrecord')/Attributes" -Body $Metadata | Out-Null
 }
 
 function Add-SolutionComponent {
@@ -102,7 +102,7 @@ function Add-SolutionComponent {
 
 $table = @{
     '@odata.type' = 'Microsoft.Dynamics.CRM.EntityMetadata'
-    SchemaName = 'dodbl_consent_record'
+    SchemaName = 'dodbl_ConsentRecord'
     DisplayName = New-Label 'Consent Record'
     DisplayCollectionName = New-Label 'Consent Records'
     Description = New-Label 'Audit trail of DoD Banner Library consent acknowledgements.'
@@ -126,7 +126,7 @@ $table = @{
     )
 }
 
-Write-Host 'Creating dodbl_consent_record table...'
+Write-Host 'Creating dodbl_consentrecord table...'
 Invoke-Dataverse -Method Post -Path 'EntityDefinitions' -Body $table | Out-Null
 
 Write-Host 'Creating columns...'
@@ -197,9 +197,9 @@ Write-Host 'Creating SystemUser lookup relationship...'
 Invoke-Dataverse -Method Post -Path 'CreateOneToMany' -Body @{
     OneToManyRelationship = @{
         '@odata.type' = 'Microsoft.Dynamics.CRM.OneToManyRelationshipMetadata'
-        SchemaName = 'dodbl_systemuser_consent_records'
+        SchemaName = 'dodbl_systemuser_consentrecords'
         ReferencedEntity = 'systemuser'
-        ReferencingEntity = 'dodbl_consent_record'
+        ReferencingEntity = 'dodbl_consentrecord'
         AssociatedMenuConfiguration = @{
             Behavior = 'UseLabel'
             Group = 'Details'
@@ -228,7 +228,7 @@ Invoke-Dataverse -Method Post -Path 'CreateOneToMany' -Body @{
 Write-Host 'Creating Active Consent Records view...'
 $fetchXml = @'
 <fetch version="1.0" mapping="logical">
-  <entity name="dodbl_consent_record">
+  <entity name="dodbl_consentrecord">
     <attribute name="dodbl_name" />
     <attribute name="dodbl_userid" />
     <attribute name="dodbl_bannertype" />
@@ -246,7 +246,7 @@ $fetchXml = @'
 
 $layoutXml = @'
 <grid name="resultset" object="1" jump="dodbl_name" select="1" icon="1" preview="1">
-  <row name="result" id="dodbl_consent_recordid">
+  <row name="result" id="dodbl_consentrecordid">
     <cell name="dodbl_name" width="150" />
     <cell name="dodbl_userid" width="200" />
     <cell name="dodbl_bannertype" width="150" />
@@ -259,7 +259,7 @@ $layoutXml = @'
 
 Invoke-Dataverse -Method Post -Path 'savedqueries' -Body @{
     name = 'Active Consent Records'
-    returnedtypecode = 'dodbl_consent_record'
+    returnedtypecode = 'dodbl_consentrecord'
     querytype = 0
     fetchxml = $fetchXml
     layoutxml = $layoutXml
@@ -267,7 +267,7 @@ Invoke-Dataverse -Method Post -Path 'savedqueries' -Body @{
 } | Out-Null
 
 Write-Host 'Adding table to solution and publishing...'
-$entity = Invoke-Dataverse -Method Get -Path "EntityDefinitions(LogicalName='dodbl_consent_record')?`$select=MetadataId"
+$entity = Invoke-Dataverse -Method Get -Path "EntityDefinitions(LogicalName='dodbl_consentrecord')?`$select=MetadataId"
 if ($entity.MetadataId) {
     Add-SolutionComponent -ComponentType 1 -ObjectId $entity.MetadataId
 }

@@ -144,22 +144,22 @@ Issues #10, #11, and #12 are open and not yet wired:
 - #11: Model-driven app JS and launch-page acknowledge actions write consent records.
 - #12: Power Pages uses a server-side write path for consent records.
 
-The planned direction is an append-only consent audit model: acknowledgement creates a new consent row instead of updating a prior row. `.ai/data-model.md` is the authoritative planning document for the consent table, and the exported solution metadata currently contains `dodbl_consentrecord` with audited columns for name, user, banner type, acknowledged timestamp, expiry timestamp, consent text, and active state.
+The planned direction is an append-only consent audit model: acknowledgement creates a new consent row instead of updating a prior row. `.ai/data-model.md` is the authoritative planning document for the consent table, and the exported solution metadata currently contains `dodbl_consentrecord` with audited columns for name, user, banner type, acknowledged timestamp, expiry timestamp, consent text, revoked state, and active state.
 
-Important source reconciliation note: the requested target model mentions `dodbl_consent_record`, `dodbl_revoked`, and a Power Fx formula for `dodbl_isactive`:
+The checked-in solution metadata uses the canonical table logical name `dodbl_consentrecord` and includes `dodbl_revoked` plus a formula-backed `dodbl_isactive`:
 
 ```powerfx
 If(dodbl_expirydate > UTCNow() && Not(dodbl_revoked), true, false)
 ```
 
-That exact formula model is not present in this checkout. The current checked source shows:
+The current checked source shows:
 
 - `DoDBannerLibrary/Other/Solution.xml` root component: `dodbl_consentrecord`
-- `DoDBannerLibrary/Entities/dodbl_ConsentRecord/Entity.xml`: `dodbl_isactive` as a regular Yes/No column with default Yes
-- No `dodbl_revoked` column found
-- `.ai/data-model.md`: planned table text still describes setting `dodbl_isactive` to No on expiry or revocation
+- `DoDBannerLibrary/Entities/dodbl_ConsentRecord/Entity.xml`: `dodbl_revoked` and `dodbl_isactive`
+- `DoDBannerLibrary/Entities/dodbl_ConsentRecord/Formulas/dodbl_consentrecord-FormulaDefinitions.yaml`: the `dodbl_isactive` formula definition
+- `DoDBannerLibrary/Entities/dodbl_ConsentRecord/SavedQueries/`: saved views using the canonical `dodbl_consentrecord` table logical name
 
-Until these are reconciled, reviewers should treat Dataverse audit writes as v1.4 work in progress and should not expect scheduled jobs, plugins, or runtime validity derivation to exist.
+Runtime consent-record writes remain v1.4 work in progress, so reviewers should not expect PCF, MDA JS, Power Pages runtime code, scheduled jobs, or plugins to create consent records yet.
 
 ### Security role and least privilege
 
@@ -286,7 +286,4 @@ Remember the Canvas cookie limitation from ADR 0009: consent may not persist acr
 
 The following claims could not be fully verified from the current checkout and should be reviewed before release:
 
-1. The requested planned logical name `dodbl_consent_record` conflicts with the exported solution component `dodbl_consentrecord`.
-2. The requested `dodbl_revoked` flag is not present in the exported consent table metadata.
-3. The requested `dodbl_isactive` Power Fx formula is not present. The exported metadata shows `dodbl_isactive` as a regular Yes/No column, and `.ai/data-model.md` still describes setting it inactive on expiry or revocation.
-4. `DoDBannerLibrary/Other/Solution.xml` does not list the security role root component, but `DoDBannerLibrary_managed.zip` does include a type `20` root component and the `DoD Banner - Consent Write` role.
+1. `DoDBannerLibrary/Other/Solution.xml` does not list the security role root component, but `DoDBannerLibrary_managed.zip` does include a type `20` root component and the `DoD Banner - Consent Write` role.
