@@ -86,14 +86,13 @@ DoDBannerLibrary.DodBanner = (function () {
 
   function getBannerTypeChoiceValue(bannerType) {
     var t = ((bannerType || "") + "").trim().toUpperCase();
-    if (!t) return null;
     if (t === "DOD" || t.indexOf("DOD") >= 0) return 703870001;
     if (t.indexOf("CU") === 0) return 703870002;
     if (t === "U" || t.indexOf("UNCLASSIFIED") === 0) return 703870003;
     if (t.indexOf("CO") === 0) return 703870004;
     if (t.indexOf("S") === 0) return 703870005;
     if (t.indexOf("T") === 0) return 703870006;
-    return null;
+    return 703870007;
   }
 
   function warnConsentAudit(message) {
@@ -103,9 +102,8 @@ DoDBannerLibrary.DodBanner = (function () {
   function writeConsentRecord(consentText, bannerType, expiryDays) {
     try {
       var bannerTypeValue = getBannerTypeChoiceValue(bannerType);
-      if (bannerTypeValue == null) {
-        warnConsentAudit("Consent audit write skipped: unknown banner type.");
-        return;
+      if (bannerTypeValue === 703870007) {
+        warnConsentAudit("Consent audit writing Unspecified banner type.");
       }
 
       if (!(Xrm && Xrm.WebApi && Xrm.Utility)) {
@@ -116,6 +114,10 @@ DoDBannerLibrary.DodBanner = (function () {
       var now = new Date();
       var expiry = new Date(now.getTime() + getConsentAuditExpiryDays(expiryDays) * 24 * 60 * 60 * 1000);
       var userId = Xrm.Utility.getGlobalContext().userSettings.userId.replace(/[{}]/g, "");
+      if (!userId) {
+        warnConsentAudit("Consent audit write skipped: current user id unavailable.");
+        return;
+      }
 
       Xrm.WebApi.createRecord("dodbl_consentrecord", {
         "dodbl_userid@odata.bind": "/systemusers(" + userId + ")",
