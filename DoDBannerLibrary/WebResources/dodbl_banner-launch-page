@@ -224,6 +224,8 @@ var EXPIRY_DAYS  = 30;
 var CONSENT_TEXT_SCHEMA = "dodbl_DoDConsentText";
 var CONSENT_WARNING_PREFIX = "WARNING:";
 var BANNER_TYPE_DEFAULT = "";
+var _bannerEnvVars = {};
+var _consentTextShown = "";
 var CONSENT_TEXT_DEFAULT =
   "WARNING: This is a U.S. Government computer system, which may be accessed " +
   "and used only for authorized Government business by authorized personnel. " +
@@ -235,6 +237,7 @@ var CONSENT_TEXT_DEFAULT =
   "and privacy requirements. Access or use of this computer system by any person, " +
   "whether authorized or unauthorized, constitutes consent to these terms. " +
   "There is no right of privacy in this system.";
+_consentTextShown = CONSENT_TEXT_DEFAULT;
 
 function setCookie(name, value, days) {
   try {
@@ -257,6 +260,14 @@ function getCookie(name) {
     }
   } catch (_e) { /* cookie access blocked */ }
   return "";
+}
+
+function getXrm() {
+  try {
+    return (parent && parent.Xrm) ? parent.Xrm : null;
+  } catch (_e) {
+    return null;
+  }
 }
 
 function getQueryValue(name) {
@@ -282,11 +293,12 @@ function getConsentTextOverride() {
   }
 
   try {
-    if (!(parent.Xrm && parent.Xrm.WebApi)) {
+    var xrm = getXrm();
+    if (!(xrm && xrm.WebApi)) {
       return Promise.resolve("");
     }
 
-    return parent.Xrm.WebApi.retrieveMultipleRecords(
+    return xrm.WebApi.retrieveMultipleRecords(
       "environmentvariabledefinition",
       "?$select=environmentvariabledefinitionid,defaultvalue&$filter=schemaname eq '" + CONSENT_TEXT_SCHEMA + "'"
     ).then(function (defResult) {
@@ -294,7 +306,7 @@ function getConsentTextOverride() {
 
       var def = defResult.entities[0];
       var defaultValue = def.defaultvalue || "";
-      return parent.Xrm.WebApi.retrieveMultipleRecords(
+      return xrm.WebApi.retrieveMultipleRecords(
         "environmentvariablevalue",
         "?$select=value&$filter=_environmentvariabledefinitionid_value eq " + def.environmentvariabledefinitionid
       ).then(function (valResult) {
@@ -325,7 +337,70 @@ function applyConsentText(consentText) {
       bodyEl.textContent = text;
     }
   }
+  _consentTextShown = text;
   return text;
+}
+
+function getConsentAuditExpiryDays(value) {
+  var days = parseInt(value, 10);
+  return (isNaN(days) || days < 0) ? 1 : days;
+}
+
+function getBannerTypeChoiceValue(bannerType) {
+  var t = ((bannerType || "") + "").trim().toUpperCase();
+  if (!t) return null;
+  if (t === "DOD" || t.indexOf("DOD") >= 0) return 703870001;
+  if (t.indexOf("CU") === 0) return 703870002;
+  if (t === "U" || t.indexOf("UNCLASSIFIED") === 0) return 703870003;
+  if (t.indexOf("CO") === 0) return 703870004;
+  if (t.indexOf("S") === 0) return 703870005;
+  if (t.indexOf("T") === 0) return 703870006;
+  return null;
+}
+
+function warnConsentAudit(message) {
+  if (window.console && console.warn) console.warn("[DoDBannerLibrary] " + message);
+}
+
+function writeConsentRecord() {
+  getBannerEnvVars()
+    .then(function (vars) {
+      var xrm = getXrm();
+      if (!(xrm && xrm.WebApi && xrm.Utility)) {
+        warnConsentAudit("Consent audit write skipped: Xrm WebApi unavailable.");
+        return;
+      }
+
+      var bannerType = ((_bannerEnvVars["dodbl_BannerType"] != null
+        ? _bannerEnvVars["dodbl_BannerType"]
+        : vars["dodbl_BannerType"]) || BANNER_TYPE_DEFAULT) + "";
+      var bannerTypeValue = getBannerTypeChoiceValue(bannerType);
+      if (bannerTypeValue == null) {
+        warnConsentAudit("Consent audit write skipped: unknown banner type.");
+        return;
+      }
+
+      var expiryDays = getConsentAuditExpiryDays(_bannerEnvVars["dodbl_ConsentExpiryDays"] != null
+        ? _bannerEnvVars["dodbl_ConsentExpiryDays"]
+        : vars["dodbl_ConsentExpiryDays"]);
+      var now = new Date();
+      var expiry = new Date(now.getTime() + expiryDays * 24 * 60 * 60 * 1000);
+      var userId = xrm.Utility.getGlobalContext().userSettings.userId.replace(/[{}]/g, "");
+
+      return xrm.WebApi.createRecord("dodbl_consentrecord", {
+        "dodbl_userid@odata.bind": "/systemusers(" + userId + ")",
+        dodbl_bannertype: bannerTypeValue,
+        dodbl_acknowledgedon: now.toISOString(),
+        dodbl_expirydate: expiry.toISOString(),
+        dodbl_consenttext: _consentTextShown || CONSENT_TEXT_DEFAULT,
+        dodbl_revoked: false
+      }).catch(function () {
+        warnConsentAudit("Consent audit write failed.");
+      });
+    })
+    .catch(function () {
+      warnConsentAudit("Consent audit write failed.");
+    });
 }
 
 // ── Classification bar ───────────────────────────────────────────────────────
@@ -469,18 +544,20 @@ function getBannerEnvVars() {
   var schemas = [
     "dodbl_BannerEnabled",
     "dodbl_BannerType",
-    "dodbl_BannerPosition"
+    "dodbl_BannerPosition",
+    "dodbl_ConsentExpiryDays"
   ];
   var schemaFilter = schemas
     .map(function (s) { return "schemaname eq '" + s + "'"; })
     .join(" or ");
 
   try {
-    if (!(parent.Xrm && parent.Xrm.WebApi)) {
+    var xrm = getXrm();
+    if (!(xrm && xrm.WebApi)) {
       return Promise.resolve({});
     }
 
-    return parent.Xrm.WebApi.retrieveMultipleRecords(
+    return xrm.WebApi.retrieveMultipleRecords(
       "environmentvariabledefinition",
       "?$select=environmentvariabledefinitionid,schemaname,defaultvalue&$filter=" + schemaFilter
     ).then(function (defResult) {
@@ -499,7 +576,7 @@ function getBannerEnvVars() {
         .map(function (id) { return "_environmentvariabledefinitionid_value eq " + id; })
         .join(" or ");
 
-      return parent.Xrm.WebApi.retrieveMultipleRecords(
+      return xrm.WebApi.retrieveMultipleRecords(
         "environmentvariablevalue",
         "?$select=value,_environmentvariabledefinitionid_value&$filter=" + valFilter
       ).then(function (valResult) {
@@ -526,6 +603,7 @@ function getBannerEnvVars() {
 function renderClassificationBar() {
   getBannerEnvVars()
     .then(function (vars) {
+      _bannerEnvVars = vars || {};
       var enabled = getBannerEnabledValue(vars["dodbl_BannerEnabled"]);
       logBannerDebug(vars, enabled);
       if (!isBannerEnabled(vars["dodbl_BannerEnabled"])) return;
@@ -539,6 +617,7 @@ function renderClassificationBar() {
       }
     })
     .catch(function () {
+      _bannerEnvVars = {};
       // Env vars unavailable — leave the launch page unchanged.
     });
 }
@@ -592,6 +671,7 @@ function revealHomeContent(skipFade) {
 
 function onAcknowledge() {
   setCookie(COOKIE_NAME, "Yes", EXPIRY_DAYS);
+  writeConsentRecord();
   revealHomeContent(false);
   updateCookieStatus();
 }
