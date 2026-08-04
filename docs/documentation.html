@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Documentation | DoD Banner Library</title>
+  <meta name="description" content="Usage reference for DoD Banner Library classification marks, consent modal markup, environment variables, and known limitations.">
+  <meta property="og:title" content="DoD Banner Library Documentation">
+  <meta property="og:description" content="Static reference for classification bars, consent markup, environment variables, and Power Platform delivery paths.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="images/example-cui-banner.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="index.html" aria-label="DoD Banner Library home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" role="img" aria-label="Shield mark"><path fill="currentColor" d="M12 2 4.5 5v6.2c0 4.7 3.1 9 7.5 10.8 4.4-1.8 7.5-6.1 7.5-10.8V5L12 2Zm0 2.2 5.5 2.2v4.8c0 3.5-2.1 6.9-5.5 8.6-3.4-1.7-5.5-5.1-5.5-8.6V6.4L12 4.2Z"/></svg>
+        </span>
+        <span>DoD Banner Library</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="index.html#showcase">Showcase</a>
+        <a href="index.html#quick-start">Quick Start</a>
+        <a href="#usage">Usage</a>
+        <a href="#environment-variables">Environment variables</a>
+        <a href="technical-integration-guide.md">Technical guide</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <p class="eyebrow">Documentation</p>
+          <h1>Use the DoD Banner Library in Power Platform apps.</h1>
+          <p class="hero-lede">This page summarizes the static markup, classification values, environment-variable controls, and known limitations needed by makers and technical reviewers.</p>
+          <div class="cta-row">
+            <a class="button primary" href="index.html">Back to site home</a>
+            <a class="button secondary" href="technical-integration-guide.md">Technical integration guide</a>
+          </div>
+        </div>
+        <aside class="hero-card">
+          <div class="banner-sample classification-banner" data-classification="CUI"><p>Documentation sample using the production classification pattern.</p></div>
+          <p>Static HTML/CSS examples use <code>data-classification</code>. MDA environment-variable values are normalized case-insensitively by the JavaScript path.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section alt" id="usage">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Usage patterns</h2>
+          <p>Use the managed solution assets that match the target host: Power Pages web files, Model-Driven App JavaScript, or the Canvas PCF control.</p>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <h3>Power Pages</h3>
+            <ul>
+              <li>Create site-specific web files from <code>dodbl_bannercore</code> and <code>dodbl_dodconsentbanner</code>.</li>
+              <li>Create the web template using <code>dodbl_webtemplatesource</code>.</li>
+              <li>Do not package a website record; website IDs are environment-specific.</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Model-Driven Apps</h3>
+            <ul>
+              <li>Add <code>dodbl_dodbanner</code> as a form library.</li>
+              <li>Register <code>DoDBannerLibrary.DodBanner.onFormLoad</code> on form OnLoad.</li>
+              <li>Use environment variables for banner type, placement, consent text, and enablement.</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>Canvas Apps and custom pages</h3>
+            <ul>
+              <li>Add the <code>DoDBannerLibrary.DodBannerControl</code> PCF control.</li>
+              <li>Bind <code>bannerEnabled</code> and set <code>bannerType</code>, <code>showConsent</code>, <code>consentExpiryDays</code>, and <code>consentText</code>.</li>
+              <li>Republish apps after updating the PCF bundle.</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="markup">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Consent modal markup</h2>
+          <p>The consent modal elements are referenced by exact ID and class names. Do not rename them without updating all corresponding JavaScript and PCF code.</p>
+        </div>
+        <pre><code>&lt;div id="cookieConsent"&gt;
+  &lt;a id="closeCookieConsent"&gt;&amp;#x2715;&lt;/a&gt;
+  &lt;p&gt;Your AO-approved system-use notification text here.&lt;/p&gt;
+  &lt;a class="cookieConsentOK"&gt;I Acknowledge&lt;/a&gt;
+&lt;/div&gt;
+&lt;div class="consentBackground"&gt;&lt;/div&gt;</code></pre>
+        <div class="notice">
+          <p><strong>Consent wording:</strong> Replace placeholder text with AO-approved system-use notification language for the adopting organization. The library surfaces the text; it does not establish the authorization boundary.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" id="classification">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Classification marks</h2>
+          <p>The CSS-only path uses the case-sensitive <code>data-classification</code> attribute. Use the canonical uppercase values shown here.</p>
+        </div>
+        <pre><code>&lt;div class="classification-banner" data-classification="CUI"&gt;
+  &lt;!-- page content --&gt;
+&lt;/div&gt;
+
+&lt;div class="classification-banner-bot" data-classification="SECRET"&gt;
+  &lt;!-- page content --&gt;
+&lt;/div&gt;
+
+&lt;div class="classification-banner"
+     data-classification="CUI"
+     data-banner-content="CONTROLLED UNCLASSIFIED INFORMATION"&gt;
+&lt;/div&gt;</code></pre>
+        <div class="table-wrap">
+          <table>
+            <caption class="sr-only">Classification level color table</caption>
+            <thead>
+              <tr><th>Value</th><th>Color</th><th>Hex</th><th>Notes</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>CUI</code></td><td><span class="swatch" style="background:#5a04b0"></span>Purple</td><td><code>#5a04b0</code></td><td>CSS prefix match <code>CU</code>.</td></tr>
+              <tr><td><code>U</code></td><td><span class="swatch" style="background:#5cb85c"></span>Green</td><td><code>#5cb85c</code></td><td><code>UNCLASSIFIED</code> also matches the <code>U</code> prefix.</td></tr>
+              <tr><td><code>CONFIDENTIAL</code></td><td><span class="swatch" style="background:#286090"></span>Blue</td><td><code>#286090</code></td><td>CSS prefix match <code>CO</code>.</td></tr>
+              <tr><td><code>SECRET</code></td><td><span class="swatch" style="background:#d9534f"></span>Red</td><td><code>#d9534f</code></td><td>CSS prefix match <code>S</code>.</td></tr>
+              <tr><td><code>TOP SECRET</code></td><td><span class="swatch" style="background:#f0ad4e"></span>Orange</td><td><code>#f0ad4e</code></td><td>CSS prefix match <code>T</code>.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>The environment-variable-driven MDA path is case-insensitive for <code>dodbl_BannerType</code>, <code>dodbl_BannerEnabled</code>, and <code>dodbl_BannerPosition</code>.</p>
+      </div>
+    </section>
+
+    <section class="section" id="environment-variables">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Environment variables</h2>
+          <p>These <code>dodbl_</code> variables control the Model-Driven App JavaScript path. Canvas PCF uses its component properties instead of reading environment variables directly.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Schema name</th><th>Type</th><th>Default</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>dodbl_BannerEnabled</code></td><td>Boolean</td><td><code>true</code></td><td>Set to <code>false</code> to disable banners environment-wide for the MDA path.</td></tr>
+              <tr><td><code>dodbl_BannerType</code></td><td>String</td><td><em>empty</em></td><td>Classification bar to render: <code>CUI</code>, <code>UNCLASSIFIED</code>, <code>CONFIDENTIAL</code>, <code>SECRET</code>, or <code>TOP SECRET</code>. Empty means no bar.</td></tr>
+              <tr><td><code>dodbl_ConsentExpiryDays</code></td><td>Number</td><td><code>30</code></td><td>Days before the consent cookie expires.</td></tr>
+              <tr><td><code>dodbl_DoDConsentText</code></td><td>String</td><td><em>empty</em></td><td>AO-approved consent text override. Empty uses the built-in default text for the relevant surface.</td></tr>
+              <tr><td><code>dodbl_ShowConsentBanner</code></td><td>Boolean</td><td><code>false</code></td><td>Legacy form-script consent notification toggle; the v1.3 management app consent gate uses the custom launch page.</td></tr>
+              <tr><td><code>dodbl_BannerPosition</code></td><td>String</td><td><code>Bottom</code></td><td>Classification bar placement: <code>Bottom</code>, <code>Top</code>, or <code>Both</code>. Top placement shifts the MDA nav header down 28 px.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" id="limitations">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Known limitations</h2>
+          <p>These notes are intentionally explicit so adopters can plan testing and governance reviews.</p>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <h3>Canvas per-session consent limitation</h3>
+            <p>In v1.3.0, consent acknowledgement does not reliably persist across sessions when <code>DodBannerControl</code> runs inside a Canvas App. The modal still functions per session, but cross-session persistence is limited by the Power Apps code-component sandbox. Persistent Canvas consent is tracked in issue #21; v1.4.0 consent-audit work is in progress.</p>
+          </article>
+          <article class="card">
+            <h3>Client-side acknowledgement is not enforcement</h3>
+            <p>Client-side consent can be bypassed through deep links, direct API/OData access, disabled JavaScript, or browser developer tools. Use platform-level controls if enforced acknowledgement is required.</p>
+          </article>
+          <article class="card">
+            <h3>MDA shell bar supportability</h3>
+            <p>The MDA classification bar uses <code>window.top.document</code> because no supported UCI API exists for a persistent outer-shell classification bar. This is documented as an accepted supportability risk in project ADRs.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <p><strong>DoD Banner Library documentation</strong></p>
+        <p>Use this site with the README and <a href="technical-integration-guide.md">technical integration guide</a> for complete review context.</p>
+      </div>
+      <div>
+        <p><a href="index.html">Marketing site</a></p>
+        <p><a href="https://github.com/DevonAleshireMSFT/dod-banner-library">GitHub repository</a></p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DoD Banner Library | Power Platform classification and consent banners</title>
+  <meta name="description" content="Reusable classification marks and optional DoD system-use notification banners for Power Pages, Canvas Apps, and Model-Driven Apps. Zero external dependencies.">
+  <meta property="og:title" content="DoD Banner Library">
+  <meta property="og:description" content="Self-contained banner assets for Power Platform apps: classification marks, optional consent surfaces, and maker-ready documentation.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="images/example-secret-banner.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="container nav" aria-label="Site navigation">
+      <a class="brand" href="index.html" aria-label="DoD Banner Library home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" role="img" aria-label="Shield mark"><path fill="currentColor" d="M12 2 4.5 5v6.2c0 4.7 3.1 9 7.5 10.8 4.4-1.8 7.5-6.1 7.5-10.8V5L12 2Zm0 2.2 5.5 2.2v4.8c0 3.5-2.1 6.9-5.5 8.6-3.4-1.7-5.5-5.1-5.5-8.6V6.4L12 4.2Z"/></svg>
+        </span>
+        <span>DoD Banner Library</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="#showcase">Showcase</a>
+        <a href="#quick-start">Quick Start</a>
+        <a href="documentation.html">Documentation</a>
+        <a href="technical-integration-guide.md">Technical guide</a>
+        <a href="https://github.com/DevonAleshireMSFT/dod-banner-library">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <p class="eyebrow">Power Platform banner assets • v1.3.0 current release</p>
+          <h1>Classification marks and system-use banners, ready for Power Platform.</h1>
+          <p class="hero-lede">A managed solution for reusable CUI/classification bars and optional DoD system-use notification experiences across Power Pages, Canvas Apps, and Model-Driven Apps. Built with vanilla JavaScript and CSS: no CDN, no jQuery, no external runtime dependencies.</p>
+          <div class="cta-row" aria-label="Primary actions">
+            <a class="button primary" href="https://github.com/DevonAleshireMSFT/dod-banner-library">View on GitHub</a>
+            <a class="button secondary" href="#quick-start">Get Started</a>
+            <a class="button secondary" href="documentation.html">Documentation</a>
+          </div>
+        </div>
+        <aside class="hero-card" aria-label="Example screenshot">
+          <img src="images/example-secret-banner.png" alt="Model-Driven App example showing SECRET classification bars and DoD consent modal">
+          <p>Example Model-Driven App management experience with classification bars and a system-use notification surface.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section alt" id="what-it-is">
+      <div class="container">
+        <div class="section-heading">
+          <h2>What it is</h2>
+          <p>The DoD Banner Library packages common banner patterns once so makers can apply consistent visual classification markings and optional acknowledgement experiences in Power Platform apps.</p>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <span class="icon" aria-hidden="true">PP</span>
+            <h3>Power Pages</h3>
+            <p>Use <code>dodbl_dodconsentbanner</code>, <code>dodbl_bannercore</code>, and the shipped web template source to create site-specific portal web files without packaging a website record.</p>
+          </article>
+          <article class="card">
+            <span class="icon" aria-hidden="true">MDA</span>
+            <h3>Model-Driven Apps</h3>
+            <p>Register <code>dodbl_dodbanner</code> as a form OnLoad handler or use the management app launch page for a consent entry experience.</p>
+          </article>
+          <article class="card">
+            <span class="icon" aria-hidden="true">PCF</span>
+            <h3>Canvas Apps</h3>
+            <p>Add the <code>DoDBannerLibrary.DodBannerControl</code> PCF control to render self-contained classification bars and consent UI in Canvas Apps and custom pages.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="showcase">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Live classification showcase</h2>
+          <p>These bars are rendered as real HTML and CSS using the same <code>data-classification</code> pattern and authoritative colors from <code>banner-core.css</code>.</p>
+        </div>
+        <div class="showcase" aria-label="Classification bar examples">
+          <div class="banner-sample classification-banner" data-classification="CUI"><p>Controlled Unclassified Information example.</p></div>
+          <div class="banner-sample classification-banner" data-classification="U"><p>Unclassified example.</p></div>
+          <div class="banner-sample classification-banner" data-classification="CONFIDENTIAL"><p>Confidential example.</p></div>
+          <div class="banner-sample classification-banner" data-classification="SECRET"><p>Secret example.</p></div>
+          <div class="banner-sample classification-banner" data-classification="TOP SECRET"><p>Top Secret example.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" id="features">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Built for maker reuse</h2>
+          <p>Focused components, governed defaults, and self-contained web resources keep the integration path understandable.</p>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <h3>Three delivery paths</h3>
+            <p>Power Pages web resources, Model-Driven App JavaScript, and a Canvas PCF control cover common Power Platform hosting models.</p>
+          </article>
+          <article class="card">
+            <h3>Environment-variable driven</h3>
+            <p>MDA behavior is controlled through <code>dodbl_</code> variables for enablement, banner type, consent text, expiry days, and placement.</p>
+          </article>
+          <article class="card">
+            <h3>Managed solution</h3>
+            <p>Distributed as <code>DoDBannerLibrary</code> with publisher prefix <code>dodbl_</code>, making import and update behavior clear for admins.</p>
+          </article>
+          <article class="card">
+            <h3>Self-contained bundle</h3>
+            <p>The PCF bundle injects its own required CSS at runtime; Power Pages uses checked-in CSS and HTML assets. No external fonts or scripts.</p>
+          </article>
+          <article class="card">
+            <h3>Accessible defaults</h3>
+            <p>High-contrast bars, semantic content, keyboard focus styles, and clear tables make the documentation site useful across device sizes.</p>
+          </article>
+          <article class="card">
+            <h3>Consent audit path in progress</h3>
+            <p>v1.4.0 work adds <code>dodbl_consentrecord</code> audit rows and a least-privilege consent-write role for supported acknowledgement paths.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="gallery">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Screenshots</h2>
+          <p>Representative examples from the repository documentation assets.</p>
+        </div>
+        <div class="gallery">
+          <figure class="figure-card">
+            <img src="images/example-secret-banner.png" alt="SECRET classification bar and DoD consent modal in the management app">
+            <figcaption><strong>SECRET classification + consent modal.</strong> MDA management experience with top and bottom SECRET bars.</figcaption>
+          </figure>
+          <figure class="figure-card">
+            <img src="images/example-cui-banner.png" alt="CUI classification bar on the DoD Banner Library management home page">
+            <figcaption><strong>CUI classification home page.</strong> Purple CUI bar with the custom launch page and solution status cards.</figcaption>
+          </figure>
+          <figure class="figure-card">
+            <img src="images/example-canvas-app-consent.png" alt="DoD consent modal rendered inside a Canvas App">
+            <figcaption><strong>Canvas App consent.</strong> The PCF control renders the acknowledgement modal inside a Canvas App.</figcaption>
+          </figure>
+          <figure class="figure-card">
+            <img src="images/example-custom-page-consent.png" alt="DoD consent modal on the custom launch page">
+            <figcaption><strong>Custom page consent.</strong> The launch page can present system-use notification copy before home content.</figcaption>
+          </figure>
+          <figure class="figure-card">
+            <img src="images/example-canvasapp-banners.png" alt="Canvas App showing all classification levels and the consent control together">
+            <figcaption><strong>All classification bars.</strong> CUI, U, CONFIDENTIAL, SECRET, TOP SECRET, custom label, and consent control together.</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" id="quick-start">
+      <div class="container quick-start">
+        <div class="section-heading">
+          <h2>Quick Start</h2>
+          <p>Condensed from the repository README. Use your normal Power Platform deployment governance and review the technical integration guide before production rollout.</p>
+          <p><a class="button tertiary" href="technical-integration-guide.md">Open technical integration guide</a></p>
+        </div>
+        <div class="steps">
+          <article class="step">
+            <h3>Import the managed solution</h3>
+            <p>Import <code>DoDBannerLibrary_managed.zip</code> in the maker portal or with PAC CLI:</p>
+            <pre><code>pac solution import --path DoDBannerLibrary_managed.zip --activate-plugins</code></pre>
+          </article>
+          <article class="step">
+            <h3>Verify the import</h3>
+            <p>Open the DoD Banner Library Management app. Confirm Documentation, Release Notes, Web Template Source, and Canvas App Demo are available.</p>
+          </article>
+          <article class="step">
+            <h3>Complete post-import setup</h3>
+            <p>For Power Pages, create the site-specific web files and web template using the shipped source. For MDA/Canvas, configure environment variables or PCF properties for the target app.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="compliance">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Compliance &amp; AC-8 posture</h2>
+          <p>This library helps present system-use notification text and classification markings; it does not define or guarantee an adopter's authorization boundary.</p>
+        </div>
+        <div class="notice">
+          <p><strong>Important:</strong> GCC High / DoD IL4/IL5 are intended deployment environments, not claimed certification, accreditation, ATO, or compliance status for this repository.</p>
+          <p>For AC-8, the expected posture for government tenants is that system-use notification is normally inherited at the tenant, workstation, or network logon boundary, such as Entra ID / Microsoft 365 sign-in or Windows logon banners. Each adopting organization must confirm that inheritance assumption with its AO, ISSM, or security personnel.</p>
+          <p>In-app consent in this library is optional supplementary hardening. Client-side acknowledgement can be bypassed through deep links, disabled JavaScript, browser developer tools, or direct API/OData access. Organizations needing enforced acknowledgement should use platform-level controls such as Conditional Access Terms-of-Use, security-role gating, or a gated entry app.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <p><strong>DoD Banner Library</strong></p>
+        <p>Publisher prefix <code>dodbl_</code>. Solution <code>DoDBannerLibrary</code>. MIT License, Copyright 2026 Devon Aleshire.</p>
+        <p>AI disclosure: repository documentation and site content may be AI-assisted and reviewed by project maintainers before publication.</p>
+      </div>
+      <div>
+        <p><a href="documentation.html">Documentation</a></p>
+        <p><a href="technical-integration-guide.md">Technical integration guide</a></p>
+        <p><a href="https://github.com/DevonAleshireMSFT/dod-banner-library">GitHub repository</a></p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>
