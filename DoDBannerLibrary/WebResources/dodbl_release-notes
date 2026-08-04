@@ -71,7 +71,7 @@
       <div class="change-group-title">New</div>
       <ul class="change-list">
         <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Dataverse consent audit table</strong> &mdash; <code>dodbl_consentrecord</code> with columns: <code>dodbl_userid</code> (Lookup), <code>dodbl_acknowledgedon</code>, <code>dodbl_expirydate</code>, <code>dodbl_bannertype</code>, <code>dodbl_consenttext</code>, <code>dodbl_revoked</code>, and <code>dodbl_isactive</code>. Table-level auditing enabled.</span></li>
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Consent Write role assignment</strong> &mdash; assign <code>DoD Banner &mdash; Consent Write</code> to every user-facing security role whose users can see the consent banner; otherwise <code>dodbl_consentrecord</code> writes fail with a privilege error.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Consent Write role assignment</strong> &mdash; assign <code>DoD Banner - Consent Write</code> to every user-facing security role whose users can see the consent banner; otherwise <code>dodbl_consentrecord</code> writes fail with a privilege error.</span></li>
       </ul>
     </div>
     <div class="change-group">
