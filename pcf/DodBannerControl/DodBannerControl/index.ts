@@ -3,6 +3,7 @@ import { IInputs, IOutputs } from "./generated/ManifestTypes";
 export class DodBannerControl implements ComponentFramework.StandardControl<IInputs, IOutputs> {
 
     private _container!: HTMLDivElement;
+    private _context!: ComponentFramework.Context<IInputs>;
     private _bannerRoot: HTMLDivElement | null = null;
     private _clickListeners: { el: Element; fn: EventListener }[] = [];
     private _rendered = false;
@@ -11,6 +12,7 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
 
     private static readonly COOKIE_NAME = "dodbl_Accepted";
     private static readonly DEFAULT_EXPIRY_DAYS = 30;
+    private static readonly DEFAULT_CONSENT_RECORD_EXPIRY_DAYS = 1;
     private static readonly DEFAULT_CONSENT_TEXT =
         "WARNING: This is a U.S. Government computer system, which may be accessed " +
         "and used only for authorized Government business by authorized personnel. " +
@@ -115,7 +117,59 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
         document.head.appendChild(style);
     }
 
-    private showConsentModal(consentText: string, expiryDays: number): void {
+    private getConsentRecordBannerTypeValue(bannerType: string): number {
+        const bt = bannerType.trim().toUpperCase();
+        if (bt === "DOD") return 703870001;
+        if (bt === "CUI") return 703870002;
+        if (bt === "U" || bt === "UNCLASSIFIED") return 703870003;
+        if (bt.startsWith("CO") || bt === "CONFIDENTIAL") return 703870004;
+        if (bt.startsWith("S") || bt === "SECRET") return 703870005;
+        if (bt.startsWith("T") || bt === "TOP SECRET") return 703870006;
+        return 703870007;
+    }
+
+    private async _writeConsentRecord(
+        bannerType: string,
+        consentTextShown: string,
+        expiryDays: number
+    ): Promise<void> {
+        try {
+            const bannerTypeValue = this.getConsentRecordBannerTypeValue(bannerType);
+            if (bannerTypeValue === 703870007) {
+                console.warn("DoD Banner consent audit writing Unspecified banner type.");
+            }
+
+            if (!this._context.webAPI || typeof this._context.webAPI.createRecord !== "function") {
+                console.warn("DoD Banner consent audit skipped: Dataverse Web API is unavailable.");
+                return;
+            }
+
+            const userId = (this._context.userSettings.userId || "").replace(/[{}]/g, "");
+            if (userId === "") {
+                console.warn("DoD Banner consent audit skipped: current user id is unavailable.");
+                return;
+            }
+
+            const now = new Date();
+            const recordExpiryDays = Number.isFinite(expiryDays) && expiryDays >= 0
+                ? expiryDays
+                : DodBannerControl.DEFAULT_CONSENT_RECORD_EXPIRY_DAYS;
+            const expiry = new Date(now.getTime() + recordExpiryDays * 24 * 60 * 60 * 1000);
+
+            await this._context.webAPI.createRecord("dodbl_consentrecord", {
+                "dodbl_userid@odata.bind": `/systemusers(${userId})`,
+                dodbl_bannertype: bannerTypeValue,
+                dodbl_acknowledgedon: now.toISOString(),
+                dodbl_expirydate: expiry.toISOString(),
+                dodbl_consenttext: consentTextShown,
+                dodbl_revoked: false
+            });
+        } catch (_e) {
+            console.warn("DoD Banner consent audit write failed; continuing with local consent dismissal.");
+        }
+    }
+
+    private showConsentModal(consentText: string, cookieExpiryDays: number, bannerType: string, recordExpiryDays: number): void {
         if (this._consentSetup) return;                                    // already wired
         if (this.getCookie(DodBannerControl.COOKIE_NAME) !== "") return;  // cookie set — no-op
 
@@ -149,7 +203,8 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
         document.body.appendChild(this._bannerRoot);
 
         const dismiss = () => {
-            this.setCookie(DodBannerControl.COOKIE_NAME, "Yes", expiryDays);
+            this.setCookie(DodBannerControl.COOKIE_NAME, "Yes", cookieExpiryDays);
+            void this._writeConsentRecord(bannerType, text, recordExpiryDays);
             this.fadeOut(modal, 200);
             overlay.style.display = "none";
         };
@@ -276,8 +331,11 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
         }
         this._lastShowConsent = showConsent;
         const expiry      = context.parameters.consentExpiryDays.raw;
-        const expiryDays  = (expiry !== null && expiry !== undefined && !isNaN(expiry) && expiry >= 0)
+        const validExpiry = expiry !== null && expiry !== undefined && !isNaN(expiry) && expiry >= 0;
+        const expiryDays  = validExpiry
             ? expiry : DodBannerControl.DEFAULT_EXPIRY_DAYS;
+        const consentRecordExpiryDays = validExpiry
+            ? expiry : DodBannerControl.DEFAULT_CONSENT_RECORD_EXPIRY_DAYS;
         const consentText = context.parameters.consentText.raw || "";
 
         // Classification bar: any non-empty, non-"DoD" bannerType
@@ -294,7 +352,7 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
         }
 
         if (showConsent) {
-            this.showConsentModal(consentText, expiryDays);
+            this.showConsentModal(consentText, expiryDays, rawType, consentRecordExpiryDays);
         }
     }
 
@@ -307,12 +365,14 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
         container: HTMLDivElement
     ): void {
         this._container = container;
+        this._context = context;
         this._rendered = true;
         this.renderBanner(context);
     }
 
     public updateView(context: ComponentFramework.Context<IInputs>): void {
         if (!this._rendered) return;
+        this._context = context;
         this.renderBanner(context);
     }
 
