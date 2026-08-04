@@ -79,12 +79,67 @@ DoDBannerLibrary.DodBanner = (function () {
     return "";
   }
 
+  function getConsentAuditExpiryDays(value) {
+    var days = parseInt(value, 10);
+    return (isNaN(days) || days < 0) ? 1 : days;
+  }
+
+  function getBannerTypeChoiceValue(bannerType) {
+    var t = ((bannerType || "") + "").trim().toUpperCase();
+    if (t === "DOD" || t.indexOf("DOD") >= 0) return 703870001;
+    if (t.indexOf("CU") === 0) return 703870002;
+    if (t === "U" || t.indexOf("UNCLASSIFIED") === 0) return 703870003;
+    if (t.indexOf("CO") === 0) return 703870004;
+    if (t.indexOf("S") === 0) return 703870005;
+    if (t.indexOf("T") === 0) return 703870006;
+    return 703870007;
+  }
+
+  function warnConsentAudit(message) {
+    if (window.console && console.warn) console.warn("[DoDBannerLibrary] " + message);
+  }
+
+  function writeConsentRecord(consentText, bannerType, expiryDays) {
+    try {
+      var bannerTypeValue = getBannerTypeChoiceValue(bannerType);
+      if (bannerTypeValue === 703870007) {
+        warnConsentAudit("Consent audit writing Unspecified banner type.");
+      }
+
+      if (!(Xrm && Xrm.WebApi && Xrm.Utility)) {
+        warnConsentAudit("Consent audit write skipped: Xrm WebApi unavailable.");
+        return;
+      }
+
+      var now = new Date();
+      var expiry = new Date(now.getTime() + getConsentAuditExpiryDays(expiryDays) * 24 * 60 * 60 * 1000);
+      var userId = Xrm.Utility.getGlobalContext().userSettings.userId.replace(/[{}]/g, "");
+      if (!userId) {
+        warnConsentAudit("Consent audit write skipped: current user id unavailable.");
+        return;
+      }
+
+      Xrm.WebApi.createRecord("dodbl_consentrecord", {
+        "dodbl_userid@odata.bind": "/systemusers(" + userId + ")",
+        dodbl_bannertype: bannerTypeValue,
+        dodbl_acknowledgedon: now.toISOString(),
+        dodbl_expirydate: expiry.toISOString(),
+        dodbl_consenttext: consentText,
+        dodbl_revoked: false
+      }).catch(function () {
+        warnConsentAudit("Consent audit write failed.");
+      });
+    } catch (_e) {
+      warnConsentAudit("Consent audit write failed.");
+    }
+  }
+
   // ── Consent notification ────────────────────────────────────────────────────
   // Uses Xrm.App.addGlobalNotification — a supported UCI Client API that renders
   // in the outer app shell (not the form iframe), persists across navigation, and
   // requires no window.top DOM injection.
 
-  function showConsentNotification(consentText, expiryDays) {
+  function showConsentNotification(consentText, expiryDays, bannerType, consentAuditExpiryDays) {
     if (getCookie("dodbl_Accepted") !== "") return;
 
     var text = (consentText && consentText.trim()) ? consentText : CONSENT_TEXT_DEFAULT;
@@ -99,6 +154,7 @@ DoDBannerLibrary.DodBanner = (function () {
         actionLabel: "I Acknowledge",
         eventHandler: function () {
           setCookie("dodbl_Accepted", "Yes", expiryDays);
+          writeConsentRecord(text, bannerType, consentAuditExpiryDays);
           if (notificationId) {
             Xrm.App.clearGlobalNotification(notificationId);
           }
@@ -285,8 +341,10 @@ DoDBannerLibrary.DodBanner = (function () {
         if (!isBannerEnabled(vars["dodbl_BannerEnabled"])) return;
 
         var bannerType  = ((vars["dodbl_BannerType"] || BANNER_TYPE_DEFAULT) + "").trim();
-        var expiryDays  = parseInt(vars["dodbl_ConsentExpiryDays"] || EXPIRY_DAYS_DEFAULT, 10);
+        var rawExpiryDays = vars["dodbl_ConsentExpiryDays"];
+        var expiryDays  = parseInt(rawExpiryDays || EXPIRY_DAYS_DEFAULT, 10);
         if (isNaN(expiryDays) || expiryDays < 0) expiryDays = EXPIRY_DAYS_DEFAULT;
+        var consentAuditExpiryDays = getConsentAuditExpiryDays(rawExpiryDays);
         var consentText = vars["dodbl_DoDConsentText"] || "";
         var showConsent = String(vars["dodbl_ShowConsentBanner"] || "").toLowerCase();
         var showConsentBanner = (showConsent === "yes" || showConsent === "true" || showConsent === "1");
@@ -299,12 +357,12 @@ DoDBannerLibrary.DodBanner = (function () {
 
         // Consent notification — driven by dodbl_ShowConsentBanner (independent of bar)
         if (showConsentBanner) {
-          showConsentNotification(consentText, expiryDays);
+          showConsentNotification(consentText, expiryDays, bannerType, consentAuditExpiryDays);
         }
       })
       .catch(function () {
         // Env vars unavailable — show default consent notification as fallback
-        showConsentNotification("", EXPIRY_DAYS_DEFAULT);
+        showConsentNotification("", EXPIRY_DAYS_DEFAULT, "", 1);
       });
   }
 
