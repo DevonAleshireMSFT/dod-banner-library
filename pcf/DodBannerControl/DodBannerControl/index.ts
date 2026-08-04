@@ -117,7 +117,7 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
         document.head.appendChild(style);
     }
 
-    private getConsentRecordBannerTypeValue(bannerType: string): number | null {
+    private getConsentRecordBannerTypeValue(bannerType: string): number {
         const bt = bannerType.trim().toUpperCase();
         if (bt === "DOD") return 703870001;
         if (bt === "CUI") return 703870002;
@@ -125,7 +125,7 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
         if (bt.startsWith("CO") || bt === "CONFIDENTIAL") return 703870004;
         if (bt.startsWith("S") || bt === "SECRET") return 703870005;
         if (bt.startsWith("T") || bt === "TOP SECRET") return 703870006;
-        return null;
+        return 703870007;
     }
 
     private async _writeConsentRecord(
@@ -135,9 +135,8 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
     ): Promise<void> {
         try {
             const bannerTypeValue = this.getConsentRecordBannerTypeValue(bannerType);
-            if (bannerTypeValue === null) {
-                console.warn("DoD Banner consent audit skipped: banner type is empty or unsupported.");
-                return;
+            if (bannerTypeValue === 703870007) {
+                console.warn("DoD Banner consent audit writing Unspecified banner type.");
             }
 
             if (!this._context.webAPI || typeof this._context.webAPI.createRecord !== "function") {
