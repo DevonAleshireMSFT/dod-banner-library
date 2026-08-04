@@ -63,14 +63,22 @@
 
   <div class="version-block">
     <div class="version-header">
-      <span class="version-tag" style="color:var(--text-disabled)">v1.4.0</span>
-      <span class="version-date" style="color:var(--text-disabled)">Planned</span>
+      <span class="version-tag">v1.4.0</span>
+      <span class="version-date">2026-08-03</span>
+      <span class="version-badge">Latest</span>
     </div>
     <div class="change-group">
-      <div class="change-group-title">Planned</div>
+      <div class="change-group-title">New</div>
       <ul class="change-list">
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Dataverse consent audit table</strong> &mdash; <code>dodbl_consentrecord</code> with columns: <code>dodbl_userid</code> (Lookup), <code>dodbl_acknowledgedon</code>, <code>dodbl_expirydate</code>, <code>dodbl_bannertype</code>, <code>dodbl_consenttext</code>, <code>dodbl_isactive</code>. Table-level auditing enabled.</span></li>
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Security role</strong> &mdash; <code>DoD Banner &mdash; Consent Write</code> for granting consent record create access to Authenticated Users in Power Pages.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Dataverse consent audit table</strong> &mdash; <code>dodbl_consentrecord</code> with columns: <code>dodbl_userid</code> (Lookup), <code>dodbl_acknowledgedon</code>, <code>dodbl_expirydate</code>, <code>dodbl_bannertype</code>, <code>dodbl_consenttext</code>, <code>dodbl_revoked</code>, and <code>dodbl_isactive</code>. Table-level auditing enabled.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Consent Write role assignment</strong> &mdash; assign <code>DoD Banner - Consent Write</code> to every user-facing security role whose users can see the consent banner; otherwise <code>dodbl_consentrecord</code> writes fail with a privilege error.</span></li>
+      </ul>
+    </div>
+    <div class="change-group">
+      <div class="change-group-title">Deployment notes</div>
+      <ul class="change-list">
+        <li class="change-item"><span class="change-pill pill-note">NOTE</span><span class="change-text"><strong>Breaking migration for existing environments</strong> &mdash; delete and recreate the old Simple Yes/No <code>dodbl_isactive</code> column as the Formula column <code>If(dodbl_expirydate &gt; UTCNow() &amp;&amp; Not(dodbl_revoked), true, false)</code>.</span></li>
+        <li class="change-item"><span class="change-pill pill-note">NOTE</span><span class="change-text"><strong>Active Consent Records view</strong> &mdash; filter on stored <code>dodbl_expirydate</code> on or after today, not on <code>dodbl_isactive</code>, because formula columns using <code>UTCNow()</code> have FetchXML/view filtering limitations.</span></li>
       </ul>
     </div>
   </div>
@@ -79,7 +87,6 @@
     <div class="version-header">
       <span class="version-tag">v1.3.0</span>
       <span class="version-date">2026-07-24</span>
-      <span class="version-badge">Latest</span>
     </div>
     <div class="change-group">
       <div class="change-group-title">New</div>
