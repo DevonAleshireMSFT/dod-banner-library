@@ -36,7 +36,7 @@
     .sidebar a { display: block; padding: 7px 20px; font-size: 13px; color: var(--text-secondary); text-decoration: none; border-left: 3px solid transparent; transition: color .1s, background .1s, border-color .1s; }
     .sidebar a:hover { color: var(--primary); background: var(--primary-light); }
     .sidebar a.active { color: var(--primary); border-left-color: var(--primary); background: var(--primary-light); font-weight: 600; }
-    .app-main { flex: 1; padding: 28px 36px; max-width: 860px; overflow-y: auto; }
+    .app-main { flex: 1; width: 100%; max-width: 960px; margin: 0 auto; padding: 28px 24px 48px; overflow-y: auto; }
     .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 24px; }
     .card-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
     .card-header-icon { font-size: 18px; }
@@ -89,7 +89,7 @@
   <div class="app-header-icon">&#x1F6E1;&#xFE0F;</div>
   <div>
     <h1>DoD Banner Library</h1>
-    <p>Documentation &amp; Setup Guide &mdash; v1.4.1</p>
+    <p>Documentation &amp; Setup Guide &mdash; <span id="docsVersionLabel">vunknown</span></p>
   </div>
 </div>
 
@@ -154,7 +154,7 @@
           <div class="step"><div class="step-num">2</div><div class="step-content"><div class="step-title">Power Pages &mdash; create web files</div><div class="step-desc">For each portal, create two Web File records in the Portal Management app. Copy CSS from <code>dodbl_bannercore</code> and JS from <code>dodbl_dodconsentbanner</code>. Set partial URLs to <code>/banner-core.css</code> and <code>/dod-consent-banner.js</code>, parent page to Home, publishing state to Published. See the <a href="#dod-consent">DoD Consent Banner</a> section for full steps.</div></div></div>
           <div class="step"><div class="step-num">3</div><div class="step-content"><div class="step-title">Power Pages &mdash; create the Web Template and add to site header</div><div class="step-desc">Open <code>dodbl_webtemplatesource</code> in a browser, copy the Liquid source, and paste it into a new Web Template named <code>dod-consent-banner</code> in Portal Management. Then add <code>{% include 'dod-consent-banner' %}</code> to your site&rsquo;s header Web Template. Full instructions are inside <code>dodbl_webtemplatesource</code>.</div></div></div>
           <div class="step"><div class="step-num">4</div><div class="step-content"><div class="step-title">Canvas Apps &mdash; add DodBannerControl PCF <span class="badge badge-info">New in v1.1</span></div><div class="step-desc">Requires Power Apps Premium or Managed Environment. <strong>(1)</strong> In Power Platform admin center, enable <strong>Allow publishing of canvas apps with code components</strong> for the environment. <strong>(2)</strong> In the DoD Banner Library solution, confirm <code>DoDBannerLibrary.DodBannerControl</code> appears under <strong>Code components</strong>. <strong>(3)</strong> In your Canvas App, open <strong>Insert &rarr; Code components</strong> and add <code>DodBannerControl</code> to a screen. <strong>(4)</strong> Set the <strong>bannerEnabled</strong> property to <code>true</code> (or bind to a toggle variable). Optionally set <strong>bannerType</strong> (e.g. <code>CUI</code>, <code>SECRET</code> &mdash; omit or leave blank for consent-only), <strong>showConsent</strong> to <code>true</code> to show the DoD consent modal independently of <code>bannerType</code>, <strong>consentExpiryDays</strong> (default <code>30</code>), and <strong>consentText</strong> to override the default DoD warning text. Legacy: setting <strong>bannerType</strong> to <code>DoD</code> still triggers the consent modal for backwards compatibility.</div></div></div>
-          <div class="step"><div class="step-num">5</div><div class="step-content"><div class="step-title">Model-Driven Apps &mdash; use the home-page consent gate and optional form script <span class="badge badge-info">Updated in v1.3</span></div><div class="step-desc">The <strong>DoD Banner Library Management</strong> app uses <code>dodbl_banner-launch-page</code> as its custom home page and single consent entry point. The page presents the DoD consent overlay before showing app navigation, honors <code>dodbl_DoDConsentText</code>, and writes the consent cookie with <code>Secure; SameSite=Strict</code>. For classification bars on other MDA forms, add <code>dodbl_dodbanner</code> as a form library, register <code>DoDBannerLibrary.DodBanner.onFormLoad</code> with execution context enabled, and configure <code>dodbl_BannerType</code> plus optional <code>dodbl_BannerPosition</code>. No PCF or Premium license required.</div></div></div>
+          <div class="step"><div class="step-num">5</div><div class="step-content"><div class="step-title">Model-Driven Apps &mdash; use the home-page consent gate and optional form script <span class="badge badge-info">Updated in v1.3</span></div><div class="step-desc">The <strong>DoD Banner Library Management</strong> app uses <code>dodbl_banner-launch-page</code> as its custom home page and single consent entry point. The page presents the DoD consent overlay before showing app navigation, honors <code>dodbl_DoDConsentText</code>, and writes the consent cookie with <code>Secure; SameSite=Strict</code>. For classification bars on other MDA forms, add <code>dodbl_dodbanner</code> as a form library, register <code>DoDBannerLibrary.DodBanner.onFormLoad</code> with execution context enabled, and configure <code>dodbl_BannerType</code> plus optional <code>dodbl_BannerPosition</code> and <code>dodbl_BannerColor</code>. No PCF or Premium license required.</div></div></div>
           <div class="step"><div class="step-num">6</div><div class="step-content"><div class="step-title">Assign the Consent Write security role <span class="badge badge-info">v1.4</span></div><div class="step-desc">Assign <code>DoD Banner - Consent Write</code> to every user-facing security role whose users can see the consent banner. Without this role, consent acknowledgement writes to <code>dodbl_consentrecord</code> fail with a privilege error. The role intentionally grants only <strong>Create</strong> at Organization scope and <strong>Read</strong> at User scope on <code>dodbl_consentrecord</code>; User-scope Read lets a user read only records they own, preserving audit privacy instead of exposing other users&rsquo; consent history. The other baseline privileges Dataverse adds to a new role are platform defaults and should not be treated as intentional product grants. Verify during deployment/UAT that the current user can set the <code>dodbl_userid</code> lookup; that relies on <code>AppendTo</code> on the User (<code>systemuser</code>) table, normally supplied by the Basic User role.</div></div></div>
           <div class="step"><div class="step-num">7</div><div class="step-content"><div class="step-title">Existing environments &mdash; recreate <code>dodbl_isactive</code> as a Formula column <span class="badge badge-info">v1.4 migration</span></div><div class="step-desc">For environments that already have the old Simple Yes/No <code>dodbl_isactive</code> column, Dataverse cannot convert that column to Formula in place, and classic Calculated columns do not support <code>UTCNow()</code>. Delete and recreate <code>dodbl_isactive</code> as the Formula column <code>If(dodbl_expirydate &gt; UTCNow() &amp;&amp; Not(dodbl_revoked), true, false)</code>. The <strong>Active Consent Records</strong> saved view must filter on stored <code>dodbl_expirydate</code> on or after today, not on <code>dodbl_isactive</code>, because formula columns using <code>UTCNow()</code> have FetchXML/view filtering limitations.</div></div></div>
           <div class="step"><div class="step-num">8</div><div class="step-content"><div class="step-title">Assign the Config Admin role and enable auditing <span class="badge badge-info">v1.5</span></div><div class="step-desc">Assign <code>DoD Banner - Config Admin</code> only to the administrators authorized to change banner configuration &mdash; <code>dodbl_BannerType</code> is a classification setting, so this must never be granted to a general user-facing role. The role grants Read on Environment Variable Definition and Read, Write, and Create on Environment Variable Value; it grants no Delete. Members open <strong>Administration &rarr; Banner Configuration</strong> in the Management app. To retain a full before/after history of configuration changes, enable environment-level auditing in Power Platform admin center and table auditing for <strong>Environment Variable Value</strong>; without it, only the latest <code>modifiedby</code> / <code>modifiedon</code> attribution shown on the screen is available.</div></div></div>
@@ -200,17 +200,17 @@
 &lt;/<span class="tag">div</span>&gt;
 &lt;<span class="tag">div</span> <span class="attr">class</span>=<span class="str">"consentBackground"</span>&gt;&lt;/<span class="tag">div</span>&gt;</div>
         <p style="margin-top:16px"><strong>Re-triggering consent (testing)</strong></p>
-        <p>The modal is suppressed once the <code>dodbl_Accepted</code> cookie is set. To force it to reappear for testing, clear that cookie. There are three ways to do this:</p>
+        <p>The modal is suppressed once the <code>dodbl_Accepted</code> cookie is set. To force it to reappear for testing, clear that cookie. Model-Driven App admins can use <strong>Administration &rarr; Banner Configuration &rarr; Reset My Consent</strong>; other options are:</p>
         <ul>
           <li><strong>Browser DevTools</strong> &mdash; <kbd>F12</kbd> &rarr; <strong>Application</strong> &rarr; <strong>Cookies</strong> &rarr; select the domain &rarr; delete the <code>dodbl_Accepted</code> row, then refresh the page.</li>
           <li><strong>Console command</strong> &mdash; paste into the browser console and refresh:<br><code>document.cookie = "dodbl_Accepted=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=Strict";</code></li>
-          <li><strong>Reset button (planned)</strong> &mdash; a dedicated &ldquo;Reset Consent&rdquo; button can be wired up per delivery path:<ul style="margin-top:4px">
+          <li><strong>Custom reset button</strong> &mdash; adopters can wire a reset per delivery path:<ul style="margin-top:4px">
             <li><strong>Canvas App</strong> &mdash; add a Button control whose <code>OnSelect</code> binds to a future <code>resetConsent</code> PCF input property (TwoOptions). When toggled, the PCF expires the cookie and resets its internal guard, causing the modal to re-fire on the next <code>updateView</code> cycle.</li>
             <li><strong>Model-Driven App</strong> &mdash; add a ribbon / command bar button that calls a small JS function: <code>document.cookie = "dodbl_Accepted=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=Strict";</code> then reloads the page via <code>Xrm.Page.ui.reflow()</code> or <code>location.reload()</code>.</li>
             <li><strong>Power Pages</strong> &mdash; add a Liquid-rendered button that triggers the same inline script.</li>
           </ul></li>
         </ul>
-        <div class="callout callout-warning"><span class="callout-icon">&#x26A0;&#xFE0F;</span><div>The Reset button is <strong>not yet implemented</strong>. Use the DevTools or console method above during development and testing.</div></div>
+        <div class="callout callout-info"><span class="callout-icon">&#x2139;&#xFE0F;</span><div>The Banner Configuration reset action clears only the current user's own <code>dodbl_Accepted</code> cookie. It does not delete consent audit records or affect other users.</div></div>
         <div class="callout callout-warning"><span class="callout-icon">&#x26A0;&#xFE0F;</span><div><strong>Known Canvas app limitation:</strong> Consent acknowledgment does not persist across sessions when <code>DodBannerControl</code> is used inside a Canvas app; the consent modal reappears each session. This is a Power Apps canvas code-component sandbox limitation. The modal still functions per session, persistent Canvas consent is planned for v1.4.0 (tracked in issue #21), and the Model-Driven App consent gate (<code>dodbl_banner-launch-page</code>) persists consent normally.</div></div>
         <div class="callout callout-warning"><span class="callout-icon">&#x26A0;&#xFE0F;</span><div><strong>Known v1.3 MDA limitation:</strong> the home-page consent gate is a UX-level entry pattern, not a hard security enforcement boundary. Deep links, global search, pinned items, and recent items can bypass the sitemap home page. This is the &ldquo;sitemap gate != enforcement&rdquo; limitation tracked in issue #13 and deferred beyond v1.3.0.</div></div>
       </div>
@@ -250,7 +250,7 @@
             <tr><td><div class="schema-name">dodbl_cuiconsentbanner</div><div style="font-weight:600;font-size:12px;margin-top:2px">cui-consent-banner</div></td><td><span class="badge badge-info">HTML</span></td><td>CUI classification mark fragment. Single <code>&lt;link&gt;</code> reference to <code>dodbl_bannercore</code>. CSS-only &mdash; no JavaScript required.</td></tr>
             <tr><td><div class="schema-name">dodbl_dodbanner</div><div style="font-weight:600;font-size:12px;margin-top:2px">dodbanner.js</div></td><td><span class="badge badge-info">JS</span></td><td>Model-Driven App form OnLoad script. Reads <code>dodbl_</code> environment variables via <code>Xrm.WebApi</code> and injects the classification bar via <code>window.top.document</code>. Handler: <code>DoDBannerLibrary.DodBanner.onFormLoad</code>. In v1.3, Management app consent is handled by the custom home page instead of a duplicate global notification.</td></tr>
             <tr><td><div class="schema-name">dodbl_banner-launch-page</div><div style="font-weight:600;font-size:12px;margin-top:2px">banner-launch-page</div></td><td><span class="badge badge-info">HTML</span></td><td>Model-Driven App management home page and single consent entry point. Displays the blocking overlay, honors query-string consent text and <code>dodbl_DoDConsentText</code>, uses a secure consent cookie, and links to the other solution resources.</td></tr>
-            <tr><td><div class="schema-name">dodbl_banner-config</div><div style="font-weight:600;font-size:12px;margin-top:2px">banner-config</div></td><td><span class="badge badge-info">HTML</span></td><td>Admin-only banner configuration screen. Reads and writes the environment variable values for <code>dodbl_BannerEnabled</code>, <code>dodbl_BannerType</code>, <code>dodbl_BannerPosition</code>, and <code>dodbl_ConsentExpiryDays</code> via <code>parent.Xrm.WebApi</code>. Visible only to <code>DoD Banner - Config Admin</code> and System Administrator; changes take effect on each user&rsquo;s next page load.</td></tr>
+            <tr><td><div class="schema-name">dodbl_banner-config</div><div style="font-weight:600;font-size:12px;margin-top:2px">banner-config</div></td><td><span class="badge badge-info">HTML</span></td><td>Admin-only banner configuration screen. Reads and writes the environment variable values for <code>dodbl_BannerEnabled</code>, <code>dodbl_BannerType</code>, <code>dodbl_BannerColor</code>, <code>dodbl_BannerPosition</code>, and <code>dodbl_ConsentExpiryDays</code> via <code>parent.Xrm.WebApi</code>, and displays <code>dodbl_BannerVersion</code> read-only. Visible only to <code>DoD Banner - Config Admin</code> and System Administrator; Save/Reload refreshes the visible shell bar when the renderer is available. Includes a current-user consent cookie reset action for retesting.</td></tr>
             <tr><td><div class="schema-name">dodbl_webtemplatesource</div><div style="font-weight:600;font-size:12px;margin-top:2px">web-template-source</div></td><td><span class="badge badge-info">HTML</span></td><td>Power Pages Web Template source. Open in a browser to copy the Liquid source for the <code>dod-consent-banner</code> Web Template. Supports optional <code>BannerEnabled</code> and <code>DoDConsentText</code> site settings.</td></tr>
             <tr><td><div class="schema-name">dodbl_docs</div><div style="font-weight:600;font-size:12px;margin-top:2px">docs</div></td><td><span class="badge badge-optional">HTML</span></td><td>This documentation page. Link from the Model-Driven App sitemap for in-environment access.</td></tr>
             <tr><td><div class="schema-name">dodbl_release-notes</div><div style="font-weight:600;font-size:12px;margin-top:2px">release-notes</div></td><td><span class="badge badge-optional">HTML</span></td><td>Version history and changelog for all solution releases.</td></tr>
@@ -266,7 +266,7 @@
           <thead><tr><th>data-classification value</th><th>Banner</th><th>Hex</th><th>CSS match</th></tr></thead>
           <tbody>
             <tr><td><code>CUI</code> &mdash; any value starting with <code>CU</code></td><td><span class="swatch" style="background:#5a04b0">CUI</span></td><td><code>#5a04b0</code></td><td><code>^=&quot;CU&quot;</code></td></tr>
-            <tr><td><code>U</code> &mdash; any value starting with <code>U</code></td><td><span class="swatch" style="background:#5cb85c">UNCLASSIFIED</span></td><td><code>#5cb85c</code></td><td><code>^=&quot;U&quot;</code></td></tr>
+            <tr><td><code>U</code> / <code>UNCLASSIFIED</code> &mdash; any value starting with <code>U</code></td><td><span class="swatch" style="background:#5cb85c">UNCLASSIFIED</span></td><td><code>#5cb85c</code></td><td><code>^=&quot;U&quot;</code></td></tr>
             <tr><td><code>CONFIDENTIAL</code> &mdash; any value starting with <code>CO</code></td><td><span class="swatch" style="background:#286090">CONFIDENTIAL</span></td><td><code>#286090</code></td><td><code>^=&quot;CO&quot;</code></td></tr>
             <tr><td><code>SECRET</code> &mdash; any value starting with <code>S</code></td><td><span class="swatch" style="background:#d9534f">SECRET</span></td><td><code>#d9534f</code></td><td><code>^=&quot;S&quot;</code></td></tr>
             <tr><td><code>TOP SECRET</code> &mdash; any value starting with <code>T</code></td><td><span class="swatch" style="background:#f0ad4e;color:#333">TOP SECRET</span></td><td><code>#f0ad4e</code></td><td><code>^=&quot;T&quot;</code></td></tr>
@@ -274,6 +274,7 @@
           </tbody>
         </table>
         <div style="padding:16px"><div class="callout callout-warning"><span class="callout-icon">&#x26A0;&#xFE0F;</span><div>Values are <strong>case-sensitive</strong>. <code>cui</code> (lowercase) will not match CUI purple &mdash; use <code>CUI</code>. Use <code>data-banner-content</code> to display a different label while keeping the correct color.</div></div></div>
+        <div style="padding:0 16px 16px"><div class="callout callout-info"><span class="callout-icon">&#x2139;&#xFE0F;</span><div>Model-Driven App bars can optionally override the derived type color with <code>dodbl_BannerColor</code>. Leave it empty to use the classification default; non-empty values must be hex colors such as <code>#5cb85c</code>.</div></div></div>
       </div>
     </div>
 
@@ -289,18 +290,65 @@
 </div>
 
 <script>
-  const sections = document.querySelectorAll('.doc-section');
-  const navLinks = document.querySelectorAll('.sidebar a');
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
+"use strict";
+
+function getXrm() {
+  try {
+    return (parent && parent.Xrm) ? parent.Xrm : null;
+  } catch (_e) {
+    return null;
+  }
+}
+
+function setDocsVersion(version) {
+  var label = document.getElementById("docsVersionLabel");
+  var value = ((version || "") + "").trim();
+  if (label) label.textContent = value ? "v" + value.replace(/^v/i, "") : "vunknown";
+}
+
+function loadDocsVersion() {
+  var xrm = getXrm();
+  if (!(xrm && xrm.WebApi)) return;
+
+  xrm.WebApi.retrieveMultipleRecords(
+    "environmentvariabledefinition",
+    "?$select=environmentvariabledefinitionid,defaultvalue&$filter=schemaname eq 'dodbl_BannerVersion'"
+  ).then(function (defResult) {
+    if (!defResult.entities || defResult.entities.length === 0) return "";
+    var def = defResult.entities[0];
+    var fallback = def.defaultvalue || "";
+    return xrm.WebApi.retrieveMultipleRecords(
+      "environmentvariablevalue",
+      "?$select=value&$filter=_environmentvariabledefinitionid_value eq " + def.environmentvariabledefinitionid
+    ).then(function (valResult) {
+      if (valResult.entities && valResult.entities.length > 0 && valResult.entities[0].value != null && String(valResult.entities[0].value).trim() !== "") {
+        return valResult.entities[0].value;
+      }
+      return fallback;
+    });
+  }).then(setDocsVersion, function () {
+    setDocsVersion("");
+  });
+}
+
+function initSectionNav() {
+  var sections = document.querySelectorAll(".doc-section");
+  var navLinks = document.querySelectorAll(".sidebar a");
+  if (typeof IntersectionObserver !== "function") return;
+  var observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
       if (entry.isIntersecting) {
-        navLinks.forEach(l => l.classList.remove('active'));
-        const link = document.querySelector('.sidebar a[href="#' + entry.target.id + '"]');
-        if (link) link.classList.add('active');
+        navLinks.forEach(function (link) { link.classList.remove("active"); });
+        var active = document.querySelector('.sidebar a[href="#' + entry.target.id + '"]');
+        if (active) active.classList.add("active");
       }
     });
-  }, { rootMargin: '-20% 0px -70% 0px' });
-  sections.forEach(s => observer.observe(s));
+  }, { rootMargin: "-20% 0px -70% 0px" });
+  sections.forEach(function (section) { observer.observe(section); });
+}
+
+loadDocsVersion();
+initSectionNav();
 </script>
 
 </body>

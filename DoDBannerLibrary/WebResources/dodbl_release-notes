@@ -28,7 +28,7 @@
     .app-header p  { font-size: 12px; opacity: .85; margin-top: 2px; }
     .back-link { display: inline-flex; align-items: center; gap: 6px; padding: 6px 14px; margin: 20px 32px 0; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); font-size: 12px; color: var(--text-secondary); text-decoration: none; box-shadow: var(--shadow); }
     .back-link:hover { color: var(--primary); background: var(--primary-light); }
-    .main { max-width: 720px; margin: 0 auto; padding: 24px 32px 48px; }
+    .main { width: 100%; max-width: 960px; margin: 0 auto; padding: 24px 24px 48px; }
     .version-block { margin-bottom: 32px; }
     .version-header { display: flex; align-items: baseline; gap: 16px; padding-bottom: 10px; border-bottom: 2px solid var(--border); margin-bottom: 16px; }
     .version-tag { font-size: 20px; font-weight: 700; color: var(--text); font-family: 'Cascadia Code','Consolas',monospace; }
@@ -70,8 +70,18 @@
     <div class="change-group">
       <div class="change-group-title">New</div>
       <ul class="change-list">
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Banner Configuration screen</strong> &mdash; new <code>dodbl_banner-config</code> web resource, available in the Management app under <strong>Administration &rarr; Banner Configuration</strong>. Administrators can change <code>dodbl_BannerEnabled</code>, <code>dodbl_BannerType</code>, <code>dodbl_BannerPosition</code>, and <code>dodbl_ConsentExpiryDays</code> without opening the maker portal or redeploying the solution. Changes apply on each user&rsquo;s next page load or refresh.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Banner Configuration screen</strong> &mdash; new <code>dodbl_banner-config</code> web resource, available in the Management app under <strong>Administration &rarr; Banner Configuration</strong>. Administrators can change <code>dodbl_BannerEnabled</code>, <code>dodbl_BannerType</code>, <code>dodbl_BannerColor</code>, <code>dodbl_BannerPosition</code>, and <code>dodbl_ConsentExpiryDays</code> without opening the maker portal or redeploying the solution. Changes apply on each user&rsquo;s next page load or refresh.</span></li>
         <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Config Admin role</strong> &mdash; added the <code>DoD Banner - Config Admin</code> security role (Read on Environment Variable Definition; Read, Write, and Create on Environment Variable Value). The configuration screen is visible only to this role and to System Administrator.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Consent reset action</strong> &mdash; the configuration screen includes a <strong>Reset My Consent</strong> button that clears the current user&rsquo;s <code>dodbl_Accepted</code> cookie for retesting the consent prompt.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Banner color override</strong> &mdash; added the optional <code>dodbl_BannerColor</code> environment variable and configuration swatch. Empty uses the Banner Type default; a valid hex value overrides the shell bar color.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Runtime version stamp</strong> &mdash; added <code>dodbl_BannerVersion</code> as the single environment-variable source for displayed app/documentation version labels. The definition default is seeded to <code>1.5.0.0</code>.</span></li>
+      </ul>
+    </div>
+    <div class="change-group">
+      <div class="change-group-title">Fixed</div>
+      <ul class="change-list">
+        <li class="change-item"><span class="change-pill pill-new">FIX</span><span class="change-text"><strong>Classification display labels</strong> &mdash; Model-Driven App bars now translate stored short codes such as <code>U</code> to their full display label (<code>UNCLASSIFIED</code>) while preserving the existing color-prefix matching order.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">FIX</span><span class="change-text"><strong>Configuration reload</strong> &mdash; Save and Reload now ask the shell banner renderer to refresh in place when available; otherwise the screen states that the visible bar updates on the next navigation or refresh.</span></li>
       </ul>
     </div>
     <div class="change-group">

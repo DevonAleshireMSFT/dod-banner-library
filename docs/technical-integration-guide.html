@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Technical Integration Guide | DoD Banner Library</title>
+  <meta name="description" content="Technical integration guide for reviewing, importing, configuring, and reusing the DoD Banner Library solution.">
+  <meta property="og:title" content="DoD Banner Library Technical Integration Guide">
+  <meta property="og:description" content="Public technical reference for DoD Banner Library components, environment variables, consent audit behavior, and hosting patterns.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="images/example-secret-banner.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="stylesheet" href="assets/site.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="index.html" aria-label="DoD Banner Library home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg width="24" height="24" viewBox="0 0 24 24" role="img" aria-label="Shield mark"><path fill="currentColor" d="M12 2 4.5 5v6.2c0 4.7 3.1 9 7.5 10.8 4.4-1.8 7.5-6.1 7.5-10.8V5L12 2Zm0 2.2 5.5 2.2v4.8c0 3.5-2.1 6.9-5.5 8.6-3.4-1.7-5.5-5.1-5.5-8.6V6.4L12 4.2Z"/></svg>
+        </span>
+        <span>DoD Banner Library</span>
+      </a>
+      <nav class="nav-links" aria-label="Primary">
+        <a href="index.html#showcase">Showcase</a>
+        <a href="index.html#quick-start">Quick Start</a>
+        <a href="documentation.html">Documentation</a>
+        <a href="#environment-variables">Environment variables</a>
+        <a href="https://github.com/DevonAleshireMSFT/dod-banner-library">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero">
+      <div class="container hero-grid">
+        <div>
+          <p class="eyebrow">Technical integration guide • v1.5.0</p>
+          <h1>Review, import, configure, and reuse the DoD Banner Library.</h1>
+          <p class="hero-lede">A public technical reference for Power Platform reviewers and makers. It describes product capabilities and portable configuration patterns without environment-specific deployment details.</p>
+          <div class="cta-row">
+            <a class="button primary" href="documentation.html">Documentation</a>
+            <a class="button secondary" href="index.html">Site home</a>
+          </div>
+        </div>
+        <aside class="hero-card">
+          <div class="banner-sample classification-banner" data-classification="SECRET" data-banner-content="SECRET"><p>Technical reference for MDA, Canvas, and Power Pages banner integrations.</p></div>
+          <p>The Markdown source remains in the repository as <code>technical-integration-guide.md</code>; this page is the published GitHub Pages rendering.</p>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section alt" id="overview">
+      <div class="container">
+        <div class="section-heading">
+          <h2>1. Overview and scope</h2>
+          <p>The DoD Banner Library is a managed Power Platform solution for reusable classification bars and optional system-use notification experiences.</p>
+        </div>
+        <div class="grid">
+          <article class="card"><h3>Model-driven apps</h3><p>Launch-page and form-script paths for shell classification bars and consent acknowledgement.</p></article>
+          <article class="card"><h3>Canvas apps and custom pages</h3><p>PCF control support for self-contained classification and consent UI.</p></article>
+          <article class="card"><h3>Power Pages</h3><p>Portable web resources and template source without packaging environment-specific website records.</p></article>
+        </div>
+        <div class="notice" style="margin-top:24px">
+          <p><strong>Current public product line:</strong> v1.5.0.</p>
+          <p><strong>Key constraints:</strong> publisher prefix <code>dodbl_</code>; no external CDN calls, fonts, scripts, or jQuery; managed solution distribution; environment-variable driven Model-Driven App behavior; and client-side consent UX as supplementary hardening, not a hard authorization boundary.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="component-inventory">
+      <div class="container">
+        <div class="section-heading">
+          <h2>2. Component inventory</h2>
+          <p>Major solution components and their product purpose.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Component</th><th>Source name</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td>Consent table</td><td><code>dodbl_consentrecord</code></td><td>Dataverse audit table for acknowledgement records.</td></tr>
+              <tr><td>Canvas app demo</td><td><code>dodbl_canvasappdemo_bb4ae</code></td><td>Demo app that hosts the PCF control.</td></tr>
+              <tr><td>Web resource</td><td><code>dodbl_banner-config</code></td><td>RBAC-gated admin configuration screen for banner environment variable values.</td></tr>
+              <tr><td>Web resource</td><td><code>dodbl_banner-launch-page</code></td><td>Model-driven app launch page, consent acknowledgement path, and management home.</td></tr>
+              <tr><td>Web resource</td><td><code>dodbl_bannercore</code></td><td>Shared CSS for classification marks and consent modal layout.</td></tr>
+              <tr><td>Web resource</td><td><code>dodbl_cuiconsentbanner</code></td><td>Power Pages classification fragment.</td></tr>
+              <tr><td>Web resource</td><td><code>dodbl_docs</code></td><td>In-solution setup documentation.</td></tr>
+              <tr><td>Web resource</td><td><code>dodbl_dodbanner</code></td><td>Model-driven app form script for shell classification bars and optional notification consent.</td></tr>
+              <tr><td>Web resource</td><td><code>dodbl_dodconsentbanner</code></td><td>Power Pages consent modal HTML.</td></tr>
+              <tr><td>Web resource</td><td><code>dodbl_release-notes</code></td><td>In-solution release notes.</td></tr>
+              <tr><td>Web resource</td><td><code>dodbl_webtemplatesource</code></td><td>Power Pages Liquid web template source.</td></tr>
+              <tr><td>PCF control</td><td><code>DoDBannerLibrary.DodBannerControl</code></td><td>Canvas app/custom page classification and consent control.</td></tr>
+              <tr><td>Security role</td><td><code>DoD Banner - Config Admin</code></td><td>Allows authorized admins to use the configuration screen.</td></tr>
+              <tr><td>Security role</td><td><code>DoD Banner - Consent Write</code></td><td>Supports consent-record creation for acknowledgement paths.</td></tr>
+              <tr><td>Security role</td><td><code>DoD Banner - Consent Audit Reader</code></td><td>Read-only access for reviewing consent audit records.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" id="environment-variables">
+      <div class="container">
+        <div class="section-heading">
+          <h2>3. Environment variables</h2>
+          <p>The Model-Driven App banner path is configured with these six public banner settings.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Schema name</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td><code>dodbl_BannerEnabled</code></td><td>Yes/No</td><td><code>Yes</code></td><td>Master switch. <code>No</code> suppresses banners for the MDA path.</td></tr>
+              <tr><td><code>dodbl_BannerType</code></td><td>String</td><td>empty</td><td>Classification value: <code>U</code>/<code>UNCLASSIFIED</code>, <code>CUI</code>, <code>CONFIDENTIAL</code>, <code>SECRET</code>, <code>TOP SECRET</code>, or legacy <code>DoD</code> alias. Empty means no classification bar.</td></tr>
+              <tr><td><code>dodbl_BannerPosition</code></td><td>String</td><td><code>Bottom</code></td><td>Classification bar placement: <code>Top</code>, <code>Bottom</code>, or <code>Both</code>.</td></tr>
+              <tr><td><code>dodbl_ConsentExpiryDays</code></td><td>Integer</td><td><code>30</code></td><td>Days before the <code>dodbl_Accepted</code> consent cookie expires. <code>0</code> re-prompts each browser session.</td></tr>
+              <tr><td><code>dodbl_BannerColor</code></td><td>String</td><td>empty</td><td>Optional hex color override such as <code>#5cb85c</code>. Empty uses the automatic classification color. Invalid values are ignored by runtime code.</td></tr>
+              <tr><td><code>dodbl_BannerVersion</code></td><td>String</td><td><code>1.5.0.0</code></td><td>Running-version stamp shown in the app. Release owners keep this in sync with <code>Solution.xml</code>.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section-heading" style="margin-top:36px">
+          <h3>Default classification label and color mapping</h3>
+          <p>The MDA bar renders the full display label. For example, a stored short code of <code>U</code> displays as <code>UNCLASSIFIED</code>.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Banner type prefix</th><th>Display label</th><th>Default color</th></tr></thead>
+            <tbody>
+              <tr><td><code>CU</code></td><td><code>CUI</code></td><td><span class="swatch" style="background:#5a04b0"></span><code>#5a04b0</code> purple</td></tr>
+              <tr><td><code>U</code></td><td><code>UNCLASSIFIED</code></td><td><span class="swatch" style="background:#5cb85c"></span><code>#5cb85c</code> green</td></tr>
+              <tr><td><code>CO</code></td><td><code>CONFIDENTIAL</code></td><td><span class="swatch" style="background:#286090"></span><code>#286090</code> blue</td></tr>
+              <tr><td><code>S</code></td><td><code>SECRET</code></td><td><span class="swatch" style="background:#d9534f"></span><code>#d9534f</code> red</td></tr>
+              <tr><td><code>T</code></td><td><code>TOP SECRET</code></td><td><span class="swatch" style="background:#f0ad4e"></span><code>#f0ad4e</code> orange</td></tr>
+              <tr><td>Other</td><td>Uppercased value</td><td><span class="swatch" style="background:#5e5e5e"></span><code>#5e5e5e</code> grey</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="admin-config">
+      <div class="container">
+        <div class="section-heading">
+          <h2>4. Admin configuration screen</h2>
+          <p><code>dodbl_banner-config</code> provides an in-app admin screen for authorized users. It is intended for holders of <code>DoD Banner - Config Admin</code> or System Administrator.</p>
+        </div>
+        <div class="grid">
+          <article class="card"><h3>Edits values</h3><p>Edits Environment Variable <strong>Value</strong> records, not definitions. Saves show <code>modifiedby</code> and <code>modifiedon</code> attribution in the UI.</p></article>
+          <article class="card"><h3>Configuration scope</h3><p>Lets admins change banner enablement, type, position, consent expiry, and optional color override without redeploying the solution.</p></article>
+          <article class="card"><h3>Runtime aids</h3><p>Displays <code>dodbl_BannerVersion</code> read-only, refreshes the visible shell bar when available, and includes <strong>Reset My Consent</strong> to clear the current user's cookie.</p></article>
+        </div>
+        <div class="notice" style="margin-top:24px"><p>Dataverse privileges remain the enforcement boundary. Client-side role checks are usability gates, not a substitute for Dataverse security.</p></div>
+      </div>
+    </section>
+
+    <section class="section alt" id="consent-audit">
+      <div class="container">
+        <div class="section-heading">
+          <h2>5. Consent and audit behavior</h2>
+          <p>The Model-Driven App launch page writes a <code>dodbl_consentrecord</code> when a user acknowledges the system-use notification.</p>
+        </div>
+        <div class="grid">
+          <article class="card"><h3>Record fields</h3><p>The record captures user, banner type, acknowledged-on timestamp, expiry timestamp, and consent text snapshot.</p></article>
+          <article class="card"><h3>Consent audit roles</h3><p><code>DoD Banner - Consent Write</code> supports creation. <code>DoD Banner - Consent Audit Reader</code> provides read-only review access.</p></article>
+          <article class="card"><h3>Canvas limitation</h3><p>Canvas-hosted PCF consent is useful for in-app UX but does not provide this supported Dataverse audit-write path. Use the Model-Driven App launch page when a persisted audit record is required.</p></article>
+        </div>
+        <div class="table-wrap" style="margin-top:24px">
+          <table>
+            <thead><tr><th>Cookie property</th><th>Value</th></tr></thead>
+            <tbody>
+              <tr><td>Name</td><td><code>dodbl_Accepted</code></td></tr>
+              <tr><td>Value</td><td><code>Yes</code></td></tr>
+              <tr><td>Flags</td><td><code>Secure; SameSite=Strict</code></td></tr>
+              <tr><td>Path</td><td><code>/</code></td></tr>
+              <tr><td>Expiry</td><td>Controlled by <code>dodbl_ConsentExpiryDays</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="hosting-patterns">
+      <div class="container">
+        <div class="section-heading">
+          <h2>6. Hosting patterns</h2>
+          <p>Choose the host-specific pattern that matches the target app.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Host</th><th>Recommended pattern</th><th>Notes</th></tr></thead>
+            <tbody>
+              <tr><td>Model-driven app</td><td>Use <code>dodbl_banner-launch-page</code> as the first sitemap subarea for app-load consent and shell classification display.</td><td>Best supported product path for audited acknowledgement records.</td></tr>
+              <tr><td>Model-driven forms</td><td>Register <code>DoDBannerLibrary.DodBanner.onFormLoad</code> from <code>dodbl_dodbanner</code>.</td><td>Provides shell classification bar rendering on form load.</td></tr>
+              <tr><td>Canvas apps/custom pages</td><td>Add <code>DoDBannerLibrary.DodBannerControl</code>.</td><td>Uses PCF properties; does not read MDA environment variables directly. Republish apps after PCF updates.</td></tr>
+              <tr><td>Power Pages</td><td>Create site-specific web files from shipped web resources and template source.</td><td>Website records are not packaged because website IDs are environment-specific.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" id="implementation-notes">
+      <div class="container">
+        <div class="section-heading">
+          <h2>7. Classification bar implementation notes</h2>
+          <p>Implementation details that integrators should understand before review or rollout.</p>
+        </div>
+        <div class="notice">
+          <p>For Model-Driven Apps, the shell classification bar uses <code>window.top.document</code> so it appears in the visible UCI shell rather than only inside a form or web-resource iframe. This is limited to classification-bar DOM placement and uses cleanup markers (<code>data-dodbl-bar</code>) to avoid duplicate bars during navigation.</p>
+          <p><code>dodbl_BannerColor</code> is validated with a hex-color allow-list (<code>#RGB</code> or <code>#RRGGBB</code>). Malformed values fall back to the classification-type default, preventing arbitrary CSS injection.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="checklist">
+      <div class="container">
+        <div class="section-heading">
+          <h2>8. Import and verification checklist</h2>
+          <p>Generic post-import checks for reviewers and makers.</p>
+        </div>
+        <div class="steps">
+          <article class="step"><h3>Import and publish</h3><p>Import the managed solution and publish all customizations.</p></article>
+          <article class="step"><h3>Verify app navigation</h3><p>Open the management app and confirm Home, Banner Configuration, Consent Records, Documentation, Release Notes, Web Template Source, and Canvas App Demo are available as expected.</p></article>
+          <article class="step"><h3>Assign roles</h3><p>Assign <code>DoD Banner - Config Admin</code> only to users authorized to change banner settings. Assign consent audit roles according to least-privilege review needs.</p></article>
+          <article class="step"><h3>Check configuration</h3><p>Open Banner Configuration and verify the current version, banner settings, and value attribution display.</p></article>
+          <article class="step"><h3>Test acknowledgement</h3><p>Test the launch page acknowledgement path and confirm a consent audit record is created where the user has required privileges.</p></article>
+          <article class="step"><h3>Retest prompt</h3><p>Use Reset My Consent to clear the current user's cookie and retest the prompt.</p></article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" id="release-highlights">
+      <div class="container">
+        <div class="section-heading">
+          <h2>9. Recent release highlights</h2>
+          <p>Concise public release history for current product capabilities.</p>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Version</th><th>Highlights</th></tr></thead>
+            <tbody>
+              <tr><td>v1.5.0</td><td>Admin configuration screen, optional banner color override, reset-my-consent action, runtime version stamp, full label rendering for short classification codes, and in-place shell bar refresh when available.</td></tr>
+              <tr><td>v1.4.1</td><td>Consent Audit Reader role and Active Consent Records view correction.</td></tr>
+              <tr><td>v1.4.0</td><td>Consent audit table and model-driven landing-page consent-record creation on acknowledgement.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="public-boundary">
+      <div class="container">
+        <div class="section-heading">
+          <h2>10. Public documentation boundary</h2>
+          <p>This repository and GitHub Pages site are public.</p>
+        </div>
+        <div class="notice">
+          <p>Keep adopter-specific operational data out of public artifacts, including tenant names, environment URLs, environment IDs, authentication profiles, and internal deployment procedures. Describe product capabilities and generic configuration only.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-grid">
+      <div>
+        <p><strong>DoD Banner Library technical integration guide</strong></p>
+        <p>Published HTML page generated from the repository Markdown source for GitHub Pages readers.</p>
+      </div>
+      <div>
+        <p><a href="index.html">Site home</a></p>
+        <p><a href="documentation.html">Documentation</a></p>
+        <p>Markdown source is retained in the repository for GitHub browsing.</p>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

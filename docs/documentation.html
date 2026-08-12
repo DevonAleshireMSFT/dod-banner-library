@@ -27,7 +27,7 @@
         <a href="index.html#quick-start">Quick Start</a>
         <a href="#usage">Usage</a>
         <a href="#environment-variables">Environment variables</a>
-        <a href="technical-integration-guide.md">Technical guide</a>
+        <a href="technical-integration-guide.html">Technical guide</a>
       </nav>
     </div>
   </header>
@@ -41,7 +41,7 @@
           <p class="hero-lede">This page summarizes the static markup, classification values, environment-variable controls, and known limitations needed by makers and technical reviewers.</p>
           <div class="cta-row">
             <a class="button primary" href="index.html">Back to site home</a>
-            <a class="button secondary" href="technical-integration-guide.md">Technical integration guide</a>
+            <a class="button secondary" href="technical-integration-guide.html">Technical integration guide</a>
           </div>
         </div>
         <aside class="hero-card">
@@ -71,7 +71,8 @@
             <ul>
               <li>Add <code>dodbl_dodbanner</code> as a form library.</li>
               <li>Register <code>DoDBannerLibrary.DodBanner.onFormLoad</code> on form OnLoad.</li>
-              <li>Use environment variables for banner type, placement, consent text, and enablement.</li>
+              <li>Use environment variables for banner type, placement, color override, consent expiry, running version, and enablement.</li>
+              <li>Use the management app launch page for the consent acknowledgement path that writes consent audit records.</li>
             </ul>
           </article>
           <article class="card">
@@ -79,6 +80,7 @@
             <ul>
               <li>Add the <code>DoDBannerLibrary.DodBannerControl</code> PCF control.</li>
               <li>Bind <code>bannerEnabled</code> and set <code>bannerType</code>, <code>showConsent</code>, <code>consentExpiryDays</code>, and <code>consentText</code>.</li>
+              <li>Canvas-hosted consent does not create Dataverse consent audit records; use the model-driven landing page for audited acknowledgement.</li>
               <li>Republish apps after updating the PCF bundle.</li>
             </ul>
           </article>
@@ -130,7 +132,7 @@
             </thead>
             <tbody>
               <tr><td><code>CUI</code></td><td><span class="swatch" style="background:#5a04b0"></span>Purple</td><td><code>#5a04b0</code></td><td>CSS prefix match <code>CU</code>.</td></tr>
-              <tr><td><code>U</code></td><td><span class="swatch" style="background:#5cb85c"></span>Green</td><td><code>#5cb85c</code></td><td><code>UNCLASSIFIED</code> also matches the <code>U</code> prefix.</td></tr>
+              <tr><td><code>U</code> / <code>UNCLASSIFIED</code></td><td><span class="swatch" style="background:#5cb85c"></span>Green</td><td><code>#5cb85c</code></td><td>The MDA bar displays the full label <code>UNCLASSIFIED</code>, not the short code <code>U</code>.</td></tr>
               <tr><td><code>CONFIDENTIAL</code></td><td><span class="swatch" style="background:#286090"></span>Blue</td><td><code>#286090</code></td><td>CSS prefix match <code>CO</code>.</td></tr>
               <tr><td><code>SECRET</code></td><td><span class="swatch" style="background:#d9534f"></span>Red</td><td><code>#d9534f</code></td><td>CSS prefix match <code>S</code>.</td></tr>
               <tr><td><code>TOP SECRET</code></td><td><span class="swatch" style="background:#f0ad4e"></span>Orange</td><td><code>#f0ad4e</code></td><td>CSS prefix match <code>T</code>.</td></tr>
@@ -153,15 +155,61 @@
               <tr><th>Schema name</th><th>Type</th><th>Default</th><th>Description</th></tr>
             </thead>
             <tbody>
-              <tr><td colspan="4"><strong>Administration &rarr; Banner Configuration</strong> in the management app (<code>dodbl_banner-config</code>) lets an administrator change <code>dodbl_BannerEnabled</code>, <code>dodbl_BannerType</code>, <code>dodbl_BannerPosition</code>, and <code>dodbl_ConsentExpiryDays</code> without the maker portal or a redeploy. It requires the <code>DoD Banner - Config Admin</code> or System Administrator role, and changes apply on each user&rsquo;s next page load.</td></tr>
-              <tr><td><code>dodbl_BannerEnabled</code></td><td>Boolean</td><td><code>true</code></td><td>Set to <code>false</code> to disable banners environment-wide for the MDA path.</td></tr>
-              <tr><td><code>dodbl_BannerType</code></td><td>String</td><td><em>empty</em></td><td>Classification bar to render: <code>CUI</code>, <code>UNCLASSIFIED</code>, <code>CONFIDENTIAL</code>, <code>SECRET</code>, or <code>TOP SECRET</code>. Empty means no bar.</td></tr>
-              <tr><td><code>dodbl_ConsentExpiryDays</code></td><td>Number</td><td><code>30</code></td><td>Days before the consent cookie expires.</td></tr>
-              <tr><td><code>dodbl_DoDConsentText</code></td><td>String</td><td><em>empty</em></td><td>AO-approved consent text override. Empty uses the built-in default text for the relevant surface.</td></tr>
-              <tr><td><code>dodbl_ShowConsentBanner</code></td><td>Boolean</td><td><code>false</code></td><td>Legacy form-script consent notification toggle; the v1.3 management app consent gate uses the custom launch page.</td></tr>
+              <tr><td colspan="4"><strong>Administration &rarr; Banner Configuration</strong> in the management app (<code>dodbl_banner-config</code>) lets an administrator change editable banner environment variable values without the maker portal or a redeploy. It requires the <code>DoD Banner - Config Admin</code> or System Administrator role. Saves update Environment Variable Value rows, which stamp <code>modifiedby</code> and <code>modifiedon</code>; visible bar changes apply on each user&rsquo;s next page load or in-place when the shell renderer is available.</td></tr>
+              <tr><td><code>dodbl_BannerEnabled</code></td><td>Yes/No</td><td><code>Yes</code></td><td>Master switch. Set to <code>No</code> to suppress banners environment-wide for the MDA path.</td></tr>
+              <tr><td><code>dodbl_BannerType</code></td><td>String</td><td><em>empty</em></td><td>Classification bar to render: <code>U</code>/<code>UNCLASSIFIED</code>, <code>CUI</code>, <code>CONFIDENTIAL</code>, <code>SECRET</code>, <code>TOP SECRET</code>, or legacy <code>DoD</code> alias. Empty means no classification bar.</td></tr>
               <tr><td><code>dodbl_BannerPosition</code></td><td>String</td><td><code>Bottom</code></td><td>Classification bar placement: <code>Bottom</code>, <code>Top</code>, or <code>Both</code>. Top placement shifts the MDA nav header down 28 px.</td></tr>
+              <tr><td><code>dodbl_ConsentExpiryDays</code></td><td>Integer</td><td><code>30</code></td><td>Days before the <code>dodbl_Accepted</code> consent cookie expires. <code>0</code> re-prompts each browser session.</td></tr>
+              <tr><td><code>dodbl_BannerColor</code></td><td>String</td><td><em>empty</em></td><td>Optional hex color override such as <code>#5cb85c</code>. Empty uses the automatic classification color.</td></tr>
+              <tr><td><code>dodbl_BannerVersion</code></td><td>String</td><td><code>1.5.0.0</code></td><td>Running-version stamp shown in the app. Maintained by release owners; displayed read-only on the configuration screen.</td></tr>
             </tbody>
           </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section alt" id="consent-audit">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Consent audit and testing</h2>
+          <p>The model-driven landing page creates consent audit records and gives testers a self-service reset path.</p>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <h3>Consent record write</h3>
+            <p>On acknowledgement, the landing page writes a <code>dodbl_consentrecord</code> with the user, banner type, acknowledged-on timestamp, expiry timestamp, and consent text snapshot.</p>
+          </article>
+          <article class="card">
+            <h3>Audit reader role</h3>
+            <p>The <code>DoD Banner - Consent Audit Reader</code> role provides read-only access for reviewing acknowledgement records without granting mutation privileges.</p>
+          </article>
+          <article class="card">
+            <h3>Reset my consent</h3>
+            <p>The configuration screen includes <strong>Reset My Consent</strong>, which clears only the current user&rsquo;s <code>dodbl_Accepted</code> cookie so the prompt can be retested.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="release-history">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Release highlights</h2>
+          <p>Concise public changelog for recent product capabilities.</p>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <h3>v1.5.0</h3>
+            <p>Admin configuration screen, classification label fixes, optional banner color override, reset-my-consent action, runtime version stamp, and wider in-solution docs layout.</p>
+          </article>
+          <article class="card">
+            <h3>v1.4.1</h3>
+            <p>Consent Audit Reader role plus active consent-record view fixes for easier audit review.</p>
+          </article>
+          <article class="card">
+            <h3>v1.4.0</h3>
+            <p>Consent audit table and model-driven landing-page consent-record creation on acknowledgement.</p>
+          </article>
         </div>
       </div>
     </section>
@@ -175,7 +223,7 @@
         <div class="grid">
           <article class="card">
             <h3>Canvas per-session consent limitation</h3>
-            <p>In v1.3.0, consent acknowledgement does not reliably persist across sessions when <code>DodBannerControl</code> runs inside a Canvas App. The modal still functions per session, but cross-session persistence is limited by the Power Apps code-component sandbox. Persistent Canvas consent is tracked in issue #21; v1.4.0 consent-audit work is in progress.</p>
+            <p>Consent acknowledgement does not reliably persist across sessions when <code>DodBannerControl</code> runs inside a Canvas App, and Canvas-hosted consent does not write Dataverse consent audit records. Use the model-driven landing page for the audited acknowledgement path.</p>
           </article>
           <article class="card">
             <h3>Client-side acknowledgement is not enforcement</h3>
@@ -194,7 +242,7 @@
     <div class="container footer-grid">
       <div>
         <p><strong>DoD Banner Library documentation</strong></p>
-        <p>Use this site with the README and <a href="technical-integration-guide.md">technical integration guide</a> for complete review context.</p>
+        <p>Use this site with the README and <a href="technical-integration-guide.html">technical integration guide</a> for complete review context.</p>
       </div>
       <div>
         <p><a href="index.html">Marketing site</a></p>
@@ -204,3 +252,4 @@
   </footer>
 </body>
 </html>
+

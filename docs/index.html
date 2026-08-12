@@ -26,7 +26,7 @@
         <a href="#showcase">Showcase</a>
         <a href="#quick-start">Quick Start</a>
         <a href="documentation.html">Documentation</a>
-        <a href="technical-integration-guide.md">Technical guide</a>
+        <a href="technical-integration-guide.html">Technical guide</a>
         <a href="https://github.com/DevonAleshireMSFT/dod-banner-library">GitHub</a>
       </nav>
     </div>
@@ -36,7 +36,7 @@
     <section class="hero">
       <div class="container hero-grid">
         <div>
-          <p class="eyebrow">Power Platform banner assets • v1.4.1 current release</p>
+          <p class="eyebrow">Power Platform banner assets • v1.5.0 current release</p>
           <h1>Classification marks and system-use banners, ready for Power Platform.</h1>
           <p class="hero-lede">A managed solution for reusable CUI/classification bars and optional DoD system-use notification experiences across Power Pages, Canvas Apps, and Model-Driven Apps. Built with vanilla JavaScript and CSS: no CDN, no jQuery, no external runtime dependencies.</p>
           <div class="cta-row" aria-label="Primary actions">
@@ -86,7 +86,7 @@
         </div>
         <div class="showcase" aria-label="Classification bar examples">
           <div class="banner-sample classification-banner" data-classification="CUI"><p>Controlled Unclassified Information example.</p></div>
-          <div class="banner-sample classification-banner" data-classification="U"><p>Unclassified example.</p></div>
+          <div class="banner-sample classification-banner" data-classification="U" data-banner-content="UNCLASSIFIED"><p>Unclassified example.</p></div>
           <div class="banner-sample classification-banner" data-classification="CONFIDENTIAL"><p>Confidential example.</p></div>
           <div class="banner-sample classification-banner" data-classification="SECRET"><p>Secret example.</p></div>
           <div class="banner-sample classification-banner" data-classification="TOP SECRET"><p>Top Secret example.</p></div>
@@ -107,7 +107,11 @@
           </article>
           <article class="card">
             <h3>Environment-variable driven</h3>
-            <p>MDA behavior is controlled through <code>dodbl_</code> variables for enablement, banner type, consent text, expiry days, and placement.</p>
+            <p>MDA behavior is controlled through <code>dodbl_</code> variables for enablement, banner type, position, consent expiry, optional color override, and running-version display.</p>
+          </article>
+          <article class="card">
+            <h3>In-app admin configuration</h3>
+            <p>v1.5.0 adds an RBAC-gated configuration screen for authorized administrators to update banner environment variable values without redeploying the solution.</p>
           </article>
           <article class="card">
             <h3>Managed solution</h3>
@@ -123,7 +127,30 @@
           </article>
           <article class="card">
             <h3>Consent audit path</h3>
-            <p>v1.4.1 includes <code>dodbl_consentrecord</code> audit rows, least-privilege consent roles, and active-record view fixes for supported acknowledgement paths.</p>
+            <p>v1.4.x includes <code>dodbl_consentrecord</code> audit rows for the model-driven landing-page acknowledgement path plus least-privilege read/write roles for consent review and capture.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="release-highlights">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Current release highlights</h2>
+          <p>The public site reflects the v1.4.x through v1.5.0 product line.</p>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <h3>v1.4.0 — consent records</h3>
+            <p>The model-driven landing page writes a <code>dodbl_consentrecord</code> when a user acknowledges the system-use notification.</p>
+          </article>
+          <article class="card">
+            <h3>v1.4.1 — audit review</h3>
+            <p>The <code>DoD Banner - Consent Audit Reader</code> role provides read-only access for reviewing consent audit records.</p>
+          </article>
+          <article class="card">
+            <h3>v1.5.0 — admin configuration</h3>
+            <p>The management app includes an RBAC-gated configuration screen, banner color override, reset-my-consent action, and runtime version stamp.</p>
           </article>
         </div>
       </div>
@@ -165,7 +192,7 @@
         <div class="section-heading">
           <h2>Quick Start</h2>
           <p>Condensed from the repository README. Use your normal Power Platform deployment governance and review the technical integration guide before production rollout.</p>
-          <p><a class="button tertiary" href="technical-integration-guide.md">Open technical integration guide</a></p>
+          <p><a class="button tertiary" href="technical-integration-guide.html">Open technical integration guide</a></p>
         </div>
         <div class="steps">
           <article class="step">
@@ -180,6 +207,10 @@
           <article class="step">
             <h3>Complete post-import setup</h3>
             <p>For Power Pages, create the site-specific web files and web template using the shipped source. For MDA/Canvas, configure environment variables or PCF properties for the target app.</p>
+          </article>
+          <article class="step">
+            <h3>Assign least-privilege roles</h3>
+            <p>Assign <code>DoD Banner - Config Admin</code> only to administrators who may change banner settings. Assign consent audit roles only to users who capture or review acknowledgement records.</p>
           </article>
         </div>
       </div>
@@ -209,10 +240,11 @@
       </div>
       <div>
         <p><a href="documentation.html">Documentation</a></p>
-        <p><a href="technical-integration-guide.md">Technical integration guide</a></p>
+        <p><a href="technical-integration-guide.html">Technical integration guide</a></p>
         <p><a href="https://github.com/DevonAleshireMSFT/dod-banner-library">GitHub repository</a></p>
       </div>
     </div>
   </footer>
 </body>
 </html>
+
