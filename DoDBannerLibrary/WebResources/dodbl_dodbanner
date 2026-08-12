@@ -342,12 +342,14 @@ DoDBannerLibrary.DodBanner = (function () {
       var textColor = validOverrideColor ? getContrastTextColor(next.bannerColor) : "#fff";
       var label = next.bannerLabel || getClassificationLabel(next.bannerType);
 
-      function buildBar(placement) {
+      function buildBar(placement, inFlow) {
         var bar = doc.createElement("div");
+        bar.id = placement === "top" ? "dodbl-classification-bar-top" : "dodbl-classification-bar-bottom";
         bar.setAttribute("data-dodbl-bar", placement);
+        bar.setAttribute("data-dodbl-bar-mode", inFlow ? "in-flow" : "fixed");
         bar.textContent = label;
-        bar.style.position = "fixed";
-        bar.style.left = "0";
+        bar.style.position = inFlow ? "relative" : "fixed";
+        bar.style.left = inFlow ? "" : "0";
         bar.style.width = "100%";
         bar.style.height = BAR_HEIGHT + "px";
         bar.style.backgroundColor = color;
@@ -363,9 +365,19 @@ DoDBannerLibrary.DodBanner = (function () {
         bar.style.zIndex = "9999";
         bar.style.boxSizing = "border-box";
         bar.style.pointerEvents = "none";
-        if (placement === "top") bar.style.top = "0";
-        else bar.style.bottom = "0";
+        if (placement === "top" && !inFlow) bar.style.top = "0";
+        else if (placement === "bottom") bar.style.bottom = "0";
         return bar;
+      }
+
+      function insertTopBar() {
+        var shell = doc.getElementById("topBar") || doc.getElementById("shell-container");
+        if (shell && shell.parentElement) {
+          shell.parentElement.insertBefore(buildBar("top", true), shell);
+          return true;
+        }
+        body.insertBefore(buildBar("top", false), body.firstChild);
+        return false;
       }
 
       function shiftMdaHeader() {
@@ -395,16 +407,19 @@ DoDBannerLibrary.DodBanner = (function () {
       }
 
       if (pos === "both") {
-        body.insertBefore(buildBar("top"), body.firstChild);
-        body.appendChild(buildBar("bottom"));
-        shiftMdaHeader();
-        target.setTimeout(shiftMdaHeader, 800);
+        var topInsertedInFlow = insertTopBar();
+        body.appendChild(buildBar("bottom", false));
+        if (!topInsertedInFlow) {
+          shiftMdaHeader();
+          target.setTimeout(shiftMdaHeader, 800);
+        }
       } else if (pos === "top") {
-        body.insertBefore(buildBar("top"), body.firstChild);
-        shiftMdaHeader();
-        target.setTimeout(shiftMdaHeader, 800);
+        if (!insertTopBar()) {
+          shiftMdaHeader();
+          target.setTimeout(shiftMdaHeader, 800);
+        }
       } else {
-        body.appendChild(buildBar("bottom"));
+        body.appendChild(buildBar("bottom", false));
       }
 
       return next;
@@ -423,9 +438,21 @@ DoDBannerLibrary.DodBanner = (function () {
       var placements = expectedPlacements();
       if (placements.length === 0) return;
       for (var i = 0; i < placements.length; i++) {
-        if (!doc.querySelector('[data-dodbl-bar="' + placements[i] + '"]')) {
+        var placement = placements[i];
+        var bar = doc.querySelector('[data-dodbl-bar="' + placement + '"]');
+        if (!bar) {
           render(state.lastState);
           return;
+        }
+        if (placement === "top") {
+          var shell = doc.getElementById("topBar") || doc.getElementById("shell-container");
+          var shouldBeInFlow = !!(shell && shell.parentElement);
+          var isInFlow = bar.getAttribute("data-dodbl-bar-mode") === "in-flow";
+          var isBeforeShell = shouldBeInFlow && bar.parentElement === shell.parentElement && bar.nextSibling === shell;
+          if ((shouldBeInFlow && (!isInFlow || !isBeforeShell)) || (!shouldBeInFlow && isInFlow)) {
+            render(state.lastState);
+            return;
+          }
         }
       }
     }
