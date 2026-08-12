@@ -32,8 +32,8 @@ The **DoD Banner Library** is a managed Power Platform solution that provides re
 ## Current State
 
 > **Branch:** `main`
-> **Released:** v1.3.0 (git tag `v1.3.0`; GitHub Release published)
-> **Environment (Dev):** v1.3.0 deployed
+> **Released:** v1.4.0 consent-write build pending release
+> **Environment (Dev):** v1.4.0 UAT pending
 > **PCF control:** `DoDBannerLibrary.DodBannerControl` v1.2.1
 > **License:** MIT License added (Copyright 2026 Devon Aleshire; personal; no patent grant)
 
@@ -44,7 +44,7 @@ The **DoD Banner Library** is a managed Power Platform solution that provides re
 - ✅ `dodbl_webtemplatesource` — Power Pages Web Template source (copy/paste Liquid page)
 - ✅ `dodbl_dodbanner` — MDA form OnLoad JS script; reads env vars via Xrm.WebApi. Uses `Xrm.App.addGlobalNotification` for consent (supported UCI API, no window.top). Uses `window.top.document` DOM injection for classification bar only (known anti-pattern — see ADR 0006). Supports `Top`/`Bottom`/`Both` bar placement; shifts MDA nav header down when bar is at top.
 - ✅ `dodbl_docs` — in-solution documentation (post-import checklist, all web resources documented). Contains sidebar link back to Home.
-- ✅ `dodbl_release-notes` — version history (latest first, oldest last). v1.3.0 released. Contains back-link to Home.
+- ✅ `dodbl_release-notes` — version history (latest first, oldest last). v1.4.0 consent-write entry is latest. Contains back-link to Home.
 - ✅ `dodbl_banner-launch-page` — MDA consent gate landing page (shipped in v1.3.0). Full-page HTML; optional system-use notification surface on app entry. Sets `dodbl_Accepted` with `Secure; SameSite=Strict`, calls `parent.Xrm.App.addGlobalNotification` belt-and-suspenders, then fades overlay. Provides nav tiles to Documentation, Release Notes, Web Template Source, and Canvas App Demo. Implements split-before-decode `getCookie()` pattern (URIError fix). All `parent.Xrm` calls wrapped in try/catch.
 
 ### PCF Control
@@ -64,7 +64,7 @@ The **DoD Banner Library** is a managed Power Platform solution that provides re
 - ✅ `dodbl_DoDBannerLibraryManagement` — MDA management app; sitemap: **Home** (dodbl_banner-launch-page, first) → Resources (docs, release notes, web template source) → Canvas App Demo
 - ✅ `dodbl_canvasappdemo_bb4ae` — Canvas App demo (PCF control)
 - ✅ `dodbl_DoDBannerLibrary.DodBannerControl` — PCF registered as custom control (type 66) in solution
-- ✅ Solution version: `1.3.0.0` (main)
+- ✅ Solution version: `1.4.0.0` (main)
 - 🔲 v1.4.0 follow-ups tracked live in GitHub Project: #21 (Canvas consent persistence), #22 (technical docs + repo artifacts), #23 (IL/compliance wording)
 
 > **Note:** `dodbl_banner_demo` entity was intentionally removed from the solution in v1.3.0. The demo is now the Canvas App (`dodbl_canvasappdemo_bb4ae`).
