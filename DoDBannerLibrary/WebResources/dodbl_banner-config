@@ -80,6 +80,7 @@
     #reloadBtn { background: var(--primary-light); color: var(--primary); }
     #resetConsentBtn { background: #edebe9; color: var(--text); }
     button:disabled { background: #edebe9; color: var(--text-dis); cursor: not-allowed; }
+    .reload-help { font-size: 11px; color: var(--text-sec); max-width: 180px; line-height: 1.35; }
     .status-msg { font-size: 12px; color: var(--text-sec); }
   </style>
 </head>
@@ -114,7 +115,8 @@
 
     <div class="actions">
       <button id="saveBtn" type="button" disabled>Save Changes</button>
-      <button id="reloadBtn" type="button">Reload</button>
+      <button id="reloadBtn" type="button" title="Reloads the app so banner changes take effect immediately.">Reload app to apply</button>
+      <span class="reload-help">Reloads the app so banner changes take effect immediately.</span>
       <button id="resetConsentBtn" type="button">Reset My Consent (clear cookie)</button>
       <span class="status-msg" id="statusMsg"></span>
     </div>
@@ -254,6 +256,19 @@ function setNotice(id, cls, icon, title, body) {
 function setStatus(message) {
   var el = document.getElementById("statusMsg");
   if (el) el.textContent = message || "";
+}
+
+function focusReloadAction() {
+  var btn = document.getElementById("reloadBtn");
+  if (btn && typeof btn.focus === "function") btn.focus();
+}
+
+function reloadApp() {
+  try {
+    (window.top || window).location.reload();
+  } catch (e) {
+    window.location.reload();
+  }
 }
 
 function clearConsentCookie() {
@@ -678,8 +693,9 @@ function onSave() {
       .then(function () {
         return refresh().then(function (reloaded) {
           setStatus(reloaded
-            ? "Saved. The classification bar updates on your next page navigation or refresh."
-            : "Saved, but the latest configuration fields could not be reloaded. Refresh this page before making more changes.");
+            ? "Saved. Banner changes apply when the app reloads — click 'Reload app to apply' to see them now, or they'll appear on your next navigation."
+            : "Saved. Banner changes apply when the app reloads — click 'Reload app to apply' to see them now. The latest configuration fields could not be refreshed, so reload before making more changes.");
+          focusReloadAction();
         });
       })
       .catch(function (e) {
@@ -710,12 +726,8 @@ function refresh() {
 }
 
 function onReload() {
-  refreshRunningVersion();
-  refresh().then(function (reloaded) {
-    if (reloaded) {
-      setStatus("Reloaded configuration fields. The classification bar updates on your next page navigation or refresh.");
-    }
-  });
+  setStatus("Reloading app…");
+  reloadApp();
 }
 
 function onResetConsent() {
