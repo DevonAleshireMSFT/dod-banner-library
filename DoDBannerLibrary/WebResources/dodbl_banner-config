@@ -185,6 +185,17 @@ function getXrm() {
   }
 }
 
+// Dataverse Web API (OData v4) takes GUID literals unquoted — matches the read
+// pattern in dodbl_banner-launch-page. Values are still shape-checked before
+// they are concatenated into a $filter.
+function isGuid(value) {
+  return /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(String(value));
+}
+
+function isSchemaName(value) {
+  return /^[A-Za-z0-9_]+$/.test(String(value));
+}
+
 function warnConfig(message) {
   if (window.console && console.warn) console.warn("[DoDBannerLibrary] " + message);
 }
@@ -241,7 +252,7 @@ function getCurrentUserRoleNames() {
 
   var ids = (settings.securityRoles || []).map(function (id) {
     return String(id).replace(/[{}]/g, "");
-  }).filter(function (id) { return /^[0-9a-fA-F-]{36}$/.test(id); });
+  }).filter(isGuid);
 
   if (ids.length === 0 || !xrm.WebApi) return Promise.resolve([]);
 
@@ -269,6 +280,7 @@ function loadEnvVars() {
   }
 
   var schemaFilter = ENV_VARS
+    .filter(function (v) { return isSchemaName(v.schema); })
     .map(function (v) { return "schemaname eq '" + v.schema + "'"; })
     .join(" or ");
 
@@ -287,7 +299,7 @@ function loadEnvVars() {
         modifiedBy: "",
         modifiedOn: ""
       };
-      defIds.push(def.environmentvariabledefinitionid);
+      if (isGuid(def.environmentvariabledefinitionid)) defIds.push(def.environmentvariabledefinitionid);
     });
 
     if (defIds.length === 0) return state;
