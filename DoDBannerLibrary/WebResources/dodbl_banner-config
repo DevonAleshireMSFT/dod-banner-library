@@ -283,6 +283,21 @@ function getClassificationColor(bannerType) {
   return "#5e5e5e";
 }
 
+function friendlyClassificationLabel(value) {
+  var raw = String(value == null ? "" : value).trim();
+  var t = raw.toUpperCase();
+  if (t.indexOf("CU") === 0) return "CUI";
+  if (t.indexOf("U")  === 0) return "UNCLASSIFIED";
+  if (t.indexOf("CO") === 0) return "CONFIDENTIAL";
+  if (t.indexOf("S")  === 0) return "SECRET";
+  if (t.indexOf("T")  === 0) return "TOP SECRET";
+  return raw;
+}
+
+function displayValueForDef(def, value) {
+  return def && def.classification ? friendlyClassificationLabel(value) : String(value == null ? "" : value).trim();
+}
+
 function getCurrentBannerType() {
   var typeField = document.getElementById("field_dodbl_BannerType");
   if (typeField) return String(typeField.value).trim();
@@ -463,7 +478,9 @@ function buildField(def, entry) {
     def.options.forEach(function (opt) {
       var o = document.createElement("option");
       o.value = opt.value;
-      o.textContent = opt.text;
+      o.textContent = def.classification && opt.value && displayValueForDef(def, opt.value) !== opt.value
+        ? displayValueForDef(def, opt.value)
+        : opt.text;
       if (opt.value.toLowerCase() === String(current).trim().toLowerCase()) {
         o.selected = true;
         known = true;
@@ -474,7 +491,7 @@ function buildField(def, entry) {
       // Preserve an unrecognised existing value rather than silently rewriting it.
       var custom = document.createElement("option");
       custom.value = current;
-      custom.textContent = current + " (current value)";
+      custom.textContent = displayValueForDef(def, current) + " (current value)";
       custom.selected = true;
       field.appendChild(custom);
     }
@@ -612,8 +629,9 @@ function saveChange(change) {
 
 function confirmChanges(changes) {
   var summary = changes.map(function (c) {
-    var from = String(resolvedValue(c.entry)).trim();
-    return c.def.label + ": '" + (from || "(empty)") + "' → '" + (c.value || "(empty)") + "'";
+    var from = displayValueForDef(c.def, resolvedValue(c.entry));
+    var to = displayValueForDef(c.def, c.value);
+    return c.def.label + ": '" + (from || "(empty)") + "' → '" + (to || "(empty)") + "'";
   }).join("\n");
 
   var classificationChange = changes.some(function (c) { return c.def.classification; });
