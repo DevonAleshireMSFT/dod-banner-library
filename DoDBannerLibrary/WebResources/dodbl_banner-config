@@ -126,7 +126,7 @@
 "use strict";
 
 // ── Configuration surface ────────────────────────────────────────────────────
-// Admin config screen for the four banner environment variables (issue #43).
+// Admin config screen for banner environment variables (issue #43).
 // Runs as a Model-Driven App web resource so parent.Xrm.WebApi can both read and
 // write environmentvariablevalue records — Canvas PCF cannot write (see ADR 0009
 // and ADR 0011).
@@ -169,6 +169,12 @@ var ENV_VARS = [
     desc: "Optional hex color override for the classification bar. Leave automatic to use the Banner Type default."
   },
   {
+    schema: "dodbl_BannerLabel",
+    label: "Banner Label Override",
+    kind: "text",
+    desc: "Custom text for the classification bar, e.g. UNCLASSIFIED//PII. Leave blank to use the Banner Type default."
+  },
+  {
     schema: "dodbl_BannerPosition",
     label: "Banner Position",
     kind: "choice",
@@ -184,6 +190,13 @@ var ENV_VARS = [
     label: "Consent Expiry Days",
     kind: "number",
     desc: "Days before the dodbl_Accepted consent cookie expires. 0 re-prompts every session."
+  },
+  {
+    schema: "dodbl_BannerVersion",
+    label: "Banner Version",
+    kind: "text",
+    readOnly: true,
+    desc: "Read-only solution version displayed by the banner resources."
   }
 ];
 
@@ -500,7 +513,7 @@ function buildField(def, entry) {
   }
 
   field.id = "field_" + def.schema;
-  field.disabled = !_isAdmin;
+  field.disabled = !_isAdmin || !!def.readOnly;
   return field;
 }
 
@@ -566,6 +579,7 @@ function collectChanges() {
   var changes = [];
   ENV_VARS.forEach(function (def) {
     var entry = _state[def.schema];
+    if (def.readOnly) return;
     if (!entry) return;
     var next = readField(def);
     if (next == null) return;

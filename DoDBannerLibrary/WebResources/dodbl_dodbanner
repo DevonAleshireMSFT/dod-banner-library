@@ -7,10 +7,11 @@
 //        Function: DoDBannerLibrary.DodBanner.onFormLoad
 //        Pass execution context: Yes
 //
-// The script reads seven environment variables:
+// The script reads eight environment variables:
 //   dodbl_BannerEnabled       — Boolean  — set to false/no to suppress all banners
 //   dodbl_BannerType          — String   — "CUI" | "UNCLASSIFIED" | "SECRET" etc. (classification bar)
 //   dodbl_BannerColor         — String   — optional hex color override; empty = type default
+//   dodbl_BannerLabel         — String   — optional label override; empty = type default
 //   dodbl_ConsentExpiryDays   — Number   — cookie lifetime in days (default 30)
 //   dodbl_DoDConsentText      — String   — AO-approved text; falls back to built-in default
 //   dodbl_ShowConsentBanner   — Boolean  — set to yes/true to show the DoD system-use notification
@@ -179,9 +180,13 @@ DoDBannerLibrary.DodBanner = (function () {
     return "#5e5e5e";                             // unknown → grey
   }
 
+  function isValidHex(value) {
+    return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(((value || "") + "").trim());
+  }
+
   function normalizeHexColor(value) {
     var color = ((value || "") + "").trim();
-    return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(color) ? color : "";
+    return isValidHex(color) ? color : "";
   }
 
   function getContrastTextColor(hexColor) {
@@ -223,17 +228,19 @@ DoDBannerLibrary.DodBanner = (function () {
     });
   }
 
-  function injectClassificationBar(bannerType, position, bannerColorOverride) {
+  function injectClassificationBar(bannerType, position, bannerColorOverride, bannerLabelOverride) {
     var BAR_HEIGHT = 28;
 
     // ── Cleanup — restore any previously shifted MDA header, then remove old bars
     removeClassificationBars();
 
     var pos   = ((position || "bottom") + "").trim().toLowerCase();
-    var overrideColor = normalizeHexColor(bannerColorOverride);
-    var color = overrideColor || getClassificationColor(bannerType);
-    var textColor = overrideColor ? getContrastTextColor(overrideColor) : "#fff";
-    var label = getClassificationLabel(bannerType);
+    var overrideColor = ((bannerColorOverride || "") + "").trim();
+    var validOverrideColor = overrideColor && isValidHex(overrideColor);
+    var color = validOverrideColor ? overrideColor : getClassificationColor(bannerType);
+    var textColor = validOverrideColor ? getContrastTextColor(overrideColor) : "#fff";
+    var labelOverride = ((bannerLabelOverride || "") + "").trim();
+    var label = labelOverride ? labelOverride : getClassificationLabel(bannerType);
 
     function buildBar(placement) {
       var bar = _doc.createElement("div");
@@ -318,10 +325,11 @@ DoDBannerLibrary.DodBanner = (function () {
 
     var bannerType = ((vars["dodbl_BannerType"] || BANNER_TYPE_DEFAULT) + "").trim();
     var bannerColor = ((vars["dodbl_BannerColor"] || "") + "").trim();
+    var bannerLabel = ((vars["dodbl_BannerLabel"] || "") + "").trim();
     var barPosition = ((vars["dodbl_BannerPosition"] || "Bottom") + "").trim();
 
     if (bannerType) {
-      injectClassificationBar(bannerType, barPosition, bannerColor);
+      injectClassificationBar(bannerType, barPosition, bannerColor, bannerLabel);
     } else {
       removeClassificationBars();
     }
@@ -351,6 +359,7 @@ DoDBannerLibrary.DodBanner = (function () {
       "dodbl_BannerEnabled",
       "dodbl_BannerType",
       "dodbl_BannerColor",
+      "dodbl_BannerLabel",
       "dodbl_ConsentExpiryDays",
       "dodbl_DoDConsentText",
       "dodbl_ShowConsentBanner",
