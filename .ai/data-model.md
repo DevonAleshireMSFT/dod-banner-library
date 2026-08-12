@@ -13,6 +13,7 @@
 | `dodbl_cuiconsentbanner` | Web Resource (HTML, type 1) | CUI classification mark fragment (Power Pages use) |
 | `dodbl_webtemplatesource` | Web Resource (HTML, type 1) | Power Pages Liquid Web Template source (copy/paste) |
 | `dodbl_dodbanner` | Web Resource (JS, type 3) | MDA form OnLoad script |
+| `dodbl_banner-config` | Web Resource (HTML, type 1) | Admin-only banner configuration screen (env var values) |
 | `dodbl_docs` | Web Resource (HTML, type 1) | In-solution setup documentation |
 | `dodbl_release-notes` | Web Resource (HTML, type 1) | Version history and changelog |
 | `dodbl_BannerEnabled` | Environment Variable (TwoOptions) | Master on/off switch for the banner |
@@ -26,11 +27,14 @@
 | `dodbl_DoDBannerLibrary.DodBannerControl` | PCF Custom Control (type 66) | Canvas App classification bar + DoD modal |
 | `DoD Banner - Consent Write` | Security Role | End-user consent role: Create = Organization scope and Read = User scope on `dodbl_consentrecord` only |
 | `DoD Banner - Consent Audit Reader` | Security Role | App-manager/auditor role: Organization-scope Read on `dodbl_consentrecord`; no create, update, delete, assign, or share |
+| `DoD Banner - Config Admin` | Security Role | Banner config role: Organization-scope Read/Write/Create on `environmentvariablevalue` and Read on `environmentvariabledefinition`; no delete |
 | `dodbl_banner_demo` | Removed custom table | Removed in v1.3.0; demo is now Canvas App `dodbl_canvasappdemo_bb4ae` |
 
 ---
 
 ## Environment Variables
+
+`dodbl_BannerEnabled`, `dodbl_BannerType`, `dodbl_BannerPosition`, and `dodbl_ConsentExpiryDays` are editable in-app by administrators through `dodbl_banner-config`, which writes the per-environment `environmentvariablevalue` record (creating one when only the definition default exists). `dodbl_DoDConsentText` and `dodbl_ShowConsentBanner` remain maker-portal settings. See ADR 0011.
 
 | Schema Name | Display Name | Type | Default | Description |
 |---|---|---|---|---|

@@ -6,7 +6,7 @@
       <LocalizedName description="DoD Banner Library" languagecode="1033" />
     </LocalizedNames>
     <Descriptions />
-    <Version>1.4.1.0</Version>
+    <Version>1.5.0.0</Version>
     <Managed>0</Managed>
     <Publisher>
       <UniqueName>dod_banner_library</UniqueName>
@@ -84,8 +84,10 @@
       <RootComponent type="1" schemaName="systemuser" behavior="1" />
       <RootComponent type="20" id="{a5af8b1e-d389-f111-ab0f-001dd80bd6fe}" behavior="0" />
       <RootComponent type="20" id="{fb22e1d6-919d-46ca-bfc2-daeb392afd7b}" behavior="0" />
+      <RootComponent type="20" id="{faffba99-d07a-4f98-965e-0e0d51e0f567}" behavior="0" />
       <RootComponent type="300" schemaName="dodbl_canvasappdemo_bb4ae" behavior="0" />
       <RootComponent type="61" schemaName="dodbl_bannercore" behavior="0" />
+      <RootComponent type="61" schemaName="dodbl_banner-config" behavior="0" />
       <RootComponent type="61" schemaName="dodbl_banner-launch-page" behavior="0" />
       <RootComponent type="61" schemaName="dodbl_cuiconsentbanner" behavior="0" />
       <RootComponent type="61" schemaName="dodbl_docs" behavior="0" />

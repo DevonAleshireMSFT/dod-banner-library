@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DoD Banner Library — Banner Configuration</title>
+  <style>
+    :root {
+      --primary:       #1b3a6b;
+      --primary-light: #e8edf5;
+      --accent:        #f1d600;
+      --accent-hover:  #e0c91f;
+      --bg:            #f3f2f1;
+      --surface:       #ffffff;
+      --border:        #edebe9;
+      --text:          #323130;
+      --text-sec:      #605e5c;
+      --text-dis:      #a19f9d;
+      --radius:        4px;
+      --shadow:        0 1.6px 3.6px rgba(0,0,0,.13), 0 .3px .9px rgba(0,0,0,.11);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; font-size: 14px; line-height: 1.6; color: var(--text); background: var(--bg); min-height: 100vh; }
+
+    .app-header {
+      background: var(--primary); color: #fff;
+      padding: 18px 32px; display: flex; align-items: center; gap: 16px;
+    }
+    .app-header-icon {
+      width: 40px; height: 40px; background: rgba(255,255,255,.18);
+      border-radius: var(--radius); display: flex; align-items: center;
+      justify-content: center; font-size: 22px; flex-shrink: 0;
+    }
+    .app-header h1 { font-size: 18px; font-weight: 600; }
+    .app-header p  { font-size: 12px; opacity: .85; margin-top: 2px; }
+    .main { max-width: 900px; margin: 0 auto; padding: 28px 32px 48px; }
+
+    .notice {
+      display: flex; align-items: flex-start; gap: 14px;
+      border-radius: var(--radius); padding: 14px 18px;
+      margin-bottom: 24px; font-size: 12px;
+    }
+    .notice strong { display: block; margin-bottom: 3px; font-size: 13px; }
+    .notice-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+    .notice-warn { background: #fff8e1; border: 1px solid #fde7a0; border-left: 4px solid var(--accent); color: #4d3700; }
+    .notice-error { background: #fde7e9; border: 1px solid #f3c6ca; border-left: 4px solid #a4262c; color: #6b1f24; }
+    .notice-ok { background: #dff6dd; border: 1px solid #b7e2b4; border-left: 4px solid #0e5a0e; color: #0e5a0e; }
+
+    .section-label {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .07em; color: var(--text-dis); margin-bottom: 14px;
+    }
+
+    .config-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); margin-bottom: 20px; }
+    .config-row { padding: 16px 20px; border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 1fr 240px; gap: 18px; align-items: start; }
+    .config-row:last-child { border-bottom: none; }
+    .config-name { font-size: 13px; font-weight: 600; }
+    .config-schema { font-family: 'Cascadia Code','Consolas',monospace; font-size: 11px; color: var(--text-sec); }
+    .config-desc { font-size: 11px; color: var(--text-sec); margin-top: 6px; }
+    .config-meta { font-size: 11px; color: var(--text-dis); margin-top: 6px; }
+    .config-field select, .config-field input {
+      width: 100%; font-family: inherit; font-size: 13px; color: var(--text);
+      padding: 6px 8px; border: 1px solid #8a8886; border-radius: var(--radius); background: #fff;
+    }
+    .config-field select:disabled, .config-field input:disabled { background: #f3f2f1; color: var(--text-dis); }
+    .config-source { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; margin-top: 6px; display: inline-block; padding: 2px 8px; border-radius: 10px; }
+    .source-value   { background: #dff6dd; color: #0e5a0e; }
+    .source-default { background: #edebe9; color: var(--text-sec); }
+
+    .actions { display: flex; align-items: center; gap: 14px; }
+    button {
+      font-family: inherit; font-weight: 700; font-size: 13px; padding: 9px 26px;
+      border-radius: var(--radius); border: none; cursor: pointer;
+    }
+    #saveBtn { background: var(--accent); color: #000; }
+    #saveBtn:hover:enabled { background: var(--accent-hover); }
+    #reloadBtn { background: var(--primary-light); color: var(--primary); }
+    button:disabled { background: #edebe9; color: var(--text-dis); cursor: not-allowed; }
+    .status-msg { font-size: 12px; color: var(--text-sec); }
+  </style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="app-header-icon">⚙️</div>
+  <div>
+    <h1>Banner Configuration</h1>
+    <p>Environment variables that drive the DoD Banner Library</p>
+  </div>
+</div>
+
+<div class="main">
+
+  <div id="accessNotice" class="notice notice-warn">
+    <div class="notice-icon">⏳</div>
+    <div><strong>Checking access&hellip;</strong>Verifying your security roles before loading configuration.</div>
+  </div>
+
+  <div id="configSection" style="display:none">
+    <div class="notice notice-warn">
+      <div class="notice-icon">⚠️</div>
+      <div>
+        <strong>Classification setting &mdash; change with authorization only</strong>
+        <span id="auditNotice">Banner Type controls the classification mark shown to every user of this environment. Changes are written to the environment variable value records, are attributed to your user account, and take effect for each user on their next page load or refresh.</span>
+      </div>
+    </div>
+
+    <p class="section-label">Banner Environment Variables</p>
+    <div class="config-card" id="configRows"></div>
+
+    <div class="actions">
+      <button id="saveBtn" type="button" disabled>Save Changes</button>
+      <button id="reloadBtn" type="button">Reload</button>
+      <span class="status-msg" id="statusMsg"></span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+"use strict";
+
+// ── Configuration surface ────────────────────────────────────────────────────
+// Admin config screen for the four banner environment variables (issue #43).
+// Runs as a Model-Driven App web resource so parent.Xrm.WebApi can both read and
+// write environmentvariablevalue records — Canvas PCF cannot write (see ADR 0009
+// and ADR 0011).
+var ADMIN_ROLES = ["DoD Banner - Config Admin", "System Administrator"];
+
+var ENV_VARS = [
+  {
+    schema: "dodbl_BannerEnabled",
+    label: "Banner Enabled",
+    kind: "choice",
+    options: [
+      { value: "yes", text: "Yes — banner enabled" },
+      { value: "no",  text: "No — all banners suppressed" }
+    ],
+    desc: "Master on/off switch. 'No' suppresses every banner without removing components."
+  },
+  {
+    schema: "dodbl_BannerType",
+    label: "Banner Type",
+    kind: "choice",
+    classification: true,
+    options: [
+      { value: "",             text: "(empty) — no classification bar" },
+      { value: "CUI",          text: "CUI" },
+      { value: "U",            text: "U (UNCLASSIFIED)" },
+      { value: "CONFIDENTIAL", text: "CONFIDENTIAL" },
+      { value: "SECRET",       text: "SECRET" },
+      { value: "TOP SECRET",   text: "TOP SECRET" },
+      { value: "DoD",          text: "DoD (legacy consent alias)" }
+    ],
+    desc: "Classification bar value. This is a classification setting — only change it with the required approval."
+  },
+  {
+    schema: "dodbl_BannerPosition",
+    label: "Banner Position",
+    kind: "choice",
+    options: [
+      { value: "Bottom", text: "Bottom" },
+      { value: "Top",    text: "Top" },
+      { value: "Both",   text: "Both" }
+    ],
+    desc: "Placement of the classification bar in Model-Driven Apps."
+  },
+  {
+    schema: "dodbl_ConsentExpiryDays",
+    label: "Consent Expiry Days",
+    kind: "number",
+    desc: "Days before the dodbl_Accepted consent cookie expires. 0 re-prompts every session."
+  }
+];
+
+var _state = {};   // schema -> { definitionId, defaultValue, valueId, value, resolved, modifiedBy, modifiedOn }
+var _isAdmin = false;
+
+// ── Xrm helpers ──────────────────────────────────────────────────────────────
+function getXrm() {
+  try {
+    return (parent && parent.Xrm) ? parent.Xrm : null;
+  } catch (_e) {
+    return null;
+  }
+}
+
+function warnConfig(message) {
+  if (window.console && console.warn) console.warn("[DoDBannerLibrary] " + message);
+}
+
+function setNotice(id, cls, icon, title, body) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.className = "notice " + cls;
+  el.textContent = "";
+
+  var iconEl = document.createElement("div");
+  iconEl.className = "notice-icon";
+  iconEl.textContent = icon;
+
+  var textEl = document.createElement("div");
+  var strongEl = document.createElement("strong");
+  strongEl.textContent = title;
+  textEl.appendChild(strongEl);
+  textEl.appendChild(document.createTextNode(body));
+
+  el.appendChild(iconEl);
+  el.appendChild(textEl);
+  el.style.display = "flex";
+}
+
+function setStatus(message) {
+  var el = document.getElementById("statusMsg");
+  if (el) el.textContent = message || "";
+}
+
+// ── RBAC ─────────────────────────────────────────────────────────────────────
+// Client-side gating is a usability guard only. Dataverse privileges on
+// environmentvariablevalue remain the enforcement boundary: a user without
+// write privilege cannot save even if this check were bypassed.
+function getCurrentUserRoleNames() {
+  var xrm = getXrm();
+  if (!(xrm && xrm.Utility)) return Promise.resolve([]);
+
+  var settings;
+  try {
+    settings = xrm.Utility.getGlobalContext().userSettings;
+  } catch (_e) {
+    return Promise.resolve([]);
+  }
+  if (!settings) return Promise.resolve([]);
+
+  // Newer clients expose a roles collection with names already resolved.
+  try {
+    if (settings.roles && typeof settings.roles.get === "function") {
+      var named = settings.roles.get().map(function (r) { return r.name; }).filter(Boolean);
+      if (named.length > 0) return Promise.resolve(named);
+    }
+  } catch (_e) { /* fall through to Web API lookup */ }
+
+  var ids = (settings.securityRoles || []).map(function (id) {
+    return String(id).replace(/[{}]/g, "");
+  }).filter(function (id) { return /^[0-9a-fA-F-]{36}$/.test(id); });
+
+  if (ids.length === 0 || !xrm.WebApi) return Promise.resolve([]);
+
+  var filter = ids.map(function (id) { return "roleid eq " + id; }).join(" or ");
+  return xrm.WebApi.retrieveMultipleRecords("role", "?$select=name&$filter=" + filter)
+    .then(function (result) {
+      return (result.entities || []).map(function (r) { return r.name; }).filter(Boolean);
+    })
+    .catch(function () { return []; });
+}
+
+function isAdminUser() {
+  return getCurrentUserRoleNames().then(function (roleNames) {
+    return roleNames.some(function (name) {
+      return ADMIN_ROLES.indexOf(name) >= 0;
+    });
+  });
+}
+
+// ── Read ─────────────────────────────────────────────────────────────────────
+function loadEnvVars() {
+  var xrm = getXrm();
+  if (!(xrm && xrm.WebApi)) {
+    return Promise.reject(new Error("Xrm.WebApi is unavailable. Open this page inside the model-driven app."));
+  }
+
+  var schemaFilter = ENV_VARS
+    .map(function (v) { return "schemaname eq '" + v.schema + "'"; })
+    .join(" or ");
+
+  return xrm.WebApi.retrieveMultipleRecords(
+    "environmentvariabledefinition",
+    "?$select=environmentvariabledefinitionid,schemaname,defaultvalue&$filter=" + schemaFilter
+  ).then(function (defResult) {
+    var state = {};
+    var defIds = [];
+    (defResult.entities || []).forEach(function (def) {
+      state[def.schemaname] = {
+        definitionId: def.environmentvariabledefinitionid,
+        defaultValue: def.defaultvalue == null ? "" : String(def.defaultvalue),
+        valueId: null,
+        value: null,
+        modifiedBy: "",
+        modifiedOn: ""
+      };
+      defIds.push(def.environmentvariabledefinitionid);
+    });
+
+    if (defIds.length === 0) return state;
+
+    var valFilter = defIds
+      .map(function (id) { return "_environmentvariabledefinitionid_value eq " + id; })
+      .join(" or ");
+
+    return xrm.WebApi.retrieveMultipleRecords(
+      "environmentvariablevalue",
+      "?$select=environmentvariablevalueid,value,modifiedon,_environmentvariabledefinitionid_value" +
+      "&$expand=modifiedby($select=fullname)&$filter=" + valFilter
+    ).then(function (valResult) {
+      (valResult.entities || []).forEach(function (val) {
+        var defId = val["_environmentvariabledefinitionid_value"];
+        var entry = null;
+        Object.keys(state).forEach(function (schema) {
+          if (state[schema].definitionId === defId) entry = state[schema];
+        });
+        if (!entry) return;
+        entry.valueId = val.environmentvariablevalueid;
+        entry.value = val.value == null ? "" : String(val.value);
+        entry.modifiedOn = val.modifiedon || "";
+        entry.modifiedBy = (val.modifiedby && val.modifiedby.fullname) ? val.modifiedby.fullname : "";
+      });
+      return state;
+    });
+  });
+}
+
+function resolvedValue(entry) {
+  // Matches the runtime read order in dodbl_banner-launch-page / dodbl_dodbanner:
+  // a non-empty per-environment value wins over the definition default.
+  if (entry.value != null && String(entry.value).trim() !== "") return entry.value;
+  return entry.defaultValue;
+}
+
+// ── Render ───────────────────────────────────────────────────────────────────
+function formatModified(entry) {
+  if (!entry.modifiedOn) return "No environment value record yet — the definition default is in effect.";
+  var when = entry.modifiedOn;
+  try {
+    when = new Date(entry.modifiedOn).toLocaleString();
+  } catch (_e) { /* keep raw ISO string */ }
+  return "Last changed " + when + (entry.modifiedBy ? " by " + entry.modifiedBy : "") + ".";
+}
+
+function buildField(def, entry) {
+  var current = resolvedValue(entry);
+  var field;
+
+  if (def.kind === "choice") {
+    field = document.createElement("select");
+    var known = false;
+    def.options.forEach(function (opt) {
+      var o = document.createElement("option");
+      o.value = opt.value;
+      o.textContent = opt.text;
+      if (opt.value.toLowerCase() === String(current).trim().toLowerCase()) {
+        o.selected = true;
+        known = true;
+      }
+      field.appendChild(o);
+    });
+    if (!known && String(current).trim() !== "") {
+      // Preserve an unrecognised existing value rather than silently rewriting it.
+      var custom = document.createElement("option");
+      custom.value = current;
+      custom.textContent = current + " (current value)";
+      custom.selected = true;
+      field.appendChild(custom);
+    }
+  } else {
+    field = document.createElement("input");
+    field.type = def.kind === "number" ? "number" : "text";
+    if (def.kind === "number") field.min = "0";
+    field.value = current;
+  }
+
+  field.id = "field_" + def.schema;
+  field.disabled = !_isAdmin;
+  return field;
+}
+
+function renderRows() {
+  var host = document.getElementById("configRows");
+  host.textContent = "";
+
+  ENV_VARS.forEach(function (def) {
+    var entry = _state[def.schema];
+    var row = document.createElement("div");
+    row.className = "config-row";
+
+    var info = document.createElement("div");
+    var name = document.createElement("div");
+    name.className = "config-name";
+    name.textContent = def.label + (def.classification ? " — classification setting" : "");
+    var schema = document.createElement("div");
+    schema.className = "config-schema";
+    schema.textContent = def.schema;
+    var desc = document.createElement("div");
+    desc.className = "config-desc";
+    desc.textContent = def.desc;
+    info.appendChild(name);
+    info.appendChild(schema);
+    info.appendChild(desc);
+
+    var meta = document.createElement("div");
+    meta.className = "config-meta";
+    meta.textContent = entry ? formatModified(entry) : "Environment variable definition not found in this environment.";
+    info.appendChild(meta);
+
+    var fieldWrap = document.createElement("div");
+    fieldWrap.className = "config-field";
+    if (entry) {
+      fieldWrap.appendChild(buildField(def, entry));
+      var source = document.createElement("span");
+      var hasValue = entry.value != null && String(entry.value).trim() !== "";
+      source.className = "config-source " + (hasValue ? "source-value" : "source-default");
+      source.textContent = hasValue ? "Environment value" : "Definition default";
+      fieldWrap.appendChild(source);
+    }
+
+    row.appendChild(info);
+    row.appendChild(fieldWrap);
+    host.appendChild(row);
+  });
+}
+
+// ── Write ────────────────────────────────────────────────────────────────────
+function readField(def) {
+  var el = document.getElementById("field_" + def.schema);
+  return el ? String(el.value) : null;
+}
+
+function collectChanges() {
+  var changes = [];
+  ENV_VARS.forEach(function (def) {
+    var entry = _state[def.schema];
+    if (!entry) return;
+    var next = readField(def);
+    if (next == null) return;
+    next = next.trim();
+    if (def.kind === "number" && next !== "" && !/^\d+$/.test(next)) {
+      throw new Error(def.label + " must be a whole number of days.");
+    }
+    if (next !== String(resolvedValue(entry)).trim()) {
+      changes.push({ def: def, entry: entry, value: next });
+    }
+  });
+  return changes;
+}
+
+function saveChange(change) {
+  var xrm = getXrm();
+  var entry = change.entry;
+  if (entry.valueId) {
+    return xrm.WebApi.updateRecord("environmentvariablevalue", entry.valueId, { value: change.value });
+  }
+  return xrm.WebApi.createRecord("environmentvariablevalue", {
+    value: change.value,
+    "EnvironmentVariableDefinitionId@odata.bind":
+      "/environmentvariabledefinitions(" + entry.definitionId + ")"
+  });
+}
+
+function confirmChanges(changes) {
+  var summary = changes.map(function (c) {
+    var from = String(resolvedValue(c.entry)).trim();
+    return c.def.label + ": '" + (from || "(empty)") + "' → '" + (c.value || "(empty)") + "'";
+  }).join("\n");
+
+  var classificationChange = changes.some(function (c) { return c.def.classification; });
+  var message = "Apply the following banner configuration changes?\n\n" + summary +
+    "\n\nThe change is attributed to your user account and applies to every user of this environment on their next page load.";
+  if (classificationChange) {
+    message = "You are changing a CLASSIFICATION setting.\n\n" + message;
+  }
+
+  var xrm = getXrm();
+  if (xrm && xrm.Navigation && xrm.Navigation.openConfirmDialog) {
+    return xrm.Navigation.openConfirmDialog({ title: "Confirm banner configuration change", text: message })
+      .then(function (result) { return !!(result && result.confirmed); });
+  }
+  return Promise.resolve(window.confirm(message));
+}
+
+function onSave() {
+  var changes;
+  try {
+    changes = collectChanges();
+  } catch (e) {
+    setStatus(e.message);
+    return;
+  }
+
+  if (changes.length === 0) {
+    setStatus("No changes to save.");
+    return;
+  }
+
+  confirmChanges(changes).then(function (confirmed) {
+    if (!confirmed) {
+      setStatus("Save cancelled.");
+      return;
+    }
+
+    document.getElementById("saveBtn").disabled = true;
+    setStatus("Saving…");
+
+    return changes.reduce(function (chain, change) {
+      return chain.then(function () { return saveChange(change); });
+    }, Promise.resolve())
+      .then(function () {
+        return refresh().then(function () {
+          setStatus("Saved. Users see the new configuration on their next page load or refresh.");
+        });
+      })
+      .catch(function (e) {
+        warnConfig("Configuration save failed: " + (e && e.message ? e.message : e));
+        setStatus("Save failed: " + ((e && e.message) ? e.message : "unknown error") +
+          " Confirm you have write privilege on Environment Variable Value.");
+        document.getElementById("saveBtn").disabled = false;
+      });
+  });
+}
+
+// ── Load / init ──────────────────────────────────────────────────────────────
+function refresh() {
+  setStatus("Loading…");
+  return loadEnvVars()
+    .then(function (state) {
+      _state = state || {};
+      renderRows();
+      document.getElementById("saveBtn").disabled = !_isAdmin;
+      setStatus("");
+    })
+    .catch(function (e) {
+      warnConfig("Configuration load failed: " + (e && e.message ? e.message : e));
+      setStatus("Could not load environment variables: " + ((e && e.message) ? e.message : "unknown error"));
+    });
+}
+
+(function init() {
+  document.getElementById("saveBtn").addEventListener("click", onSave);
+  document.getElementById("reloadBtn").addEventListener("click", function () { refresh(); });
+
+  isAdminUser()
+    .then(function (admin) {
+      _isAdmin = admin;
+      if (!admin) {
+        setNotice("accessNotice", "notice-error", "🔒", "Access denied — administrators only",
+          "Banner configuration includes the classification banner type and can only be changed by a user holding the 'DoD Banner - Config Admin' or 'System Administrator' role. Contact your environment administrator to request a change.");
+        return;
+      }
+      setNotice("accessNotice", "notice-ok", "✅", "Administrator access confirmed",
+        "You can change the banner environment variable values for this environment.");
+      document.getElementById("configSection").style.display = "block";
+      return refresh();
+    })
+    .catch(function (e) {
+      warnConfig("Role check failed: " + (e && e.message ? e.message : e));
+      setNotice("accessNotice", "notice-error", "🔒", "Access could not be verified",
+        "Your security roles could not be read, so the configuration screen stays locked. Reload the page from inside the model-driven app.");
+    });
+}());
+</script>
+</body>
+</html>

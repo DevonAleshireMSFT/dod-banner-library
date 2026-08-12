@@ -32,7 +32,7 @@ The **DoD Banner Library** is a managed Power Platform solution that provides re
 ## Current State
 
 > **Branch:** `main`
-> **Released:** v1.4.1 patch build pending release
+> **Released:** v1.5.0 admin config screen pending release
 > **Environment (Dev):** v1.4.1 UAT pending
 > **PCF control:** `DoDBannerLibrary.DodBannerControl` v1.2.1
 > **License:** MIT License added (Copyright 2026 Devon Aleshire; personal; no patent grant)
@@ -45,6 +45,7 @@ The **DoD Banner Library** is a managed Power Platform solution that provides re
 - ✅ `dodbl_dodbanner` — MDA form OnLoad JS script; reads env vars via Xrm.WebApi. Uses `Xrm.App.addGlobalNotification` for consent (supported UCI API, no window.top). Uses `window.top.document` DOM injection for classification bar only (known anti-pattern — see ADR 0006). Supports `Top`/`Bottom`/`Both` bar placement; shifts MDA nav header down when bar is at top.
 - ✅ `dodbl_docs` — in-solution documentation (post-import checklist, all web resources documented). Contains sidebar link back to Home.
 - ✅ `dodbl_release-notes` — version history (latest first, oldest last). v1.4.1 patch entry is latest. Contains back-link to Home.
+- ✅ `dodbl_banner-config` — admin-only banner configuration screen (v1.5.0). Reads/writes the `environmentvariablevalue` records for `dodbl_BannerEnabled`, `dodbl_BannerType`, `dodbl_BannerPosition`, and `dodbl_ConsentExpiryDays` through `parent.Xrm.WebApi`. Gated to `DoD Banner - Config Admin` / `System Administrator`; classification changes require confirmation. See ADR 0011.
 - ✅ `dodbl_banner-launch-page` — MDA consent gate landing page (shipped in v1.3.0). Full-page HTML; optional system-use notification surface on app entry. Sets `dodbl_Accepted` with `Secure; SameSite=Strict`, calls `parent.Xrm.App.addGlobalNotification` belt-and-suspenders, then fades overlay. Provides nav tiles to Documentation, Release Notes, Web Template Source, and Canvas App Demo. Implements split-before-decode `getCookie()` pattern (URIError fix). All `parent.Xrm` calls wrapped in try/catch.
 
 ### PCF Control
@@ -61,10 +62,10 @@ The **DoD Banner Library** is a managed Power Platform solution that provides re
 
 ### Solution Components
 - ✅ 6 Environment Variables: `dodbl_BannerEnabled`, `dodbl_BannerType`, `dodbl_ConsentExpiryDays`, `dodbl_DoDConsentText`, `dodbl_ShowConsentBanner`, `dodbl_BannerPosition`
-- ✅ `dodbl_DoDBannerLibraryManagement` — MDA management app; sitemap: **Home** (dodbl_banner-launch-page, first) → Resources (docs, release notes, web template source) → Canvas App Demo
+- ✅ `dodbl_DoDBannerLibraryManagement` — MDA management app; sitemap: **Home** (dodbl_banner-launch-page, first) → Banner Configuration (dodbl_banner-config) → Consent Records → Resources (docs, release notes, web template source) → Canvas App Demo
 - ✅ `dodbl_canvasappdemo_bb4ae` — Canvas App demo (PCF control)
 - ✅ `dodbl_DoDBannerLibrary.DodBannerControl` — PCF registered as custom control (type 66) in solution
-- ✅ Solution version: `1.4.1.0` (main)
+- ✅ Solution version: `1.5.0.0` (main)
 - 🔲 v1.4.0 follow-ups tracked live in GitHub Project: #21 (Canvas consent persistence), #22 (technical docs + repo artifacts), #23 (IL/compliance wording)
 
 > **Note:** `dodbl_banner_demo` entity was intentionally removed from the solution in v1.3.0. The demo is now the Canvas App (`dodbl_canvasappdemo_bb4ae`).
@@ -99,6 +100,7 @@ The env vars (`dodbl_BannerEnabled`, `dodbl_BannerType`, `dodbl_ConsentExpiryDay
 - **MDA consent uses `addGlobalNotification` — not DOM injection.** The classification bar uses inline `element.style.*` assignments (no `<style>` tag, no `<link>` tag). GCC High CSP blocks nonce-less `<style>` injection. `dodbl_bannercore` CSS is for Power Pages only; MDA sets all bar styles inline.
 - **Consent cookie is `dodbl_Accepted`.** All cookie writes must include `Secure; SameSite=Strict` and remain consistent across PCF (`index.ts`), MDA JS (`dodbl_dodbanner`), and home page (`dodbl_banner-launch-page`). Orphaned legacy `Accepted` cookies may cause one re-prompt after upgrade.
 - **Solution must be distributed as managed.** Never export unmanaged for shared deployment.
+- **Banner configuration is admin-only.** `dodbl_BannerType` is a classification setting. Only `dodbl_banner-config` edits env var values in-app, only for holders of `DoD Banner - Config Admin` or `System Administrator`, and Dataverse privileges on `environmentvariablevalue` — not the client-side role check — are the enforcement boundary.
 
 ---
 
@@ -166,6 +168,7 @@ Known follow-ups: #21 (Canvas consent persistence), #22 (technical docs + repo a
 | PCF TypeScript source | `pcf/DodBannerControl/DodBannerControl/index.ts` |
 | PCF manifest | `pcf/DodBannerControl/DodBannerControl/ControlManifest.Input.xml` |
 | MDA consent gate home page | `DoDBannerLibrary/WebResources/dodbl_banner-launch-page` |
+| MDA admin config screen | `DoDBannerLibrary/WebResources/dodbl_banner-config` |
 | MDA form script | `DoDBannerLibrary/WebResources/dodbl_dodbanner` |
 | Solution manifest | `DoDBannerLibrary/Other/Solution.xml` |
 | Documentation web resource | `DoDBannerLibrary/WebResources/dodbl_docs` |

@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Role id="{faffba99-d07a-4f98-965e-0e0d51e0f567}" name="DoD Banner - Config Admin" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <IsCustomizable>1</IsCustomizable>
+  <IsAutoAssigned>0</IsAutoAssigned>
+  <RolePrivileges>
+    <RolePrivilege name="prvCreateEnvironmentVariableValue" level="Global" />
+    <RolePrivilege name="prvCreateUserApplicationMetadata" level="Basic" />
+    <RolePrivilege name="prvCreateUserEntityUISettings" level="Basic" />
+    <RolePrivilege name="prvCreateUserQuery" level="Basic" />
+    <RolePrivilege name="prvDeleteUserApplicationMetadata" level="Basic" />
+    <RolePrivilege name="prvDeleteUserEntityUISettings" level="Basic" />
+    <RolePrivilege name="prvDeleteUserQuery" level="Basic" />
+    <RolePrivilege name="prvReadAppConfigMaster" level="Global" />
+    <RolePrivilege name="prvReadAppModule" level="Global" />
+    <RolePrivilege name="prvReadAttribute" level="Global" />
+    <RolePrivilege name="prvReadBusinessUnit" level="Global" />
+    <RolePrivilege name="prvReadComplexControl" level="Global" />
+    <RolePrivilege name="prvReadCustomization" level="Global" />
+    <RolePrivilege name="prvReadEntity" level="Global" />
+    <RolePrivilege name="prvReadEnvironmentVariableDefinition" level="Global" />
+    <RolePrivilege name="prvReadEnvironmentVariableValue" level="Global" />
+    <RolePrivilege name="prvReadOptionSet" level="Global" />
+    <RolePrivilege name="prvReadOrganization" level="Global" />
+    <RolePrivilege name="prvReadQuery" level="Global" />
+    <RolePrivilege name="prvReadRole" level="Global" />
+    <RolePrivilege name="prvReadSystemApplicationMetadata" level="Global" />
+    <RolePrivilege name="prvReadSystemForm" level="Global" />
+    <RolePrivilege name="prvReadTeam" level="Global" />
+    <RolePrivilege name="prvReadUser" level="Global" />
+    <RolePrivilege name="prvReadUserApplicationMetadata" level="Basic" />
+    <RolePrivilege name="prvReadUserEntityUISettings" level="Basic" />
+    <RolePrivilege name="prvReadUserQuery" level="Basic" />
+    <RolePrivilege name="prvReadUserSettings" level="Global" />
+    <RolePrivilege name="prvReadWebResource" level="Global" />
+    <RolePrivilege name="prvWriteEnvironmentVariableValue" level="Global" />
+    <RolePrivilege name="prvWriteUserApplicationMetadata" level="Basic" />
+    <RolePrivilege name="prvWriteUserEntityUISettings" level="Basic" />
+    <RolePrivilege name="prvWriteUserQuery" level="Basic" />
+  </RolePrivileges>
+</Role>

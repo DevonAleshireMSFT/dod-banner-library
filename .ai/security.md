@@ -27,6 +27,16 @@ v1.4 consent audit role:
 | `DoD Banner - Consent Write` | Allows licensed users to create their own consent acknowledgement records without broad audit-table access | `Create` = Organization scope and `Read` = User scope on `dodbl_consentrecord` only |
 | `DoD Banner - Consent Audit Reader` | Allows app managers/auditors to run tenant-wide consent reporting without write authority | `Read` = Organization scope on `dodbl_consentrecord`; no Create/Write/Delete/Assign/Share on `dodbl_consentrecord` |
 
+v1.5 banner configuration role:
+
+| Role | Purpose | Minimum Privileges |
+|---|---|---|
+| `DoD Banner - Config Admin` | Allows a small set of administrators to change the banner environment variable values in-app through `dodbl_banner-config` | `Read` = Organization scope on `environmentvariabledefinition`; `Read`, `Write`, `Create` = Organization scope on `environmentvariablevalue`; no `Delete` |
+
+`DoD Banner - Config Admin` exists because `dodbl_BannerType` is a classification setting: it decides which classification mark every user of the environment sees. Assign it only to users authorized to change classification presentation, and never to a general user-facing role. The role grants no Delete privilege, so an environment variable value can be corrected but not removed from the screen.
+
+The role check inside `dodbl_banner-config` is a usability guard that hides the editor from non-administrators. It is not the security boundary: Dataverse privileges on `environmentvariablevalue` are, and a user without Write/Create privilege cannot save even if the client-side check were bypassed.
+
 `DoD Banner - Consent Write` intentionally grants only the two consent-table privileges above. User-scope Read matters: it lets a user read only records they own, preserving audit privacy instead of exposing other users' consent history. `DoD Banner - Consent Audit Reader` is the separate least-privilege read-all role for tenant-wide reporting: auditors can read every consent row, but cannot create, update, delete, assign, or share consent records. The other baseline privileges Dataverse adds to a new role are platform defaults and personal UI/settings privileges and should not be treated as intentional product grants against the consent table.
 
 This split preserves append-only integrity: users create acknowledgement rows and can read their own rows; auditors read all rows for reporting; nobody receives update/delete rights to consent records through these roles.
@@ -45,6 +55,14 @@ This split preserves append-only integrity: users create acknowledgement rows an
 - Stores acknowledgment in `dodbl_Accepted=Yes` with `Secure; SameSite=Strict`.
 - `getCookie` splits cookie pairs before decoding and catches malformed values to avoid `URIError` failures.
 - Renders the classification bar with inline styles; GCC High CSP can block nonce-less `<style>` injection.
+
+**MDA admin config screen (`dodbl_banner-config`):**
+- Admin-only screen for `dodbl_BannerEnabled`, `dodbl_BannerType`, `dodbl_BannerPosition`, and `dodbl_ConsentExpiryDays`.
+- Resolves the current user's role names, then renders the editor only for `DoD Banner - Config Admin` or `System Administrator`; all other users get a locked, read-nothing access-denied panel.
+- Reads definitions and `environmentvariablevalue` records through `parent.Xrm.WebApi`; writes update the existing value record or create one when only the definition default exists.
+- Changes require an explicit confirmation listing old and new values, with an additional classification warning when `dodbl_BannerType` changes.
+- Audit attribution: every write stamps `modifiedby` / `modifiedon` on the `environmentvariablevalue` row, which the screen displays per variable. Enable environment-level Dataverse auditing (and table auditing on `environmentvariablevalue`) to retain full before/after change history — the solution cannot package that environment setting.
+- Renders all values with `textContent` / form control values; no `innerHTML` from Dataverse data.
 
 **MDA form script (`dodbl_dodbanner`):**
 - Runs in the form context of the logged-in user.
@@ -83,7 +101,8 @@ This split preserves append-only integrity: users create acknowledgement rows an
 |---|---|
 | XSS — consent text injection | Consent text is rendered with `textContent`, not `innerHTML`. |
 | XSS — cookie value | Consent value is static `Yes`; malformed cookie values are caught during parsing in hardened paths. |
-| CSRF | v1.3.0 client code performs no Dataverse writes. |
+| CSRF | Dataverse writes go through `Xrm.WebApi` in the authenticated Model-Driven host, which applies the platform's own request protection; no custom endpoint is exposed. |
+| Privilege escalation — config screen | `dodbl_banner-config` gates on role, but enforcement is the Dataverse privilege set on `environmentvariablevalue`; the client check alone is never trusted. |
 | Sensitive data exposure | No secrets or PII are stored in consent cookies. |
 
 ---

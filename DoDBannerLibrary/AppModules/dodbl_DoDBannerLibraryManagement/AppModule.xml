@@ -16,6 +16,7 @@
   <AppModuleRoleMaps>
     <Role id="{627090ff-40a3-4053-8790-584edc5be201}" />
     <Role id="{119f245c-3cc8-4b62-b31c-d1a046ced15d}" />
+    <Role id="{faffba99-d07a-4f98-965e-0e0d51e0f567}" />
   </AppModuleRoleMaps>
   <LocalizedNames>
     <LocalizedName description="DoD Banner Library Management" languagecode="1033" />
