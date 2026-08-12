@@ -106,7 +106,7 @@
       <div class="notice-icon">⚠️</div>
       <div>
         <strong>Classification setting &mdash; change with authorization only</strong>
-        <span id="auditNotice">Banner Type controls the classification mark shown to every user of this environment. Changes are written to the environment variable value records, are attributed to your user account, and take effect for each user on their next page load or refresh.</span>
+        <span id="auditNotice">Banner Type controls the classification mark shown to every user of this environment. Changes are written to the environment variable value records, are attributed to your user account, and update the visible banner immediately after Save/Apply; other sessions refresh on their next banner render.</span>
       </div>
     </div>
 
@@ -115,8 +115,8 @@
 
     <div class="actions">
       <button id="saveBtn" type="button" disabled>Save Changes</button>
-      <button id="reloadBtn" type="button" title="Reloads the app so banner changes take effect immediately.">Reload app to apply</button>
-      <span class="reload-help">Reloads the app so banner changes take effect immediately.</span>
+      <button id="reloadBtn" type="button" title="Refreshes the visible banner with saved values immediately.">Apply now</button>
+      <span class="reload-help">Updates the banner with saved values immediately.</span>
       <button id="resetConsentBtn" type="button">Reset My Consent (clear cookie)</button>
       <span class="status-msg" id="statusMsg"></span>
     </div>
@@ -232,6 +232,382 @@ function warnConfig(message) {
   if (window.console && console.warn) console.warn("[DoDBannerLibrary] " + message);
 }
 
+// ── Shared shell classification bar runtime ─────────────────────────────────
+// Each web resource can seed this window.top singleton after a browser reload.
+function getDodBannerRuntime() {
+  var target;
+  try { target = (window.top && window.top.document) ? window.top : window; }
+  catch (_e) { target = window; }
+
+  if (target.__dodBanner && typeof target.__dodBanner.install === "function") {
+    return target.__dodBanner.install(window);
+  }
+
+  var state = {
+    clientWindow: window,
+    observer: null,
+    observedBody: null,
+    intervalId: null,
+    debounceId: null,
+    lastState: null,
+    refreshPromise: null
+  };
+
+  var BANNER_TYPE_DEFAULT = "";
+  var SCHEMAS = [
+    "dodbl_BannerEnabled",
+    "dodbl_BannerType",
+    "dodbl_BannerColor",
+    "dodbl_BannerLabel",
+    "dodbl_BannerVersion",
+    "dodbl_BannerPosition",
+    "dodbl_ConsentExpiryDays",
+    "dodbl_DoDConsentText",
+    "dodbl_ShowConsentBanner"
+  ];
+
+  function getDoc() {
+    try { return (target && target.document) ? target.document : document; }
+    catch (_e) { return document; }
+  }
+
+  function getClientXrm() {
+    var client = state.clientWindow || window;
+    try { if (client.parent && client.parent.Xrm) return client.parent.Xrm; } catch (_e1) { /* ignore */ }
+    try { if (client.Xrm) return client.Xrm; } catch (_e2) { /* ignore */ }
+    try { if (target && target.Xrm) return target.Xrm; } catch (_e3) { /* ignore */ }
+    try { if (parent && parent.Xrm) return parent.Xrm; } catch (_e4) { /* ignore */ }
+    return null;
+  }
+
+  function getBannerEnabledValue(value) {
+    return String(value == null ? "yes" : value).trim().toLowerCase() || "yes";
+  }
+
+  function isBannerEnabled(value) {
+    var enabled = getBannerEnabledValue(value);
+    return !(enabled === "no" || enabled === "false" || enabled === "0");
+  }
+
+  function isBannerDebugEnabled() {
+    try {
+      var storage = (target && target.localStorage) ? target.localStorage : window.localStorage;
+      return storage && storage.getItem("dodbl_debugBanner") === "true";
+    } catch (_e) {
+      return false;
+    }
+  }
+
+  function logBannerDebug(vars) {
+    if (!isBannerDebugEnabled() || !window.console || !console.log) return;
+    console.log("[DoDBannerLibrary] classification bar env", {
+      vars: vars,
+      enabled: getBannerEnabledValue(vars && vars["dodbl_BannerEnabled"]),
+      willRender: isBannerEnabled(vars && vars["dodbl_BannerEnabled"])
+    });
+  }
+
+  function getClassificationColor(bannerType) {
+    var t = (bannerType || "").toUpperCase();
+    if (t.indexOf("CU") === 0) return "#5a04b0";
+    if (t.indexOf("U")  === 0) return "#5cb85c";
+    if (t.indexOf("CO") === 0) return "#286090";
+    if (t.indexOf("S")  === 0) return "#d9534f";
+    if (t.indexOf("T")  === 0) return "#f0ad4e";
+    return "#5e5e5e";
+  }
+
+  function isValidHex(value) {
+    return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(((value || "") + "").trim());
+  }
+
+  function normalizeHexColor(value) {
+    var color = ((value || "") + "").trim();
+    return isValidHex(color) ? color : "";
+  }
+
+  function getContrastTextColor(hexColor) {
+    var color = normalizeHexColor(hexColor);
+    if (!color) return "#fff";
+    var h = color.substring(1);
+    if (h.length === 3) h = h.charAt(0) + h.charAt(0) + h.charAt(1) + h.charAt(1) + h.charAt(2) + h.charAt(2);
+    var r = parseInt(h.substring(0, 2), 16);
+    var g = parseInt(h.substring(2, 4), 16);
+    var b = parseInt(h.substring(4, 6), 16);
+    return ((r * 299 + g * 587 + b * 114) / 1000) > 160 ? "#000" : "#fff";
+  }
+
+  function getClassificationLabel(bannerType) {
+    var t = (bannerType || "").toUpperCase();
+    if (t.indexOf("CU") === 0) return "CUI";
+    if (t.indexOf("U")  === 0) return "UNCLASSIFIED";
+    if (t.indexOf("CO") === 0) return "CONFIDENTIAL";
+    if (t.indexOf("S")  === 0) return "SECRET";
+    if (t.indexOf("T")  === 0) return "TOP SECRET";
+    if (t.indexOf("DOD") === 0) return "DOD";
+    return t;
+  }
+
+  function restoreShiftedHeader(doc) {
+    var shiftedHeader = doc.querySelector("[data-dodbl-shifted]");
+    if (!shiftedHeader) return;
+    try {
+      var saved = JSON.parse(shiftedHeader.getAttribute("data-dodbl-shifted"));
+      shiftedHeader.style.top = saved.top || "";
+      shiftedHeader.style.marginTop = saved.marginTop || "";
+    } catch (_e) {
+      shiftedHeader.style.top = shiftedHeader.style.marginTop = "";
+    }
+    shiftedHeader.removeAttribute("data-dodbl-shifted");
+  }
+
+  function removeClassificationBars() {
+    var doc = getDoc();
+    if (!doc || !doc.querySelectorAll) return;
+    restoreShiftedHeader(doc);
+    doc.querySelectorAll("[data-dodbl-bar]").forEach(function (el) {
+      if (el.parentNode) el.parentNode.removeChild(el);
+    });
+  }
+
+  function normalizeState(input) {
+    var vars = input || {};
+    var bannerType = ((vars["dodbl_BannerType"] || BANNER_TYPE_DEFAULT) + "").trim();
+    return {
+      vars: vars,
+      enabled: isBannerEnabled(vars["dodbl_BannerEnabled"]),
+      bannerType: bannerType,
+      bannerColor: ((vars["dodbl_BannerColor"] || "") + "").trim(),
+      bannerLabel: ((vars["dodbl_BannerLabel"] || "") + "").trim(),
+      bannerVersion: ((vars["dodbl_BannerVersion"] || "") + "").trim(),
+      position: ((vars["dodbl_BannerPosition"] || "Bottom") + "").trim()
+    };
+  }
+
+  function render(input) {
+    var doc = getDoc();
+    var body = doc && doc.body;
+    var next = input && input.vars ? input : normalizeState(input);
+    state.lastState = next;
+    logBannerDebug(next.vars || {});
+    if (!body) return next;
+
+    if (!next.enabled || !next.bannerType) {
+      removeClassificationBars();
+      return next;
+    }
+
+    var BAR_HEIGHT = 28;
+    removeClassificationBars();
+
+    var pos = (next.position || "bottom").toLowerCase();
+    var validOverrideColor = next.bannerColor && isValidHex(next.bannerColor);
+    var color = validOverrideColor ? next.bannerColor : getClassificationColor(next.bannerType);
+    var textColor = validOverrideColor ? getContrastTextColor(next.bannerColor) : "#fff";
+    var label = next.bannerLabel || getClassificationLabel(next.bannerType);
+
+    function buildBar(placement) {
+      var bar = doc.createElement("div");
+      bar.setAttribute("data-dodbl-bar", placement);
+      bar.textContent = label;
+      bar.style.position = "fixed";
+      bar.style.left = "0";
+      bar.style.width = "100%";
+      bar.style.height = BAR_HEIGHT + "px";
+      bar.style.backgroundColor = color;
+      bar.style.color = textColor;
+      bar.style.fontWeight = "bold";
+      bar.style.fontFamily = '\"Segoe UI\",Tahoma,Geneva,Verdana,sans-serif';
+      bar.style.fontSize = "14px";
+      bar.style.display = "flex";
+      bar.style.alignItems = "center";
+      bar.style.justifyContent = "center";
+      bar.style.letterSpacing = "0.06em";
+      bar.style.textShadow = "1px 1px 0 rgba(0,0,0,.3)";
+      bar.style.zIndex = "9999";
+      bar.style.boxSizing = "border-box";
+      bar.style.pointerEvents = "none";
+      if (placement === "top") bar.style.top = "0";
+      else bar.style.bottom = "0";
+      return bar;
+    }
+
+    function shiftMdaHeader() {
+      var win = target || window;
+      var vw = win.innerWidth || 800;
+      var sels = ["[role='banner']", "[data-id='navbar']", ".pa-n-w", ".pa-navbar", "header"];
+      var header = null;
+      for (var si = 0; si < sels.length; si++) {
+        var el = doc.querySelector(sels[si]);
+        if (!el) continue;
+        var r = el.getBoundingClientRect();
+        if (r.top <= 10 && r.width >= vw * 0.5) { header = el; break; }
+      }
+      if (!header || header.hasAttribute("data-dodbl-shifted")) return;
+
+      header.setAttribute("data-dodbl-shifted", JSON.stringify({
+        top: header.style.top,
+        marginTop: header.style.marginTop
+      }));
+
+      var cs = win.getComputedStyle(header);
+      if (cs.position === "fixed" || cs.position === "sticky" || cs.position === "absolute") {
+        header.style.top = (parseInt(cs.top, 10) || 0) + BAR_HEIGHT + "px";
+      } else {
+        header.style.marginTop = (parseInt(cs.marginTop, 10) || 0) + BAR_HEIGHT + "px";
+      }
+    }
+
+    if (pos === "both") {
+      body.insertBefore(buildBar("top"), body.firstChild);
+      body.appendChild(buildBar("bottom"));
+      shiftMdaHeader();
+      target.setTimeout(shiftMdaHeader, 800);
+    } else if (pos === "top") {
+      body.insertBefore(buildBar("top"), body.firstChild);
+      shiftMdaHeader();
+      target.setTimeout(shiftMdaHeader, 800);
+    } else {
+      body.appendChild(buildBar("bottom"));
+    }
+
+    return next;
+  }
+
+  function expectedPlacements() {
+    if (!state.lastState || !state.lastState.enabled || !state.lastState.bannerType) return [];
+    var pos = (state.lastState.position || "bottom").toLowerCase();
+    return pos === "both" ? ["top", "bottom"] : [pos === "top" ? "top" : "bottom"];
+  }
+
+  function ensureBarPresent() {
+    var doc = getDoc();
+    if (!doc || !doc.body) return;
+    connectObserver();
+    var placements = expectedPlacements();
+    if (placements.length === 0) return;
+    for (var i = 0; i < placements.length; i++) {
+      if (!doc.querySelector('[data-dodbl-bar="' + placements[i] + '"]')) {
+        render(state.lastState);
+        return;
+      }
+    }
+  }
+
+  function scheduleEnsure() {
+    if (state.debounceId) target.clearTimeout(state.debounceId);
+    state.debounceId = target.setTimeout(function () {
+      state.debounceId = null;
+      ensureBarPresent();
+    }, 250);
+  }
+
+  function connectObserver() {
+    var doc = getDoc();
+    if (!doc || !doc.body || typeof target.MutationObserver !== "function") return;
+    if (state.observer && state.observedBody === doc.body) return;
+    if (state.observer) state.observer.disconnect();
+    state.observer = new target.MutationObserver(scheduleEnsure);
+    state.observer.observe(doc.body, { childList: true, subtree: true });
+    state.observedBody = doc.body;
+  }
+
+  function installWatchdog() {
+    connectObserver();
+    if (!state.intervalId) {
+      state.intervalId = target.setInterval(ensureBarPresent, 15000);
+    }
+  }
+
+  function getEnvVars() {
+    var xrm = getClientXrm();
+    if (!(xrm && xrm.WebApi)) return Promise.reject(new Error("Xrm.WebApi unavailable for banner refresh."));
+
+    var schemaFilter = SCHEMAS
+      .map(function (s) { return "schemaname eq '" + s + "'"; })
+      .join(" or ");
+
+    return xrm.WebApi.retrieveMultipleRecords(
+      "environmentvariabledefinition",
+      "?$select=environmentvariabledefinitionid,schemaname,defaultvalue&$filter=" + schemaFilter
+    ).then(function (defResult) {
+      var defMap = {};
+      (defResult.entities || []).forEach(function (def) {
+        defMap[def.environmentvariabledefinitionid] = {
+          schemaname: def.schemaname,
+          resolvedValue: def.defaultvalue
+        };
+      });
+
+      var defIds = Object.keys(defMap);
+      if (defIds.length === 0) return {};
+
+      var valFilter = defIds
+        .map(function (id) { return "_environmentvariabledefinitionid_value eq " + id; })
+        .join(" or ");
+
+      return xrm.WebApi.retrieveMultipleRecords(
+        "environmentvariablevalue",
+        "?$select=value,_environmentvariabledefinitionid_value&$filter=" + valFilter
+      ).then(function (valResult) {
+        (valResult.entities || []).forEach(function (val) {
+          var defId = val["_environmentvariabledefinitionid_value"];
+          if (defMap[defId] && val.value != null && String(val.value).trim() !== "") {
+            defMap[defId].resolvedValue = val.value;
+          }
+        });
+
+        var vars = {};
+        Object.keys(defMap).forEach(function (id) {
+          vars[defMap[id].schemaname] = defMap[id].resolvedValue;
+        });
+        return vars;
+      });
+    });
+  }
+
+  var api = {
+    install: function (clientWindow) {
+      state.clientWindow = clientWindow || state.clientWindow || window;
+      installWatchdog();
+      target.dodblRenderClassificationBar = api.refresh;
+      return api;
+    },
+    refresh: function () {
+      if (state.refreshPromise) return state.refreshPromise;
+      state.refreshPromise = getEnvVars()
+        .then(function (vars) {
+          render(vars || {});
+          state.refreshPromise = null;
+          return vars || {};
+        }, function (error) {
+          state.refreshPromise = null;
+          throw error;
+        });
+      return state.refreshPromise;
+    },
+    render: render,
+    remove: removeClassificationBars
+  };
+
+  target.__dodBanner = api;
+  return api.install(window);
+}
+
+function applyBannerNow() {
+  setStatus("Applying banner…");
+  return getDodBannerRuntime().refresh()
+    .then(function () {
+      setStatus("Banner refreshed with saved values.");
+      return true;
+    })
+    .catch(function (e) {
+      warnConfig("Banner refresh failed: " + (e && e.message ? e.message : e));
+      setStatus("Saved values were loaded, but the visible banner could not be refreshed from this frame. It will update on the next banner page.");
+      return false;
+    });
+}
+
 function setNotice(id, cls, icon, title, body) {
   var el = document.getElementById(id);
   if (!el) return;
@@ -258,17 +634,9 @@ function setStatus(message) {
   if (el) el.textContent = message || "";
 }
 
-function focusReloadAction() {
+function focusApplyAction() {
   var btn = document.getElementById("reloadBtn");
   if (btn && typeof btn.focus === "function") btn.focus();
-}
-
-function reloadApp() {
-  try {
-    (window.top || window).location.reload();
-  } catch (e) {
-    window.location.reload();
-  }
 }
 
 function clearConsentCookie() {
@@ -692,10 +1060,14 @@ function onSave() {
     }, Promise.resolve())
       .then(function () {
         return refresh().then(function (reloaded) {
-          setStatus(reloaded
-            ? "Saved. Banner changes apply when the app reloads — click 'Reload app to apply' to see them now, or they'll appear on your next navigation."
-            : "Saved. Banner changes apply when the app reloads — click 'Reload app to apply' to see them now. The latest configuration fields could not be refreshed, so reload before making more changes.");
-          focusReloadAction();
+          return applyBannerNow().then(function () {
+            if (!reloaded) {
+              setStatus("Saved and applied. The latest configuration fields could not be refreshed, so reload this screen before making more changes.");
+            } else {
+              setStatus("Saved and applied. The visible banner was refreshed with saved values.");
+            }
+            focusApplyAction();
+          });
         });
       })
       .catch(function (e) {
@@ -725,9 +1097,8 @@ function refresh() {
     });
 }
 
-function onReload() {
-  setStatus("Reloading app…");
-  reloadApp();
+function onApplyNow() {
+  applyBannerNow();
 }
 
 function onResetConsent() {
@@ -741,9 +1112,10 @@ function onResetConsent() {
 
 (function init() {
   document.getElementById("saveBtn").addEventListener("click", onSave);
-  document.getElementById("reloadBtn").addEventListener("click", onReload);
+  document.getElementById("reloadBtn").addEventListener("click", onApplyNow);
   document.getElementById("resetConsentBtn").addEventListener("click", onResetConsent);
   refreshRunningVersion();
+  getDodBannerRuntime().refresh();
 
   isAdminUser()
     .then(function (admin) {
