@@ -15,6 +15,7 @@
   <AppModules />
   <EntityDataProviders />
   <CanvasApps />
+  <EnvironmentVariables />
   <Languages>
     <Language>1033</Language>
   </Languages>

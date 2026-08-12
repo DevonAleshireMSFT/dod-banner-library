@@ -1,0 +1,14 @@
+<environmentvariabledefinition schemaname="dodbl_BannerLabel">
+  <defaultvalue></defaultvalue>
+  <description default="Optional custom label text for the classification bar (e.g. UNCLASSIFIED//PII). Leave empty to use the Banner Type default label. Pairs with Banner Color Override.">
+    <label description="Optional custom label text for the classification bar (e.g. UNCLASSIFIED//PII). Leave empty to use the Banner Type default label. Pairs with Banner Color Override." languagecode="1033" />
+  </description>
+  <displayname default="Banner Label Override">
+    <label description="Banner Label Override" languagecode="1033" />
+  </displayname>
+  <introducedversion>1.5.0.0</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>0</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000000</type>
+</environmentvariabledefinition>
