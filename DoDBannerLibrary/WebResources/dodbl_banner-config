@@ -77,10 +77,8 @@
     }
     #saveBtn { background: var(--accent); color: #000; }
     #saveBtn:hover:enabled { background: var(--accent-hover); }
-    #reloadBtn { background: var(--primary-light); color: var(--primary); }
     #resetConsentBtn { background: #edebe9; color: var(--text); }
     button:disabled { background: #edebe9; color: var(--text-dis); cursor: not-allowed; }
-    .reload-help { font-size: 11px; color: var(--text-sec); max-width: 180px; line-height: 1.35; }
     .status-msg { font-size: 12px; color: var(--text-sec); }
   </style>
 </head>
@@ -106,7 +104,7 @@
       <div class="notice-icon">⚠️</div>
       <div>
         <strong>Classification setting &mdash; change with authorization only</strong>
-        <span id="auditNotice">Banner Type controls the classification mark shown to every user of this environment. Changes are written to the environment variable value records, are attributed to your user account, and update the visible banner immediately after Save/Apply; other sessions refresh on their next banner render.</span>
+        <span id="auditNotice">Banner Type controls the classification mark shown to every user of this environment. Changes are written to the environment variable value records, are attributed to your user account, and update the visible banner immediately after Save; other sessions refresh on their next banner render.</span>
       </div>
     </div>
 
@@ -115,8 +113,6 @@
 
     <div class="actions">
       <button id="saveBtn" type="button" disabled>Save Changes</button>
-      <button id="reloadBtn" type="button" title="Refreshes the visible banner with saved values immediately.">Apply now</button>
-      <span class="reload-help">Updates the banner with saved values immediately.</span>
       <button id="resetConsentBtn" type="button">Reset My Consent (clear cookie)</button>
       <span class="status-msg" id="statusMsg"></span>
     </div>
@@ -621,8 +617,8 @@ function getDodBannerRuntime() {
   return api.install(window);
 }
 
-function applyBannerNow() {
-  setStatus("Applying banner…");
+function repaintBanner() {
+  setStatus("Refreshing banner…");
   return getDodBannerRuntime().refresh()
     .then(function () {
       setStatus("Banner refreshed with saved values.");
@@ -659,11 +655,6 @@ function setNotice(id, cls, icon, title, body) {
 function setStatus(message) {
   var el = document.getElementById("statusMsg");
   if (el) el.textContent = message || "";
-}
-
-function focusApplyAction() {
-  var btn = document.getElementById("reloadBtn");
-  if (btn && typeof btn.focus === "function") btn.focus();
 }
 
 function clearConsentCookie() {
@@ -1087,13 +1078,12 @@ function onSave() {
     }, Promise.resolve())
       .then(function () {
         return refresh().then(function (reloaded) {
-          return applyBannerNow().then(function () {
+          return repaintBanner().then(function () {
             if (!reloaded) {
-              setStatus("Saved and applied. The latest configuration fields could not be refreshed, so reload this screen before making more changes.");
+              setStatus("Saved. The banner was refreshed with the saved values, but the latest configuration fields could not be reloaded.");
             } else {
-              setStatus("Saved and applied. The visible banner was refreshed with saved values.");
+              setStatus("Saved. The banner was refreshed with the saved values.");
             }
-            focusApplyAction();
           });
         });
       })
@@ -1124,10 +1114,6 @@ function refresh() {
     });
 }
 
-function onApplyNow() {
-  applyBannerNow();
-}
-
 function onResetConsent() {
   try {
     clearConsentCookie();
@@ -1139,7 +1125,6 @@ function onResetConsent() {
 
 (function init() {
   document.getElementById("saveBtn").addEventListener("click", onSave);
-  document.getElementById("reloadBtn").addEventListener("click", onApplyNow);
   document.getElementById("resetConsentBtn").addEventListener("click", onResetConsent);
   refreshRunningVersion();
   getDodBannerRuntime().refresh();
