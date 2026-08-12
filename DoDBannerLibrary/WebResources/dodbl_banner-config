@@ -66,6 +66,9 @@
     .config-source { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; margin-top: 6px; display: inline-block; padding: 2px 8px; border-radius: 10px; }
     .source-value   { background: #dff6dd; color: #0e5a0e; }
     .source-default { background: #edebe9; color: var(--text-sec); }
+    .color-auto { margin-bottom: 8px; display: flex; gap: 6px; align-items: center; font-size: 12px; color: var(--text-sec); }
+    .color-auto input { width: auto; }
+    .config-field input[type="color"] { height: 34px; padding: 3px; }
 
     .actions { display: flex; align-items: center; gap: 14px; }
     button {
@@ -75,6 +78,7 @@
     #saveBtn { background: var(--accent); color: #000; }
     #saveBtn:hover:enabled { background: var(--accent-hover); }
     #reloadBtn { background: var(--primary-light); color: var(--primary); }
+    #resetConsentBtn { background: #edebe9; color: var(--text); }
     button:disabled { background: #edebe9; color: var(--text-dis); cursor: not-allowed; }
     .status-msg { font-size: 12px; color: var(--text-sec); }
   </style>
@@ -85,7 +89,7 @@
   <div class="app-header-icon">⚙️</div>
   <div>
     <h1>Banner Configuration</h1>
-    <p>Environment variables that drive the DoD Banner Library</p>
+    <p>Environment variables that drive the DoD Banner Library &middot; Running version <span id="runningVersion">unknown</span></p>
   </div>
 </div>
 
@@ -111,6 +115,7 @@
     <div class="actions">
       <button id="saveBtn" type="button" disabled>Save Changes</button>
       <button id="reloadBtn" type="button">Reload</button>
+      <button id="resetConsentBtn" type="button">Reset My Consent (clear cookie)</button>
       <span class="status-msg" id="statusMsg"></span>
     </div>
   </div>
@@ -126,6 +131,8 @@
 // write environmentvariablevalue records — Canvas PCF cannot write (see ADR 0009
 // and ADR 0011).
 var ADMIN_ROLES = ["DoD Banner - Config Admin", "System Administrator"];
+var COOKIE_NAME = "dodbl_Accepted";
+var VERSION_SCHEMA = "dodbl_BannerVersion";
 
 var ENV_VARS = [
   {
@@ -155,6 +162,13 @@ var ENV_VARS = [
     desc: "Classification bar value. This is a classification setting — only change it with the required approval."
   },
   {
+    schema: "dodbl_BannerColor",
+    label: "Banner Color Override",
+    kind: "color",
+    options: [],
+    desc: "Optional hex color override for the classification bar. Leave automatic to use the Banner Type default."
+  },
+  {
     schema: "dodbl_BannerPosition",
     label: "Banner Position",
     kind: "choice",
@@ -175,6 +189,9 @@ var ENV_VARS = [
 
 var _state = {};   // schema -> { definitionId, defaultValue, valueId, value, resolved, modifiedBy, modifiedOn }
 var _isAdmin = false;
+var _doc;
+try { _doc = (window.top && window.top.document) ? window.top.document : document; }
+catch (_e) { _doc = document; }
 
 // ── Xrm helpers ──────────────────────────────────────────────────────────────
 function getXrm() {
@@ -224,6 +241,108 @@ function setNotice(id, cls, icon, title, body) {
 function setStatus(message) {
   var el = document.getElementById("statusMsg");
   if (el) el.textContent = message || "";
+}
+
+function clearConsentCookie() {
+  _doc.cookie = COOKIE_NAME + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/; Secure; SameSite=Strict";
+  _doc.cookie = COOKIE_NAME + "=;Max-Age=0;path=/; Secure; SameSite=Strict";
+}
+
+function isHexColor(value) {
+  return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(String(value || "").trim());
+}
+
+function normalizeColorInputValue(value) {
+  var color = String(value || "").trim();
+  if (!isHexColor(color)) return "";
+  var h = color.substring(1);
+  if (h.length === 3) h = h.charAt(0) + h.charAt(0) + h.charAt(1) + h.charAt(1) + h.charAt(2) + h.charAt(2);
+  return "#" + h.toLowerCase();
+}
+
+function getClassificationColor(bannerType) {
+  var t = (bannerType || "").toUpperCase();
+  if (t.indexOf("CU") === 0) return "#5a04b0";
+  if (t.indexOf("U")  === 0) return "#5cb85c";
+  if (t.indexOf("CO") === 0) return "#286090";
+  if (t.indexOf("S")  === 0) return "#d9534f";
+  if (t.indexOf("T")  === 0) return "#f0ad4e";
+  return "#5e5e5e";
+}
+
+function getCurrentBannerType() {
+  var typeField = document.getElementById("field_dodbl_BannerType");
+  if (typeField) return String(typeField.value).trim();
+  var typeEntry = _state["dodbl_BannerType"];
+  return typeEntry ? String(resolvedValue(typeEntry)).trim() : "";
+}
+
+function updateAutomaticColorPicker() {
+  var auto = document.getElementById("field_dodbl_BannerColor_auto");
+  var picker = document.getElementById("field_dodbl_BannerColor");
+  if (auto && picker && auto.checked) picker.value = getClassificationColor(getCurrentBannerType());
+}
+
+function refreshShellClassificationBar() {
+  var renderer = null;
+  try {
+    if (parent && typeof parent.dodblRenderClassificationBar === "function") {
+      renderer = parent.dodblRenderClassificationBar;
+    }
+  } catch (_e1) { /* fall through */ }
+  if (!renderer) {
+    try {
+      if (window.top && typeof window.top.dodblRenderClassificationBar === "function") {
+        renderer = window.top.dodblRenderClassificationBar;
+      }
+    } catch (_e2) { /* fall through */ }
+  }
+  if (!renderer) return Promise.resolve(false);
+
+  try {
+    return Promise.resolve(renderer()).then(
+      function () { return true; },
+      function () { return false; }
+    );
+  } catch (_e3) {
+    return Promise.resolve(false);
+  }
+}
+
+function loadSingleEnvVar(schemaName) {
+  var xrm = getXrm();
+  if (!(xrm && xrm.WebApi) || !isSchemaName(schemaName)) {
+    return Promise.resolve("");
+  }
+
+  return xrm.WebApi.retrieveMultipleRecords(
+    "environmentvariabledefinition",
+    "?$select=environmentvariabledefinitionid,defaultvalue&$filter=schemaname eq '" + schemaName + "'"
+  ).then(function (defResult) {
+    if (!defResult.entities || defResult.entities.length === 0) return "";
+    var def = defResult.entities[0];
+    var fallback = def.defaultvalue == null ? "" : String(def.defaultvalue);
+    if (!isGuid(def.environmentvariabledefinitionid)) return fallback;
+
+    return xrm.WebApi.retrieveMultipleRecords(
+      "environmentvariablevalue",
+      "?$select=value&$filter=_environmentvariabledefinitionid_value eq " + def.environmentvariabledefinitionid
+    ).then(function (valResult) {
+      if (valResult.entities && valResult.entities.length > 0 && valResult.entities[0].value != null && String(valResult.entities[0].value).trim() !== "") {
+        return String(valResult.entities[0].value);
+      }
+      return fallback;
+    });
+  }).catch(function () {
+    return "";
+  });
+}
+
+function refreshRunningVersion() {
+  return loadSingleEnvVar(VERSION_SCHEMA).then(function (version) {
+    var el = document.getElementById("runningVersion");
+    if (el) el.textContent = (version && version.trim()) ? version.trim() : "unknown";
+  });
 }
 
 // ── RBAC ─────────────────────────────────────────────────────────────────────
@@ -372,6 +491,33 @@ function buildField(def, entry) {
       custom.selected = true;
       field.appendChild(custom);
     }
+  } else if (def.kind === "color") {
+    field = document.createElement("div");
+    var colorValue = normalizeColorInputValue(current);
+    var autoId = "field_" + def.schema + "_auto";
+    var colorId = "field_" + def.schema;
+    var autoWrap = document.createElement("label");
+    autoWrap.className = "color-auto";
+    var auto = document.createElement("input");
+    auto.type = "checkbox";
+    auto.id = autoId;
+    auto.checked = colorValue === "";
+    auto.disabled = !_isAdmin;
+    autoWrap.appendChild(auto);
+    autoWrap.appendChild(document.createTextNode("Use classification default color"));
+
+    var picker = document.createElement("input");
+    picker.type = "color";
+    picker.id = colorId;
+    picker.value = colorValue || getClassificationColor(getCurrentBannerType());
+    picker.disabled = !_isAdmin || auto.checked;
+    auto.addEventListener("change", function () {
+      picker.disabled = !_isAdmin || auto.checked;
+      if (auto.checked) picker.value = getClassificationColor(getCurrentBannerType());
+    });
+    field.appendChild(autoWrap);
+    field.appendChild(picker);
+    return field;
   } else {
     field = document.createElement("input");
     field.type = def.kind === "number" ? "number" : "text";
@@ -427,10 +573,17 @@ function renderRows() {
     row.appendChild(fieldWrap);
     host.appendChild(row);
   });
+
+  var typeField = document.getElementById("field_dodbl_BannerType");
+  if (typeField) typeField.addEventListener("change", updateAutomaticColorPicker);
 }
 
 // ── Write ────────────────────────────────────────────────────────────────────
 function readField(def) {
+  if (def.kind === "color") {
+    var auto = document.getElementById("field_" + def.schema + "_auto");
+    if (auto && auto.checked) return "";
+  }
   var el = document.getElementById("field_" + def.schema);
   return el ? String(el.value) : null;
 }
@@ -445,6 +598,9 @@ function collectChanges() {
     next = next.trim();
     if (def.kind === "number" && next !== "" && !/^\d+$/.test(next)) {
       throw new Error(def.label + " must be a whole number of days.");
+    }
+    if (def.kind === "color" && next !== "" && !isHexColor(next)) {
+      throw new Error(def.label + " must be empty or a hex color like #5cb85c.");
     }
     if (next !== String(resolvedValue(entry)).trim()) {
       changes.push({ def: def, entry: entry, value: next });
@@ -515,7 +671,11 @@ function onSave() {
     }, Promise.resolve())
       .then(function () {
         return refresh().then(function () {
-          setStatus("Saved. Users see the new configuration on their next page load or refresh.");
+          return refreshShellClassificationBar();
+        }).then(function (barRefreshed) {
+          setStatus(barRefreshed
+            ? "Saved. Visible classification bar refreshed."
+            : "Saved. Users see the new configuration on their next page navigation or refresh.");
         });
       })
       .catch(function (e) {
@@ -543,9 +703,31 @@ function refresh() {
     });
 }
 
+function onReload() {
+  refreshRunningVersion();
+  refresh().then(function () {
+    return refreshShellClassificationBar();
+  }).then(function (barRefreshed) {
+    setStatus(barRefreshed
+      ? "Reloaded. Visible classification bar refreshed."
+      : "Reloaded. Visible bar updates on the next page navigation or refresh.");
+  });
+}
+
+function onResetConsent() {
+  try {
+    clearConsentCookie();
+    setStatus("Consent cookie cleared — you'll see the consent prompt on your next visit to a banner page.");
+  } catch (_e) {
+    setStatus("Could not clear the consent cookie from this frame. Try reloading the app and opening this page again.");
+  }
+}
+
 (function init() {
   document.getElementById("saveBtn").addEventListener("click", onSave);
-  document.getElementById("reloadBtn").addEventListener("click", function () { refresh(); });
+  document.getElementById("reloadBtn").addEventListener("click", onReload);
+  document.getElementById("resetConsentBtn").addEventListener("click", onResetConsent);
+  refreshRunningVersion();
 
   isAdminUser()
     .then(function (admin) {

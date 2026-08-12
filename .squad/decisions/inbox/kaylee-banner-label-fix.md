@@ -1,0 +1,9 @@
+### 2026-08-12: Classification code-to-label map stays paired with color prefixes
+**By:** Kaylee
+**What:** MDA shell and launch-page classification bars translate stored banner codes to display labels using the same prefix order as the color map: `CU` -> `CUI` / purple, `U` -> `UNCLASSIFIED` / green, `CO` -> `CONFIDENTIAL` / blue, `S` -> `SECRET` / red, `T` -> `TOP SECRET` / orange. Unknown values keep the grey fallback and display their uppercased value; legacy `DoD` continues to display `DOD` with the grey fallback. `dodbl_BannerColor` is an optional hex override: empty means use the type-derived default color; a non-empty valid `#RGB` or `#RRGGBB` value overrides the bar background and picks black/white text by luminance. Invalid color values are ignored at runtime and fall back to the type default.
+**Why:** The admin config screen stores short codes such as `U`, but the visible classification mark must show the full user-facing label. Keeping label and color prefix precedence together prevents `CUI` and `CONFIDENTIAL` from drifting or colliding on a naive `C` match. The color override gives admins controlled customization without letting malformed values become injected CSS.
+
+### 2026-08-12: Displayed app version comes from dodbl_BannerVersion
+**By:** Kaylee
+**What:** Runtime "current version" labels read `dodbl_BannerVersion` instead of hardcoded web-resource strings. The environment variable definition is seeded to `1.5.0.0`; launch page and docs labels fall back to `unknown` only if the value is unavailable. The config screen displays the value read-only and does not include it in the editable admin setting list.
+**Why:** The running app had stale hardcoded version stamps. A single string environment variable is readable by normal users and avoids querying the Solution table, which can require privileges they do not have. Mal owns keeping `dodbl_BannerVersion` aligned with `Solution.xml` for each release.

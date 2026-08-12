@@ -1,0 +1,14 @@
+<environmentvariabledefinition schemaname="dodbl_BannerColor">
+  <defaultvalue></defaultvalue>
+  <description default="Optional hex color override for the classification bar. Leave empty to use the Banner Type default color.">
+    <label description="Optional hex color override for the classification bar. Leave empty to use the Banner Type default color." languagecode="1033" />
+  </description>
+  <displayname default="Banner Color Override">
+    <label description="Banner Color Override" languagecode="1033" />
+  </displayname>
+  <introducedversion>1.5.0.0</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>0</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000000</type>
+</environmentvariabledefinition>

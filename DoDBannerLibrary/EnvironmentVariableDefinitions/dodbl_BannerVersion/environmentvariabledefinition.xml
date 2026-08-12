@@ -1,0 +1,14 @@
+<environmentvariabledefinition schemaname="dodbl_BannerVersion">
+  <defaultvalue>1.5.0.0</defaultvalue>
+  <description default="Current displayed DoD Banner Library solution version. Release owners keep this value in sync with Solution.xml.">
+    <label description="Current displayed DoD Banner Library solution version. Release owners keep this value in sync with Solution.xml." languagecode="1033" />
+  </description>
+  <displayname default="Banner Version">
+    <label description="Banner Version" languagecode="1033" />
+  </displayname>
+  <introducedversion>1.5.0.0</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>0</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000000</type>
+</environmentvariabledefinition>

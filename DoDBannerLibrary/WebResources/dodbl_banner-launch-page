@@ -158,7 +158,7 @@
     <div>
       <h1>DoD Banner Library Management App</h1>
     </div>
-    <span class="app-header-badge">v1.5.0</span>
+    <span class="app-header-badge" id="appVersionBadge">vunknown</span>
   </div>
 
   <div class="main">
@@ -203,7 +203,7 @@
     <p class="section-label">Solution Status</p>
     <div class="status-card">
       <div class="status-card-hdr">DoDBannerLibrary &mdash; GFIM-DEV</div>
-      <div class="status-row"><span class="status-lbl">Solution Version</span><span class="status-val">1.5.0.0</span></div>
+      <div class="status-row"><span class="status-lbl">Solution Version</span><span class="status-val" id="solutionVersionValue">unknown</span></div>
       <div class="status-row"><span class="status-lbl">Publisher Prefix</span><span class="status-val">dodbl_</span></div>
       <div class="status-row"><span class="status-lbl">Cloud</span><span class="status-val">GCC High &middot; IL4/IL5</span></div>
       <div class="status-row"><span class="status-lbl">PCF Control</span><span class="status-val">DoDBannerLibrary.DodBannerControl v1.2.1 &nbsp;<span class="badge-green">Active</span></span></div>
@@ -449,10 +449,42 @@ function getClassificationColor(bannerType) {
   return "#5e5e5e";                             // unknown → grey
 }
 
-function injectClassificationBar(bannerType, position) {
-  var BAR_HEIGHT = 28;
+function normalizeHexColor(value) {
+  var color = ((value || "") + "").trim();
+  return /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(color) ? color : "";
+}
 
-  // ── Cleanup — restore any previously shifted MDA header, then remove old bars
+function getContrastTextColor(hexColor) {
+  var color = normalizeHexColor(hexColor);
+  if (!color) return "#fff";
+  var h = color.substring(1);
+  if (h.length === 3) h = h.charAt(0) + h.charAt(0) + h.charAt(1) + h.charAt(1) + h.charAt(2) + h.charAt(2);
+  var r = parseInt(h.substring(0, 2), 16);
+  var g = parseInt(h.substring(2, 4), 16);
+  var b = parseInt(h.substring(4, 6), 16);
+  return ((r * 299 + g * 587 + b * 114) / 1000) > 160 ? "#000" : "#fff";
+}
+
+function updateDisplayedVersion(version) {
+  var value = ((version || "") + "").trim() || "unknown";
+  var badge = document.getElementById("appVersionBadge");
+  var status = document.getElementById("solutionVersionValue");
+  if (badge) badge.textContent = value === "unknown" ? "vunknown" : "v" + value.replace(/^v/i, "");
+  if (status) status.textContent = value;
+}
+
+function getClassificationLabel(bannerType) {
+  var t = (bannerType || "").toUpperCase();
+  if (t.indexOf("CU") === 0) return "CUI";
+  if (t.indexOf("U")  === 0) return "UNCLASSIFIED";
+  if (t.indexOf("CO") === 0) return "CONFIDENTIAL";
+  if (t.indexOf("S")  === 0) return "SECRET";
+  if (t.indexOf("T")  === 0) return "TOP SECRET";
+  if (t.indexOf("DOD") === 0) return "DOD";
+  return t;
+}
+
+function removeClassificationBars() {
   var shiftedHeader = _doc.querySelector("[data-dodbl-shifted]");
   if (shiftedHeader) {
     try {
@@ -467,10 +499,19 @@ function injectClassificationBar(bannerType, position) {
   _doc.querySelectorAll("[data-dodbl-bar]").forEach(function (el) {
     if (el.parentNode) el.parentNode.removeChild(el);
   });
+}
+
+function injectClassificationBar(bannerType, position, bannerColorOverride) {
+  var BAR_HEIGHT = 28;
+
+  // ── Cleanup — restore any previously shifted MDA header, then remove old bars
+  removeClassificationBars();
 
   var pos   = ((position || "bottom") + "").trim().toLowerCase();
-  var color = getClassificationColor(bannerType);
-  var label = bannerType.toUpperCase();
+  var overrideColor = normalizeHexColor(bannerColorOverride);
+  var color = overrideColor || getClassificationColor(bannerType);
+  var textColor = overrideColor ? getContrastTextColor(overrideColor) : "#fff";
+  var label = getClassificationLabel(bannerType);
 
   function buildBar(placement) {
     var bar = _doc.createElement("div");
@@ -481,7 +522,7 @@ function injectClassificationBar(bannerType, position) {
     bar.style.width              = "100%";
     bar.style.height             = BAR_HEIGHT + "px";
     bar.style.backgroundColor    = color;
-    bar.style.color              = "#fff";
+    bar.style.color              = textColor;
     bar.style.fontWeight         = "bold";
     bar.style.fontFamily         = '"Segoe UI",Tahoma,Geneva,Verdana,sans-serif';
     bar.style.fontSize           = "14px";
@@ -550,6 +591,8 @@ function getBannerEnvVars() {
   var schemas = [
     "dodbl_BannerEnabled",
     "dodbl_BannerType",
+    "dodbl_BannerColor",
+    "dodbl_BannerVersion",
     "dodbl_BannerPosition",
     "dodbl_ConsentExpiryDays"
   ];
@@ -606,26 +649,49 @@ function getBannerEnvVars() {
   }
 }
 
-function renderClassificationBar() {
-  getBannerEnvVars()
+function renderClassificationBarFromVars(vars) {
+  _bannerEnvVars = vars || {};
+  updateDisplayedVersion(vars["dodbl_BannerVersion"]);
+  var enabled = getBannerEnabledValue(vars["dodbl_BannerEnabled"]);
+  logBannerDebug(vars, enabled);
+  if (!isBannerEnabled(vars["dodbl_BannerEnabled"])) {
+    removeClassificationBars();
+    return;
+  }
+
+  var bannerType = ((vars["dodbl_BannerType"] || BANNER_TYPE_DEFAULT) + "").trim();
+  var bannerColor = ((vars["dodbl_BannerColor"] || "") + "").trim();
+  var barPosition = ((vars["dodbl_BannerPosition"] || "Bottom") + "").trim();
+
+  // Classification bar — driven by dodbl_BannerType; position by dodbl_BannerPosition
+  if (bannerType) {
+    injectClassificationBar(bannerType, barPosition, bannerColor);
+  } else {
+    removeClassificationBars();
+  }
+}
+
+function refreshClassificationBar() {
+  return getBannerEnvVars()
     .then(function (vars) {
-      _bannerEnvVars = vars || {};
-      var enabled = getBannerEnabledValue(vars["dodbl_BannerEnabled"]);
-      logBannerDebug(vars, enabled);
-      if (!isBannerEnabled(vars["dodbl_BannerEnabled"])) return;
-
-      var bannerType = ((vars["dodbl_BannerType"] || BANNER_TYPE_DEFAULT) + "").trim();
-      var barPosition = ((vars["dodbl_BannerPosition"] || "Bottom") + "").trim();
-
-      // Classification bar — driven by dodbl_BannerType; position by dodbl_BannerPosition
-      if (bannerType) {
-        injectClassificationBar(bannerType, barPosition);
-      }
+      renderClassificationBarFromVars(vars || {});
+      return vars || {};
     })
     .catch(function () {
       _bannerEnvVars = {};
       // Env vars unavailable — leave the launch page unchanged.
     });
+}
+
+function renderClassificationBar() {
+  return refreshClassificationBar();
+}
+
+function exposeClassificationBarRefresh() {
+  try {
+    var target = (window.top && window.top.document) ? window.top : window;
+    target.dodblRenderClassificationBar = refreshClassificationBar;
+  } catch (_e) { /* cross-origin guard */ }
 }
 
 // ── Navigation ───────────────────────────────────────────────────────────────
@@ -704,6 +770,7 @@ function updateCookieStatus() {
 
 // ── Init ─────────────────────────────────────────────────────────────────────
 (function init() {
+  exposeClassificationBarRefresh();
   renderClassificationBar();
 
   if (getCookie(COOKIE_NAME) === "Yes") {

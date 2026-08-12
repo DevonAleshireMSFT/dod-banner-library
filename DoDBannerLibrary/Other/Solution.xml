@@ -99,6 +99,8 @@
       <RootComponent type="66" schemaName="dodbl_DoDBannerLibrary.DodBannerControl" behavior="0" />
       <RootComponent type="80" schemaName="dodbl_DoDBannerLibraryManagement" behavior="0" />
       <RootComponent type="9" schemaName="dodbl_bannertype" behavior="0" />
+      <RootComponent type="380" schemaName="dodbl_BannerColor" behavior="0" />
+      <RootComponent type="380" schemaName="dodbl_BannerVersion" behavior="0" />
     </RootComponents>
     <MissingDependencies>
       <MissingDependency>
