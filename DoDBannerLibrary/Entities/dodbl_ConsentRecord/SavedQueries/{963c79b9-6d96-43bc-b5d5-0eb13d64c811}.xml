@@ -28,13 +28,17 @@
           <attribute name="dodbl_name" />
           <attribute name="dodbl_userid" />
           <attribute name="dodbl_bannertype" />
+          <filter type="and">
+            <condition attribute="dodbl_revoked" operator="eq" value="0" />
+            <condition attribute="dodbl_expirydate" operator="next-x-years" value="100" />
+          </filter>
           <link-entity alias="a_57894da0e2284b7d969e9fefe4ce7845" name="systemuser" to="dodbl_userid" from="systemuserid" link-type="outer" visible="false">
             <attribute name="fullname" />
             <attribute name="internalemailaddress" />
           </link-entity>
           <attribute name="dodbl_acknowledgedon" />
           <attribute name="dodbl_expirydate" />
-          <order attribute="dodbl_acknowledgedon" descending="false" />
+          <order attribute="dodbl_acknowledgedon" descending="true" />
         </entity>
       </fetch>
     </fetchxml>
