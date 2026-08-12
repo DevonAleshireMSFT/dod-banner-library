@@ -31,6 +31,7 @@ Root components were verified from `DoDBannerLibrary/Other/Solution.xml`. The ma
 | Consent table | 1 | `dodbl_consentrecord` | Dataverse audit table metadata for planned consent records. Runtime writes are not wired yet. |
 | System user dependency | 1 | `systemuser` | Required related component for the consent record user lookup. |
 | Canvas app demo | 300 | `dodbl_canvasappdemo_bb4ae` | Demo app that hosts the PCF control. |
+| Web resource | 61 | `dodbl_banner-config` | Admin-only banner configuration screen. Reads and writes the `environmentvariablevalue` records for the four banner environment variables. |
 | Web resource | 61 | `dodbl_banner-launch-page` | Model-driven app launch page and primary app-load consent/banner entry point. |
 | Web resource | 61 | `dodbl_bannercore` | Shared CSS for classification marks and consent modal layout. |
 | Web resource | 61 | `dodbl_cuiconsentbanner` | Power Pages CUI classification fragment. |
@@ -43,9 +44,10 @@ Root components were verified from `DoDBannerLibrary/Other/Solution.xml`. The ma
 | PCF control | 66 | `dodbl_DoDBannerLibrary.DodBannerControl` | Code component for Canvas apps, custom pages, and field-control hosting. |
 | Model-driven app | 80 | `dodbl_DoDBannerLibraryManagement` | Management app that exposes Home, docs, release notes, web template source, and demo. |
 | Global option set | 9 | `dodbl_bannertype` | Banner type choices with publisher option-value prefix `70387`. |
+| Security role | 20 | `DoD Banner - Config Admin` | Role required to open and use the banner configuration screen. Read on `environmentvariabledefinition`; read, write, and create on `environmentvariablevalue`. |
 | Security role | 20 | `DoD Banner - Consent Write` | Managed package role intended for consent record create/read access. Not present in checked-in `DoDBannerLibrary/Other/Solution.xml`, but present in `DoDBannerLibrary_managed.zip`. |
 
-`DoDBannerLibrary/WebResources/` currently contains eight web resources: `dodbl_banner-launch-page`, `dodbl_bannercore`, `dodbl_cuiconsentbanner`, `dodbl_docs`, `dodbl_dodbanner`, `dodbl_dodconsentbanner`, `dodbl_release-notes`, and `dodbl_webtemplatesource`.
+`DoDBannerLibrary/WebResources/` currently contains nine web resources: `dodbl_banner-config`, `dodbl_banner-launch-page`, `dodbl_bannercore`, `dodbl_cuiconsentbanner`, `dodbl_docs`, `dodbl_dodbanner`, `dodbl_dodconsentbanner`, `dodbl_release-notes`, and `dodbl_webtemplatesource`.
 
 ## 3. The PCF control: `DodBannerControl`
 

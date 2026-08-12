@@ -59,6 +59,7 @@ Rule: `.squad/decisions.md` never restates a product decision — it links to th
 | `dodbl_cuiconsentbanner` | HTML | CUI classification mark fragment — CSS-only, no JavaScript required |
 | `dodbl_dodbanner` | JS | Model-Driven App form `OnLoad` script — reads `dodbl_` environment variables and injects the classification bar |
 | `dodbl_banner-launch-page` | HTML | Model-Driven App custom home page — single consent entry point with navigation tiles into the management app |
+| `dodbl_banner-config` | HTML | Admin-only banner configuration screen — edit the banner environment variable values in-app |
 | `dodbl_webtemplatesource` | HTML | Power Pages Liquid Web Template source — copy/paste setup page |
 | `dodbl_docs` | HTML | In-environment documentation page |
 | `dodbl_release-notes` | HTML | Version history and changelog |
@@ -167,6 +168,8 @@ Add the `data-classification` attribute to any container element. No JavaScript 
 ## Environment Variables
 
 These variables are available for Canvas App and Model-Driven App integrations (Phase 4). For Power Pages, use the equivalent [site settings](https://learn.microsoft.com/en-us/power-pages/configure/configure-site-settings) instead.
+
+`dodbl_BannerEnabled`, `dodbl_BannerType`, `dodbl_BannerPosition`, and `dodbl_ConsentExpiryDays` can be changed in-app from **Administration → Banner Configuration** in the management app (`dodbl_banner-config`) — no maker portal visit and no redeploy required. The screen is limited to the `DoD Banner - Config Admin` and `System Administrator` roles because `dodbl_BannerType` is a classification setting, and updated values apply on each user's next page load or refresh. See [ADR 0011](.ai/adr/0011-admin-config-screen-mda-web-resource.md).
 
 | Schema Name | Type | Default | Description |
 |---|---|---|---|

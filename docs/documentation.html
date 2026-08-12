@@ -153,6 +153,7 @@
               <tr><th>Schema name</th><th>Type</th><th>Default</th><th>Description</th></tr>
             </thead>
             <tbody>
+              <tr><td colspan="4"><strong>Administration &rarr; Banner Configuration</strong> in the management app (<code>dodbl_banner-config</code>) lets an administrator change <code>dodbl_BannerEnabled</code>, <code>dodbl_BannerType</code>, <code>dodbl_BannerPosition</code>, and <code>dodbl_ConsentExpiryDays</code> without the maker portal or a redeploy. It requires the <code>DoD Banner - Config Admin</code> or System Administrator role, and changes apply on each user&rsquo;s next page load.</td></tr>
               <tr><td><code>dodbl_BannerEnabled</code></td><td>Boolean</td><td><code>true</code></td><td>Set to <code>false</code> to disable banners environment-wide for the MDA path.</td></tr>
               <tr><td><code>dodbl_BannerType</code></td><td>String</td><td><em>empty</em></td><td>Classification bar to render: <code>CUI</code>, <code>UNCLASSIFIED</code>, <code>CONFIDENTIAL</code>, <code>SECRET</code>, or <code>TOP SECRET</code>. Empty means no bar.</td></tr>
               <tr><td><code>dodbl_ConsentExpiryDays</code></td><td>Number</td><td><code>30</code></td><td>Days before the consent cookie expires.</td></tr>

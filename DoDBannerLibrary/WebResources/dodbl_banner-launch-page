@@ -158,7 +158,7 @@
     <div>
       <h1>DoD Banner Library Management App</h1>
     </div>
-    <span class="app-header-badge">v1.4.1</span>
+    <span class="app-header-badge">v1.5.0</span>
   </div>
 
   <div class="main">
@@ -177,6 +177,11 @@
         <div class="tile-icon">📋</div>
         <div class="tile-title">Documentation</div>
         <div class="tile-desc">Post-import checklist, setup guides, and component reference.</div>
+      </div>
+      <div class="tile" onclick="navTo('webresource','dodbl_banner-config')">
+        <div class="tile-icon">⚙️</div>
+        <div class="tile-title">Banner Configuration</div>
+        <div class="tile-desc">Admin-only screen for the banner environment variable values.</div>
       </div>
       <div class="tile" onclick="navTo('webresource','dodbl_release-notes')">
         <div class="tile-icon">📝</div>
@@ -198,7 +203,7 @@
     <p class="section-label">Solution Status</p>
     <div class="status-card">
       <div class="status-card-hdr">DoDBannerLibrary &mdash; GFIM-DEV</div>
-      <div class="status-row"><span class="status-lbl">Solution Version</span><span class="status-val">1.4.1.0</span></div>
+      <div class="status-row"><span class="status-lbl">Solution Version</span><span class="status-val">1.5.0.0</span></div>
       <div class="status-row"><span class="status-lbl">Publisher Prefix</span><span class="status-val">dodbl_</span></div>
       <div class="status-row"><span class="status-lbl">Cloud</span><span class="status-val">GCC High &middot; IL4/IL5</span></div>
       <div class="status-row"><span class="status-lbl">PCF Control</span><span class="status-val">DoDBannerLibrary.DodBannerControl v1.2.1 &nbsp;<span class="badge-green">Active</span></span></div>
