@@ -283,32 +283,6 @@ function updateAutomaticColorPicker() {
   if (auto && picker && auto.checked) picker.value = getClassificationColor(getCurrentBannerType());
 }
 
-function refreshShellClassificationBar() {
-  var renderer = null;
-  try {
-    if (parent && typeof parent.dodblRenderClassificationBar === "function") {
-      renderer = parent.dodblRenderClassificationBar;
-    }
-  } catch (_e1) { /* fall through */ }
-  if (!renderer) {
-    try {
-      if (window.top && typeof window.top.dodblRenderClassificationBar === "function") {
-        renderer = window.top.dodblRenderClassificationBar;
-      }
-    } catch (_e2) { /* fall through */ }
-  }
-  if (!renderer) return Promise.resolve(false);
-
-  try {
-    return Promise.resolve(renderer()).then(
-      function () { return true; },
-      function () { return false; }
-    );
-  } catch (_e3) {
-    return Promise.resolve(false);
-  }
-}
-
 function loadSingleEnvVar(schemaName) {
   var xrm = getXrm();
   if (!(xrm && xrm.WebApi) || !isSchemaName(schemaName)) {
@@ -670,12 +644,10 @@ function onSave() {
       return chain.then(function () { return saveChange(change); });
     }, Promise.resolve())
       .then(function () {
-        return refresh().then(function () {
-          return refreshShellClassificationBar();
-        }).then(function (barRefreshed) {
-          setStatus(barRefreshed
-            ? "Saved. Visible classification bar refreshed."
-            : "Saved. Users see the new configuration on their next page navigation or refresh.");
+        return refresh().then(function (reloaded) {
+          setStatus(reloaded
+            ? "Saved. The classification bar updates on your next page navigation or refresh."
+            : "Saved, but the latest configuration fields could not be reloaded. Refresh this page before making more changes.");
         });
       })
       .catch(function (e) {
@@ -696,21 +668,21 @@ function refresh() {
       renderRows();
       document.getElementById("saveBtn").disabled = !_isAdmin;
       setStatus("");
+      return true;
     })
     .catch(function (e) {
       warnConfig("Configuration load failed: " + (e && e.message ? e.message : e));
       setStatus("Could not load environment variables: " + ((e && e.message) ? e.message : "unknown error"));
+      return false;
     });
 }
 
 function onReload() {
   refreshRunningVersion();
-  refresh().then(function () {
-    return refreshShellClassificationBar();
-  }).then(function (barRefreshed) {
-    setStatus(barRefreshed
-      ? "Reloaded. Visible classification bar refreshed."
-      : "Reloaded. Visible bar updates on the next page navigation or refresh.");
+  refresh().then(function (reloaded) {
+    if (reloaded) {
+      setStatus("Reloaded configuration fields. The classification bar updates on your next page navigation or refresh.");
+    }
   });
 }
 
