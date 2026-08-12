@@ -68,27 +68,35 @@
       <span class="version-badge">Latest</span>
     </div>
     <div class="change-group">
-      <div class="change-group-title">New</div>
+      <div class="change-group-title">Highlights</div>
       <ul class="change-list">
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Banner Configuration screen</strong> &mdash; new <code>dodbl_banner-config</code> web resource, available in the Management app under <strong>Administration &rarr; Banner Configuration</strong>. Administrators can change <code>dodbl_BannerEnabled</code>, <code>dodbl_BannerType</code>, <code>dodbl_BannerColor</code>, <code>dodbl_BannerPosition</code>, and <code>dodbl_ConsentExpiryDays</code> without opening the maker portal or redeploying the solution. Save refreshes the visible shell banner immediately for the current user; other sessions update on their next banner render.</span></li>
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Config Admin role</strong> &mdash; added the <code>DoD Banner - Config Admin</code> security role (Read on Environment Variable Definition; Read, Write, and Create on Environment Variable Value). The configuration screen is visible only to this role and to System Administrator.</span></li>
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Consent reset action</strong> &mdash; the configuration screen includes a <strong>Reset My Consent</strong> button that clears the current user&rsquo;s <code>dodbl_Accepted</code> cookie for retesting the consent prompt.</span></li>
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Banner color override</strong> &mdash; added the optional <code>dodbl_BannerColor</code> environment variable and configuration swatch. Empty uses the Banner Type default; a valid hex value overrides the shell bar color.</span></li>
-        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Runtime version stamp</strong> &mdash; added <code>dodbl_BannerVersion</code> as the single environment-variable source for displayed app/documentation version labels. The definition default is seeded to <code>1.5.0.0</code>.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Environment-variable configuration admin</strong> &mdash; added the <code>dodbl_banner-config</code> web resource in the Management app under <strong>Administration &rarr; Banner Configuration</strong>. Authorized admins can manage banner settings in-environment without opening the maker portal or redeploying.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>New banner environment variables</strong> &mdash; added <code>dodbl_BannerColor</code>, <code>dodbl_BannerLabel</code>, and <code>dodbl_BannerVersion</code> definitions. <code>dodbl_BannerColor</code> accepts an optional hex color override, <code>dodbl_BannerLabel</code> accepts optional display text, and <code>dodbl_BannerVersion</code> is the runtime source for displayed app/documentation version labels.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Full-cycle consent audit delivery</strong> &mdash; includes the v1.4.0 consent audit table, Consent Write role guidance, v1.4.1 reliable audit-write ordering, active-record view fix, and Consent Audit Reader role so managed imports carry the complete consent-audit feature set forward.</span></li>
       </ul>
     </div>
     <div class="change-group">
-      <div class="change-group-title">Fixed</div>
+      <div class="change-group-title">Banner runtime</div>
       <ul class="change-list">
-        <li class="change-item"><span class="change-pill pill-new">FIX</span><span class="change-text"><strong>Classification display labels</strong> &mdash; Model-Driven App bars now translate stored short codes such as <code>U</code> to their full display label (<code>UNCLASSIFIED</code>) while preserving the existing color-prefix matching order.</span></li>
-        <li class="change-item"><span class="change-pill pill-new">FIX</span><span class="change-text"><strong>Configuration reload</strong> &mdash; Save asks the shared shell banner renderer to refresh in place and no longer performs a full app reload.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Color and label overrides</strong> &mdash; shell bars now honor <code>dodbl_BannerColor</code> for valid hex colors and <code>dodbl_BannerLabel</code> for custom text; empty values continue to use the classification defaults.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">FIX</span><span class="change-text"><strong>Friendly classification labels</strong> &mdash; stored short codes such as <code>U</code> display as <code>UNCLASSIFIED</code> in the configuration modal and shell bars, while existing prefix/color matching remains intact.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">FIX</span><span class="change-text"><strong>Full-navigation coverage</strong> &mdash; the Model-Driven App shell renderer now installs a global <code>window.top.__dodBanner</code> singleton with a <code>MutationObserver</code> and interval watchdog so full-page navigation and shell re-renders restore the configured classification bar instead of leaving gaps.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">FIX</span><span class="change-text"><strong>In-flow shell insertion</strong> &mdash; top bars are inserted before <code>topBar</code> / <code>shell-container</code> when those shell anchors are available, with the previous fixed-position/body insertion and header-shift fallback retained for older layouts.</span></li>
+      </ul>
+    </div>
+    <div class="change-group">
+      <div class="change-group-title">Admin experience</div>
+      <ul class="change-list">
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Config Admin role</strong> &mdash; added the <code>DoD Banner - Config Admin</code> security role for the configuration screen. Assign it deliberately because <code>dodbl_BannerType</code>, color, and label are classification-presentation settings.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Consent reset action</strong> &mdash; the configuration screen includes a <strong>Reset My Consent</strong> button that clears only the current user&rsquo;s <code>dodbl_Accepted</code> cookie for retesting.</span></li>
+        <li class="change-item"><span class="change-pill pill-remove">REMOVED</span><span class="change-text"><strong>Redundant Apply now button</strong> &mdash; removed the extra Apply action. <strong>Save</strong> now persists the value changes and repaints the visible shell banner in place for the current user.</span></li>
       </ul>
     </div>
     <div class="change-group">
       <div class="change-group-title">Deployment notes</div>
       <ul class="change-list">
-        <li class="change-item"><span class="change-pill pill-note">NOTE</span><span class="change-text"><strong>Assign the Config Admin role deliberately</strong> &mdash; <code>dodbl_BannerType</code> is a classification setting. Assign <code>DoD Banner - Config Admin</code> only to users authorized to change classification presentation, never to a general user-facing role.</span></li>
-        <li class="change-item"><span class="change-pill pill-note">NOTE</span><span class="change-text"><strong>Enable auditing for full change history</strong> &mdash; each save stamps <code>modifiedby</code> and <code>modifiedon</code> on the Environment Variable Value record, which the screen displays. Turn on environment-level auditing and table auditing for Environment Variable Value to retain before/after change history.</span></li>
+        <li class="change-item"><span class="change-pill pill-note">NOTE</span><span class="change-text"><strong>Environment-variable packaging fix</strong> &mdash; the managed solution now includes the new environment variable definitions so <code>dodbl_BannerColor</code>, <code>dodbl_BannerLabel</code>, and <code>dodbl_BannerVersion</code> import correctly alongside the existing six definitions.</span></li>
+        <li class="change-item"><span class="change-pill pill-note">NOTE</span><span class="change-text"><strong>Enable auditing for full change history</strong> &mdash; each configuration save stamps <code>modifiedby</code> and <code>modifiedon</code> on the Environment Variable Value record, which the screen displays. Turn on environment-level auditing and table auditing for Environment Variable Value to retain before/after change history.</span></li>
       </ul>
     </div>
   </div>
@@ -156,7 +164,7 @@
       <div class="change-group-title">Known limitation</div>
       <ul class="change-list">
         <li class="change-item"><span class="change-pill pill-note">NOTE</span><span class="change-text"><strong>Sitemap gate != enforcement</strong> &mdash; the v1.3.0 MDA gate is a UX-level home-page entry pattern, not a hard security boundary. Deep links, global search, pinned items, and recent items can bypass the home page; enforcement is tracked separately in issue #13 and deferred beyond v1.3.0.</span></li>
-        <li class="change-item"><span class="change-pill pill-note">NOTE</span><span class="change-text"><strong>Canvas consent persistence</strong> &mdash; consent acknowledgment does not persist across sessions in Canvas apps because of the PCF sandbox; persistent Canvas consent is tracked in issue #21 and planned for v1.4.0. The Model-Driven App home-page gate persists consent normally.</span></li>
+        <li class="change-item"><span class="change-pill pill-note">NOTE</span><span class="change-text"><strong>Canvas consent persistence</strong> &mdash; consent acknowledgment does not persist across sessions in Canvas apps because of the PCF sandbox; persistent Canvas consent remains tracked separately in issue #21. The Model-Driven App home-page gate persists consent normally, and v1.5.0 adds full-navigation banner/watchdog coverage for the MDA shell.</span></li>
       </ul>
     </div>
   </div>

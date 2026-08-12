@@ -4,6 +4,22 @@ A managed Power Platform solution providing reusable banner assets for **Power P
 
 Zero external dependencies. No CDN calls. No jQuery.
 
+## Links
+
+**Public site / showcase:** https://devonaleshiremsft.github.io/dod-banner-library/
+
+---
+
+## Security & Transparency
+
+This solution intentionally uses `window.top` in Model-Driven Apps to place the classification banner in the visible UCI shell rather than inside a hidden form/web-resource iframe. This is a documented exception for a DoD display requirement; Microsoft Solution Checker will continue to flag it as `web-avoid-window-top` (High / supportability), and it should not be treated as a false positive or silently removed.
+
+In the intended GCC High Model-Driven App deployment, the banner web resources and the app shell are first-party pages on the same Dynamics origin, and browser same-origin policy prevents cross-origin DOM access. The `window.top` path is limited to classification-banner placement, related header positioning/runtime state, and the shared `dodbl_Accepted` consent cookie. It is not used to read Dataverse form fields, page content, or user-entered data, and it does not transmit DOM data outside the tenant. Consent audit features, when enabled, write normal Dataverse consent records through supported `Xrm.WebApi` calls rather than through `window.top`.
+
+Residual risk remains: this design depends on same-origin access to the MDA shell. If Microsoft changes UCI frame isolation or the resource is hosted cross-origin, the shell banner and shared-cookie behavior may degrade or fail, and the classification bar could disappear until the implementation is updated. Tenant authentication and Dataverse security remain the access boundary; the banner and consent notification are visibility/audit features, not access-control enforcement.
+
+See ADR 0006 for the full architectural rationale.
+
 ---
 
 ## Screenshots
@@ -186,7 +202,7 @@ Environment-variable values for the JS-driven banner are case-insensitive: `dodb
 
 ## Known Limitations
 
-- Consent acknowledgment does not persist across sessions when `DodBannerControl` is used inside a Canvas app; the consent modal reappears each session. This is a Power Apps canvas code-component sandbox limitation. The modal still functions per session, persistent Canvas consent is planned for v1.4.0 (tracked in issue #21), and the Model-Driven App consent gate (`dodbl_banner-launch-page`) persists consent normally.
+- Consent acknowledgment does not persist across sessions when `DodBannerControl` is used inside a Canvas app; the consent modal reappears each session. This is a Power Apps canvas code-component sandbox limitation. The modal still functions per session; v1.5.0 ships the Model-Driven App full-navigation banner/watchdog improvements, while persistent Canvas consent remains tracked separately in issue #21 and the Model-Driven App consent gate (`dodbl_banner-launch-page`) persists consent normally.
 
 ## Security Notes
 

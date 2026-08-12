@@ -22,6 +22,14 @@ Key constraints:
 - Environment-variable driven Model-Driven App behavior
 - Client-side consent UX is supplementary; it is not a hard authorization boundary
 
+## Security & Transparency
+
+This solution intentionally uses `window.top` in Model-Driven Apps to place the classification banner in the visible UCI shell rather than inside a hidden form/web-resource iframe. This is a documented exception for a DoD display requirement; Microsoft Solution Checker will continue to flag it as `web-avoid-window-top` (High / supportability), and it should not be treated as a false positive or silently removed.
+
+In the intended GCC High Model-Driven App deployment, the banner web resources and the app shell are first-party pages on the same Dynamics origin, and browser same-origin policy prevents cross-origin DOM access. The `window.top` path is limited to classification-banner placement, related header positioning/runtime state, and the shared `dodbl_Accepted` consent cookie. It is not used to read Dataverse form fields, page content, or user-entered data, and it does not transmit DOM data outside the tenant. Consent audit features, when enabled, write normal Dataverse consent records through supported `Xrm.WebApi` calls rather than through `window.top`.
+
+Residual risk remains: this design depends on same-origin access to the MDA shell. If Microsoft changes UCI frame isolation or the resource is hosted cross-origin, the shell banner and shared-cookie behavior may degrade or fail, and the classification bar could disappear until the implementation is updated. Tenant authentication and Dataverse security remain the access boundary; the banner and consent notification are visibility/audit features, not access-control enforcement.
+
 ## 2. Component inventory
 
 | Component | Source name | Purpose |
