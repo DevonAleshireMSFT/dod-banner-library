@@ -63,9 +63,29 @@
 
   <div class="version-block">
     <div class="version-header">
+      <span class="version-tag">v1.4.1</span>
+      <span class="version-date">2026-08-11</span>
+      <span class="version-badge">Latest</span>
+    </div>
+    <div class="change-group">
+      <div class="change-group-title">Fixed</div>
+      <ul class="change-list">
+        <li class="change-item"><span class="change-pill pill-new">FIX</span><span class="change-text"><strong>Consent audit write ordering</strong> &mdash; consent acknowledgement now reliably records a Consent Record. The acknowledgement cookie is only set after the audit write succeeds, so a failed write no longer suppresses future attempts.</span></li>
+        <li class="change-item"><span class="change-pill pill-new">FIX</span><span class="change-text"><strong>Active Consent Records view</strong> &mdash; now shows only active records that are not revoked and not expired, sorted newest-first.</span></li>
+      </ul>
+    </div>
+    <div class="change-group">
+      <div class="change-group-title">New</div>
+      <ul class="change-list">
+        <li class="change-item"><span class="change-pill pill-new">NEW</span><span class="change-text"><strong>Consent Audit Reader role</strong> &mdash; added the <code>DoD Banner - Consent Audit Reader</code> read-only security role for least-privilege access to consent audit records.</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="version-block">
+    <div class="version-header">
       <span class="version-tag">v1.4.0</span>
       <span class="version-date">2026-08-03</span>
-      <span class="version-badge">Latest</span>
     </div>
     <div class="change-group">
       <div class="change-group-title">New</div>
