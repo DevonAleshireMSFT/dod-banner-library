@@ -24,7 +24,8 @@
 | `dodbl_DoDBannerLibraryManagement` | Model-Driven App | Management app — docs, demo, release notes |
 | `dodbl_DoDBannerLibraryManagement` | App Module Site Map | Navigation for management app |
 | `dodbl_DoDBannerLibrary.DodBannerControl` | PCF Custom Control (type 66) | Canvas App classification bar + DoD modal |
-| `DoD Banner - Consent Write` | Security Role | Consent audit role: Create = Organization scope and Read = User scope on `dodbl_consentrecord` only |
+| `DoD Banner - Consent Write` | Security Role | End-user consent role: Create = Organization scope and Read = User scope on `dodbl_consentrecord` only |
+| `DoD Banner - Consent Audit Reader` | Security Role | App-manager/auditor role: Organization-scope Read on `dodbl_consentrecord`; no create, update, delete, assign, or share |
 | `dodbl_banner_demo` | Removed custom table | Removed in v1.3.0; demo is now Canvas App `dodbl_canvasappdemo_bb4ae` |
 
 ---
@@ -54,7 +55,7 @@ Dataverse audit table for consent acknowledgments. Not yet created. This is the 
 
 **Table settings:** User/Team owned; table-level auditing enabled; add to the `DoDBannerLibrary` solution.
 
-**Security role:** assign `DoD Banner - Consent Write` to user-facing roles that need to create consent acknowledgements; see `.ai/security.md`.
+**Security roles:** assign `DoD Banner - Consent Write` to user-facing roles that need to create consent acknowledgements. Assign `DoD Banner - Consent Audit Reader` only to app managers or auditors who need tenant-wide reporting. The audit-reader role has Organization-scope Read on `dodbl_consentrecord` and no create, update, delete, assign, or share privileges on the table; see `.ai/security.md`.
 
 | Display Name | Schema Name | Type | Required | Notes |
 |---|---|---|---|---|
@@ -68,7 +69,7 @@ Dataverse audit table for consent acknowledgments. Not yet created. This is the 
 | Revoked | `dodbl_revoked` | Yes/No | Required | Default No. Use only for early/manual revocation. Audit enabled. |
 | Is Active | `dodbl_isactive` | Formula (Yes/No) | System computed | Formula: `If(dodbl_expirydate > UTCNow() && Not(dodbl_revoked), true, false)`. Reporting/convenience only; runtime code derives validity from `dodbl_expirydate > now` and `dodbl_revoked = false`. Do not audit computed formula output. |
 
-**Consent audit model:** append-only. Every acknowledgement creates a new `dodbl_consentrecord`; existing rows are never updated for normal renewal. Validity is derived at runtime from the user's most-recent record, `dodbl_expirydate`, and `dodbl_revoked`; no scheduled job or plugin maintains status. The `DoD Banner - Consent Write` role enforces Create + Read only, with no Write/Update privilege.
+**Consent audit model:** append-only. Every acknowledgement creates a new `dodbl_consentrecord`; existing rows are never updated for normal renewal. Validity is derived at runtime from the user's most-recent record, `dodbl_expirydate`, and `dodbl_revoked`; no scheduled job or plugin maintains status. The `DoD Banner - Consent Write` role gives end users Create plus own-row Read only, with no Write/Update privilege. The `DoD Banner - Consent Audit Reader` role gives app managers/auditors tenant-wide, Organization-scope Read for reporting without write/delete/assign/share authority.
 
 **Formula column deployment note:** Dataverse cannot convert the existing Simple Yes/No `dodbl_isactive` column to Formula in place, and classic Calculated columns do not support `UTCNow()`. Delete and recreate `dodbl_isactive` as the Formula column above. The `Active Consent Records` saved view must filter on stored `dodbl_expirydate` on or after today, not on `dodbl_isactive`, because formula columns using `UTCNow()` have FetchXML/view filtering limitations.
 

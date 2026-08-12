@@ -25,10 +25,13 @@ v1.4 consent audit role:
 | Role | Purpose | Minimum Privileges |
 |---|---|---|
 | `DoD Banner - Consent Write` | Allows licensed users to create their own consent acknowledgement records without broad audit-table access | `Create` = Organization scope and `Read` = User scope on `dodbl_consentrecord` only |
+| `DoD Banner - Consent Audit Reader` | Allows app managers/auditors to run tenant-wide consent reporting without write authority | `Read` = Organization scope on `dodbl_consentrecord`; no Create/Write/Delete/Assign/Share on `dodbl_consentrecord` |
 
-`DoD Banner - Consent Write` intentionally grants only the two consent-table privileges above. User-scope Read matters: it lets a user read only records they own, preserving audit privacy instead of exposing other users' consent history. The other baseline privileges Dataverse adds to a new role are platform defaults and should not be treated as intentional product grants.
+`DoD Banner - Consent Write` intentionally grants only the two consent-table privileges above. User-scope Read matters: it lets a user read only records they own, preserving audit privacy instead of exposing other users' consent history. `DoD Banner - Consent Audit Reader` is the separate least-privilege read-all role for tenant-wide reporting: auditors can read every consent row, but cannot create, update, delete, assign, or share consent records. The other baseline privileges Dataverse adds to a new role are platform defaults and personal UI/settings privileges and should not be treated as intentional product grants against the consent table.
 
-**Deployment requirement:** assign `DoD Banner - Consent Write` to every user-facing security role whose users can see the consent banner. Without this role, consent acknowledgement writes to `dodbl_consentrecord` fail with a privilege error.
+This split preserves append-only integrity: users create acknowledgement rows and can read their own rows; auditors read all rows for reporting; nobody receives update/delete rights to consent records through these roles.
+
+**Deployment requirement:** assign `DoD Banner - Consent Write` to every user-facing security role whose users can see the consent banner. Assign `DoD Banner - Consent Audit Reader` only to app managers/auditors who need cross-user consent reporting. Without the write role, consent acknowledgement writes to `dodbl_consentrecord` fail with a privilege error.
 
 **Deployment checkpoint / gotcha:** creating the record sets the `dodbl_userid` lookup to the current user. That lookup write relies on `AppendTo` on the User (`systemuser`) table, normally supplied by the Basic User role; verify this during deployment/UAT rather than widening the consent role.
 
