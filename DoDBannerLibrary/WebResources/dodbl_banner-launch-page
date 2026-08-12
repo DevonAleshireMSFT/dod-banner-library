@@ -362,7 +362,7 @@ function warnConsentAudit(message) {
 }
 
 function writeConsentRecord() {
-  getBannerEnvVars()
+  return getBannerEnvVars()
     .then(function (vars) {
       var xrm = getXrm();
       if (!(xrm && xrm.WebApi && xrm.Utility)) {
@@ -396,12 +396,11 @@ function writeConsentRecord() {
         dodbl_expirydate: expiry.toISOString(),
         dodbl_consenttext: _consentTextShown || CONSENT_TEXT_DEFAULT,
         dodbl_revoked: false
-      }).catch(function () {
-        warnConsentAudit("Consent audit write failed.");
       });
     })
-    .catch(function () {
-      warnConsentAudit("Consent audit write failed.");
+    .catch(function (e) {
+      warnConsentAudit("Consent audit write failed: " + (e && e.message ? e.message : e));
+      throw e;
     });
 }
 
@@ -672,10 +671,19 @@ function revealHomeContent(skipFade) {
 }
 
 function onAcknowledge() {
-  setCookie(COOKIE_NAME, "Yes", EXPIRY_DAYS);
-  writeConsentRecord();
-  revealHomeContent(false);
-  updateCookieStatus();
+  writeConsentRecord()
+    .then(function () {
+      // Skipped audit paths resolve so standalone previews can remember dismissal;
+      // actual write failures reject and leave the cookie unset for retry on next load.
+      setCookie(COOKIE_NAME, "Yes", EXPIRY_DAYS);
+    })
+    .catch(function () {
+      // Leave the cookie unset so the next load retries the audit write.
+    })
+    .then(function () {
+      revealHomeContent(false);
+      updateCookieStatus();
+    });
 }
 
 // ── Cookie status indicator ───────────────────────────────────────────────────

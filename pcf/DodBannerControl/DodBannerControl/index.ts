@@ -164,8 +164,9 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
                 dodbl_consenttext: consentTextShown,
                 dodbl_revoked: false
             });
-        } catch (_e) {
-            console.warn("DoD Banner consent audit write failed; continuing with local consent dismissal.");
+        } catch (e) {
+            console.warn("DoD Banner consent audit write failed: " + (e instanceof Error ? e.message : e));
+            throw e;
         }
     }
 
@@ -203,10 +204,22 @@ export class DodBannerControl implements ComponentFramework.StandardControl<IInp
         document.body.appendChild(this._bannerRoot);
 
         const dismiss = () => {
-            this.setCookie(DodBannerControl.COOKIE_NAME, "Yes", cookieExpiryDays);
-            void this._writeConsentRecord(bannerType, text, recordExpiryDays);
-            this.fadeOut(modal, 200);
-            overlay.style.display = "none";
+            void this._writeConsentRecord(bannerType, text, recordExpiryDays)
+                .then(() => {
+                    // Skipped audit paths resolve so standalone previews can remember dismissal;
+                    // actual write failures reject and leave the cookie unset for retry on next load.
+                    this.setCookie(DodBannerControl.COOKIE_NAME, "Yes", cookieExpiryDays);
+                    return undefined;
+                })
+                .catch(() => {
+                    // Leave the cookie unset so the next load retries the audit write.
+                    return undefined;
+                })
+                .then(() => {
+                    this.fadeOut(modal, 200);
+                    overlay.style.display = "none";
+                    return undefined;
+                });
         };
 
         const handler: EventListener = () => dismiss();
