@@ -226,3 +226,94 @@
 **What:** PCF control push completed successfully and the unmanaged solution packed successfully, but the GFIM-DEV unmanaged solution import halted because Dataverse returned a duplicate key error for dbo.DVTableSearchBase / ndx_for_entitykey_key_name on M365_Primary_model_dodbl_DoDBannerLibraryManagement.
 **Why:** The runbook requires halting on live GCC High import failures. Web resource import/publish success was not confirmed, so Devon should not assume the stale dodbl_banner-launch-page web resource was updated by this run.
 
+
+### 2026-08-12: Consolidate all post-v1.3.0 work into a single v1.5.0 release
+**By:** Squad (Coordinator), on behalf of Devon Aleshire
+**What:** The entire 1.4.x line (1.4.0 consent-write fix, 1.4.1.0 cookie/view fixes) plus the #43 admin config screen will ship as ONE consolidated release: **v1.5.0**. No separate v1.4.0 / v1.4.1 tags will be cut.
+**Why:** The 1.4.x line was never released (last tag/release is v1.3.0). Rather than backfill intermediate tags, fold everything into a single clean release once #43 (PR #45) merges. This supersedes the earlier "hold and reconcile tag↔manifest" plan — the reconciliation target is now v1.5.0.
+**Implications:**
+- PR #45's manifest bump 1.4.1.0 → 1.5.0.0 is DESIRED — keep it.
+- On merge: tag 'v1.5.0', reconcile tag↔manifest, aggregate release notes covering v1.4.0 → v1.5.0 changes.
+- UAT sign-off (docs/uat/UAT-v1.4.0-consent-write.md) is still the release gate; extend it to cover the config screen before final release.
+- Mal owns the release prep (notes aggregation, tag, managed export) on the user's word.
+
+### 2026-08-12T15-20-47: v1.5.0 managed-solution export and verification
+**By:** Mal
+**What:** For the v1.5.0 cut, 'pac solution pack --packagetype Managed' was attempted from source after moving DoDBannerLibrary\dvtablesearchs out of the solution folder, but PAC reported Solution package type did not match requested type because the source tree is unmanaged. I reselected and verified PAC against GFIM-DEV (https://orga1b9bfb3.crm.microsoftdynamics.us/, org id 34e70151-afbb-ee11-9076-001dd802fc81), confirmed the unmanaged DoDBannerLibrary solution there is 1.5.0.0 and unmanaged, exported a managed solution to DoDBannerLibrary_managed.zip, then refreshed the changed dodbl_release-notes and dodbl_docs web-resource payloads in the managed zip from local source because no environment import is allowed in this release-prep step.
+**Why:** The release needs a managed artifact for manual managed-import testing without creating a tag/release or importing anything into any environment. Final verification showed all 9 environment variable definitions are present (dodbl_BannerColor, dodbl_BannerEnabled, dodbl_BannerLabel, dodbl_BannerPosition, dodbl_BannerType, dodbl_BannerVersion, dodbl_ConsentExpiryDays, dodbl_DoDConsentText, dodbl_ShowConsentBanner), solution.xml has Managed=1, and the version is 1.5.0.0.
+
+### 2026-08-12: App version display sourced from dodbl_BannerVersion env var
+**By:** Squad (Coordinator), on behalf of Devon Aleshire
+**What:** Kill hardcoded version strings in the running app. Introduce dodbl_BannerVersion (String) as the authoritative runtime version indicator. Web resources read it and display it; nothing hardcodes the current version anymore.
+**Why:** Hardcoded stamps scattered across launch-page status card, dodbl_dodbanner, and docs drifted out of sync. Single env var readable by ALL users (avoids solution table privilege requirement). Config table rejected as unnecessary third source of truth.
+**Scope / ownership:**
+- Kaylee (web resources): add dodbl_BannerVersion env var definition; read at runtime and replace hardcoded version indicators (launch-page Solution Status card). Initial value = current solution version. Display read-only on config screen (NOT editable). Folded into PR fix/banner-classification-label-and-config-reload.
+- Mal (release process): owns STAMPING dodbl_BannerVersion at each release matching Solution.xml Version. For v1.5.0, set to 1.5.0.0. Consider automating stamp in pack/build as follow-up. Release-notes PROSE stays version-specific; only "what version am I running" indicators go dynamic.
+**Implication:** After this ships, updating displayed app version = update ONE env var value (or automated stamp), not N hardcoded strings.
+
+### 2026-08-12: Environment variables pack through EnvironmentVariables component marker
+**By:** Mal
+**What:** Source solution folders should keep environment variable definition XML under DoDBannerLibrary/environmentvariabledefinitions/... and Other/Customizations.xml must include childless <EnvironmentVariables /> component marker. Do not add type 380 root components for env vars in Solution.xml; PAC 2.6.4 warns on them even after marker is present.
+**Why:** 'pac solution pack' only processes env var shard files when childless component marker is present. With marker and no type 380 roots, pack emits no "root components are not defined" warning, import provisions definitions, and Dataverse exports them back under environmentvariabledefinitions.
+
+### 2026-08-12T15-31-54: ADR 0006 Solution Checker findings formally accepted with supportability caveat
+**By:** Mal; reviewed and accepted by Rai
+**What:** Updated ADR 0006 to formally accept v1.5.0 Solution Checker 'web-avoid-window-top' findings as documented exception. ADR records 27 High findings across dodbl_banner-config.htm, dodbl_banner-launch-page.htm, dodbl_dodbanner.js, dodbl_docs.htm, dodbl_release-notes.htm, and dodbl_webtemplatesource.htm; Rai reviewed and accepted rationale on 2026-08-12.
+**Why:** MDA classification bar must render in visible UCI shell and persist across navigation, requiring same-origin window.top access. Finding is accepted supportability risk, not access-control enforcement and not something future work should silently remove.
+
+### 2026-08-12: window.top Security & Transparency wording approved with caveats
+**By:** Rai
+**What:** Approved publication of Security & Transparency section only if it avoids overclaiming fail-safe behavior and narrows "no user data" claim to window.top path. Approved wording provided in full detail in source document with caveats about same-origin assumptions, residual risks, and non-access-control boundaries.
+**Why:** Original draft was directionally accurate but overstated two points: (1) "fails safe if origin differs" not safe to publish as blanket claim because dodbl_dodbanner initializes _doc without try/catch, future UCI isolation could break shell bar; (2) "no user data read/transmitted" too broad because consent audit paths write current user acknowledgement to Dataverse via Xrm.WebApi. Approved text keeps transparency benefit while preserving residual-risk caveat.
+
+### 2026-08-12: Classification code-to-label map stays paired with color prefixes
+**By:** Kaylee
+**What:** MDA shell and launch-page bars translate banner codes to display labels using same prefix order as color map: CU -> CUI/purple, U -> UNCLASSIFIED/green, CO -> CONFIDENTIAL/blue, S -> SECRET/red, T -> TOP SECRET/orange. Unknown values keep grey fallback and display uppercased value; legacy DoD displays DOD with grey. dodbl_BannerColor is optional hex override: empty means type-derived default; valid #RGB/#RRGGBB overrides background and picks black/white text by luminance. Invalid color values ignored at runtime, fall back to type default.
+**Why:** Admin config stores short codes (U, CUI, etc.); visible classification mark shows full user-facing label. Keeping label/color prefix precedence together prevents CUI/CONFIDENTIAL drift/collision on naive C match. Color override gives controlled customization without allowing malformed values to become injected CSS.
+
+### 2026-08-12: Displayed app version comes from dodbl_BannerVersion
+**By:** Kaylee
+**What:** Runtime "current version" labels read dodbl_BannerVersion instead of hardcoded web-resource strings. Env var definition seeded to 1.5.0.0; launch page and docs labels fall back to 'unknown' only if value unavailable. Config screen displays value read-only and excludes from editable admin settings.
+**Why:** Running app had stale hardcoded version stamps. Single string env var readable by normal users, avoids querying Solution table (which can require elevated privileges). Mal owns keeping dodbl_BannerVersion aligned with Solution.xml for each release.
+
+### 2026-08-12: Accepted-risk global banner injector
+**By:** Kaylee
+**What:** Implemented shared window.top.__dodBanner classification-bar singleton seeded by Management app web resources, with throttled MutationObserver/interval watchdog that re-injects shell bar if MDA client-side navigation removes it.
+**Why:** User approved full-coverage approach and accepted supportability risk related to ADR 0006 (window.top classification bar) so grid/view navigation keeps classification mark visible after seeded page installs runtime. ADR 0006 may warrant update to explicitly cover global watchdog/injector pattern; Coordinator/Mal should formalize.
+
+### 2026-08-12: Prefer in-flow shell insertion for top classification bars
+**By:** Kaylee
+**What:** Shared window.top.__dodBanner injector now prefers inserting top classification bar as in-flow sibling before #topBar or #shell-container, with prior fixed/body insertion retained as fallback.
+**Why:** Honors ADR 0006's window.top.document constraint while avoiding common MDA header overlap/offset hack when shell anchor available. Fixed/body path and shiftMdaHeader() remain for selector drift or alternate shells.
+
+### 2026-08-12: Reload applies banner changes through app reload
+**By:** Kaylee
+**What:** Banner Configuration screen Reload action now performs full app reload instead of only re-fetching environment variable fields.
+**Why:** Visible classification bar injected in model-driven app shell (not inside config iframe), so shell/app reload required to repaint bar immediately after configuration changes.
+
+### 2026-08-12T15-24-20: Security & Transparency language added to public docs
+**By:** Kaylee
+**What:** Added Rai-approved Security & Transparency language about intentional MDA window.top usage to README and technical integration guide, surfaced public GitHub Pages showcase link near top of README.
+**Why:** v1.5.0 security review requires supportability flag, same-origin assumptions, residual risk, and non-access-control boundary transparent up front for evaluators and implementers.
+
+### 2026-08-12: PR #45 code review (admin banner-config screen)
+**By:** Independent reviewer (not PR author Kaylee)
+**Requested by:** Devon Aleshire
+**References:** PR #45, issue #43
+**Verdict:** APPROVE WITH NITS
+**What:** Reviewed admin banner-config screen (issue #43) for RBAC safety, ES5 compliance, OData injection risk. RBAC role DoD Banner - Config Admin has least-privilege (no Delete on environmentvariablevalue); web resource uses parent.Xrm.WebApi correctly; GUID/schema validation gates all filter concatenation; ES5-clean; classification confirm wraps entire save batch. Non-blocking: multi-field save sequential (mid-batch failure leaves earlier saves committed); BannerType "(empty)" can't take effect when definition default non-empty (fails safe). PR #45 bumps solution manifest 1.4.1.0 → 1.5.0.0 (release-process decision for Coordinator/Devon, not code defect).
+**Deploy readiness:** Safe to import to GFIM-DEV as-is once version-bump decision made; requires standard dvtablesearchs/ move-aside before pac solution import.
+
+### 2026-08-12: PR #46 code review (fix/banner-classification-label-and-config-reload)
+**By:** Independent reviewer (not PR author Kaylee)
+**Requested by:** Devon Aleshire
+**References:** PR #46
+**Verdict:** APPROVE (with non-blocking nits)
+**What:** Comprehensive review covering CSS/HTML injection safety, label/color agreement, cookie clearing, env var definitions, config field logic, dodbl_BannerVersion read-only enforcement, ES5 compliance, public-site documentation. Key findings: normalizeHexColor() runs BEFORE CSS injection; label/color logic byte-identical across web resources; cookie clear/set use matching scope; env var definitions well-formed consistent with existing vars; config logic correctly distinguishes "cleared to auto" from "unchanged auto"; dodbl_BannerVersion read-only on config screen; ES5-clean; public site has no GUIDs/org URLs/tenant names. Non-blocking: solution.xml asymmetry (6 pre-existing env vars no RootComponent, 2 new vars do—harmless but inconsistent); color normalization write cosmetic only.
+**Deploy readiness:** Safe to import to GFIM-DEV at solution version 1.5.0.0 using standard dvtablesearchs/ move-aside. Post-import: confirm dodbl_BannerVersion resolves to 1.5.0.0.
+
+### 2026-08-12: Connect writing skill added
+**By:** Book
+**What:** Added portable connect-writing skill and reusable prompt methodology for Connect narratives, impact tracking, promotion-readiness coaching.
+**Why:** Squad needs generic, reusable way to transform work into evidence-based career-impact stories without hardcoding cycle-specific priorities or exposing sensitive information.
+
