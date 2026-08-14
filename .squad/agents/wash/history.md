@@ -21,3 +21,7 @@ Deployed unmanaged solution v1.3.0.0 to GFIM-DEV, then re-deployed after Kaylee'
 📌 Team update (2026-07-24T18:24:15-07:00): v1.3.0.0 redeploy to GFIM-DEV includes Kaylee's classification-bar re-enable fix; validate off→on behavior during UAT — decided by Kaylee/Wash.
 
 📌 Team update (2026-07-24T19:53:00-07:00): Recorded Devon's GFIM-DEV UAT v1.3.0 sign-off with all cases passing, including UAT-023 through UAT-029; commit 2c70ef8.
+
+📌 Team update (2026-08-03T20:28:54-07:00): v1.4.0 consent-write shipped for #10/#11 via merged PRs #36/#37; ADR 0010 set the authenticated-only Power Pages approach for #12; `Unspecified=703870007` was added for empty/unknown bannerType audit rows. — decided by Mal and Zoe
+
+📌 Team update (2026-08-06T22:05:15-07:00): Wash verified the v1.4.0 consent-write contract for PCF/Canvas, MDA form, and MDA launch page, produced the live test plan, and found no defects; Power Pages (#12) remains not implemented.

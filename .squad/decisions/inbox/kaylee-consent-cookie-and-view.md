@@ -1,4 +1,0 @@
-### 2026-08-11: Consent cookie waits for audit write and active view filters current records
-**By:** Kaylee
-**What:** The launch-page and PCF consent flows now set the `dodbl_Accepted` cookie only after the consent audit write promise resolves. Guard-skip paths for unavailable Xrm/Web API or missing user resolve successfully so standalone previews can remember dismissal, while actual write failures reject and leave the cookie unset for retry on the next load. The Active Consent Records view now excludes revoked records, limits expiry dates to a relative future window, and sorts newest acknowledgements first.
-**Why:** Setting the cookie before the Dataverse write could permanently suppress retries after a failed audit write. The saved view was showing revoked/expired history and burying the newest UAT records at the bottom.
