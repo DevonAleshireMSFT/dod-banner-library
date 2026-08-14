@@ -30,3 +30,15 @@ Refined the MDA consent UI to a single custom home page overlay, updated page co
 📌 Team update (2026-07-27T11:37:38-07:00): Authored docs/technical-integration-guide.md for issue #22 as the source-grounded technical reviewer and maker usage reference; flagged four source/schema discrepancies for reconciliation. — decided by Kaylee
 📌 Team update (2026-07-27T11:37:38-07:00): Discrepancy #1 from the #22 guide is resolved on chore/fix-consent-table-schema-names; consent table references now use dodbl_consentrecord and Web API set dodbl_consentrecords. — decided by Mal
 
+
+📌 Team update (2026-08-03T15:42:23-07:00): DoD Banner - Consent Write role passed live least-privilege testing; consent PRs #28, #29, #30, and #31 are merged; issue #9 is closed. — decided by Serenity
+
+📌 Team update (2026-08-03T19:59:53-07:00): Issue #32 consent deployment docs shipped via squash-merged PR #33; docs now include Consent Write role assignment and `dodbl_isactive` delete-and-recreate migration guidance with the exact role name `DoD Banner - Consent Write`. — decided by Serenity, Kaylee, and Zoe
+
+📌 Team update (2026-08-03T20:28:54-07:00): v1.4.0 consent-write shipped for #10/#11 via merged PRs #36/#37; ADR 0010 set the authenticated-only Power Pages approach for #12; `Unspecified=703870007` was added for empty/unknown bannerType audit rows. — decided by Mal and Zoe
+
+📌 Team update (2026-08-04T14:16:27-07:00): GitHub Pages marketing/docs site for issue #38 shipped via merged PR #39; `docs/index.html`, `docs/documentation.html`, `docs/assets/site.css`, and `docs/.nojekyll` are live from `main` `/docs`. — decided by Kaylee
+
+📌 Team update (2026-08-11T21:50:38-07:00): Remaining v1.4.0 UAT blocker is the Active Consent Records view fix — add the active/expiry filter and change acknowledgement sorting from ascending to the expected order. — decided by Wash/Mal/Zoe
+
+📌 Team update (2026-08-11T23:50:59.790-07:00): Fixed consent cookie ordering for launch page and PCF so cookies are written only after audit writes succeed; also fixed Active Consent Records filtering/sort in merged PR #42.

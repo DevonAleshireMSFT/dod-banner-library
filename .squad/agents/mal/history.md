@@ -28,3 +28,7 @@ Flagged that the PCF manifest uses `control-type="standard"`, not `virtual`.
 
 📌 Team update (2026-07-27T21:44:54-07:00): Release notes now use consent record column logical names dodbl_userid and dodbl_bannertype, verified against exported metadata. — decided by Mal
 
+
+📌 Team update (2026-08-03T20:28:54-07:00): v1.4.0 consent-write shipped for #10/#11 via merged PRs #36/#37; ADR 0010 set the authenticated-only Power Pages approach for #12; `Unspecified=703870007` was added for empty/unknown bannerType audit rows. — decided by Mal and Zoe
+
+📌 Team update (2026-08-11T23:50:59.790-07:00): Prepared v1.4.1.0 patch release in PR #44 with version references and release notes for the consent write-ordering fix, Active Consent Records view fix, and Consent Audit Reader role; no new ADR needed.
